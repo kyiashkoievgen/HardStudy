@@ -47,8 +47,8 @@ def initialize_database(database_name):
             lession_id INTEGER,
             what_to_learn TEXT,
             value_in_another_language TEXT,
-            what_to_learn_audio TEXT,
-            value_in_another_language_audio TEXT,
+            what_to_learn_audio TEXT UNIQUE,
+            value_in_another_language_audio TEXT UNIQUE,
             FOREIGN KEY (lession_id) REFERENCES lesson_name(id)
         )
     ''')
