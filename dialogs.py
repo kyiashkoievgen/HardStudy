@@ -19,9 +19,7 @@ class SelectLesson:
     def show_select_dialog(self):
         def clc_ok_btm(dial):
             self.db.set_default_lesson(self.dropdown_lesson_name.get())
-            self.root.attributes('-disabled', False)
-            self.root.deiconify()
-            dial.destroy()
+            on_closing(dial)
 
         def on_closing(dial):
             self.root.attributes('-disabled', False)
