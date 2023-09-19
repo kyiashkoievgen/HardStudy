@@ -17,8 +17,7 @@ def initialize_database(database_name):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             description TEXT,
-            mode_id INTEGER,
-            FOREIGN KEY (mode_id) REFERENCES mode_study(id)
+	        default_lesson	INTEGER
         )
     ''')
 
@@ -33,7 +32,8 @@ def initialize_database(database_name):
 
     # Вставьте начальные данные
     initial_data = [
-        ('Учить язык произношение', 'Обучение языка с произношением')
+        ('Восприятие на слух', 'Обучение языка с восприятием только на слух')
+        ('Чтение письмо', 'Обучение восприятия языка как текст')
         # Добавьте больше данных, если необходимо
     ]
 
@@ -56,33 +56,54 @@ def initialize_database(database_name):
     # Таблица с содержанием уроков
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS lesson_progress (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            lession_body_id INTEGER,            
-            show_count integer,
-            right_count integer,
-            last_show_time DATETIME,
-            FOREIGN KEY (lession_body_id) REFERENCES lesson_body(id)
+            id	INTEGER,
+            lesson_id	INTEGER,
+            show_count	integer,
+            right_count	integer,
+            last_show_time	DATETIME,
+            sentance_id	INTEGER,
+            mode_id	INTEGER,
+	        last_study_leson_time DATETIME,
+            FOREIGN KEY(lesson_id) REFERENCES lesson_body(id),
+            FOREIGN KEY(sentance_id) REFERENCES lesson_body(id),
+            FOREIGN KEY(mode_id) REFERENCES mode_study(id),
+            PRIMARY KEY(id AUTOINCREMENT)
         )
     ''')
 
     # Таблица с настройками приложения
     cursor.execute('''
            CREATE TABLE IF NOT EXISTS app_settings (
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               mode TEXT,
-               mode_description TEXT,
-               comport INTEGER
-           )
+            id	INTEGER,
+            mode	INTEGER NOT NULL,
+            comport	INTEGER,
+            profile_name	TEXT,
+            lesson_per_day	INTEGER,
+            time_beetween_study_1	INTEGER,
+            time_beetween_study_2	INTEGER,
+            time_beetween_study_3	INTEGER,
+            time_beetween_study_4	INTEGER,
+            time_beetween_study_5	INTEGER,
+            time_beetween_study_6	INTEGER,
+            sent_in_less	INTEGER,
+            show_time_sent	INTEGER,
+	        punish_time_1	INTEGER,
+	        punish_time_2	INTEGER,
+	        punish_time_3	INTEGER,
+	        default_setting	INTEGER,
+            FOREIGN KEY(mode) REFERENCES mode_study(id),
+            PRIMARY KEY(id AUTOINCREMENT)
+            );
+           
        ''')
 
     # Вставьте начальные данные
     initial_data = [
-        ('Audio', 'Режим обучения восприятия на слух', 1)
+        (2, '1', 5, 10, 20, 60, 480, 1440, 10080, 5, 10, 1, 2, 3, 1)
         # Добавьте больше данных, если необходимо
     ]
-
     for item in initial_data:
-        cursor.execute('INSERT INTO app_settings (mode, mode_description, comport) VALUES (?, ?, ?)', item)
+        cursor.execute('INSERT INTO app_settings (mode, profile_name, lesson_per_day, time_beetween_study_1, time_beetween_study_2, time_beetween_study_3, time_beetween_study_4, time_beetween_study_5, time_beetween_study_6, sent_in_less, show_time_sent, punish_time_1, punish_time_2, punish_time_3, default_setting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', item)
 
     # Сохраните изменения и закройте соединение с базой данных
     conn.commit()

@@ -1,6 +1,7 @@
 import tkinter as tk
-from select_lession import open_select_lesson_dialog as sel_less_dial
-import pyttsx3
+from dialogs import SelectLesson, AppSettings
+import study
+
 from tkinter import simpledialog
 # import serial
 #
@@ -16,47 +17,48 @@ from tkinter import simpledialog
 # # Закрываем COM-порт после передачи данных
 # ser.close()
 
-
-
-
-
-
-def speek():
-    engine.say(text)
-    engine.runAndWait()
-
-engine = pyttsx3.init()
-
-# Установите желаемый язык для генерации речи (португальский)
-engine.setProperty('rate', 150)  # Настройте скорость произношения (опционально)
-engine.setProperty('volume', 1.0)  # Настройте громкость (опционально)
-engine.setProperty('voice', 'pt-br')  # Установите голос на португальский (Бразилия)
-
-# Преобразуйте текст на португальском языке в речь и воспроизведите его
-text = "Olá, mundo! Isto é um exemplo de texto que será transformado em fala."
-
 root = tk.Tk()
 root.title("HardStudy")
-window_width = 400
-window_height = 300
+root.iconbitmap('icon.ico')
+window_width = 200
+window_height = 60
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x = (screen_width - window_width) // 2
 y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
-
+select_lesson = SelectLesson(root)
+app_settings = AppSettings(root)
 
 # Кнопка
-button_file = tk.Button(root, text="Урок", command=lambda: sel_less_dial(root))
-button_file.grid(row=1, column=1)
+button_file = tk.Button(root, text="Урок", command=lambda: select_lesson.show_select_dialog())
+button_file.grid(row=1, column=1, padx=3, pady=3)
 
 # Метка для отображения текста
 label = tk.Label(root, text="")
-label.grid(row=1, column=2)
+label.grid(row=1, column=2, padx=3, pady=3)
 
-settings_button = tk.Button(root, text="Settings", command=lambda: sel_less_dial(root))
-settings_button.grid(row=1, column=3)
+settings_button = tk.Button(root, text="Settings", command=lambda: app_settings.open_settings_dialog())
+settings_button.grid(row=1, column=3, padx=3, pady=3)
 
-speek_button = tk.Button(root, text="Speek", command=speek)
-speek_button.grid(row=2, column=2)
+tk.Button(root, text="Учить", command=lambda: study.show_study_window(root, app_settings)).grid(row=1, column=4, padx=3, pady=3)
+# def on_entry_change(event):
+#     # Получаем текущий текст из строки ввода
+#     text = entry.get()
+#
+#     # Выполняем желаемые операции с текстом (например, проверка и фильтрация символов)
+#     filtered_text = ''.join(c for c in text if c.isalnum())  # Пример: оставить только буквы и цифры
+#
+#     # Устанавливаем отфильтрованный текст обратно в строку ввода
+#     entry.delete(0, tk.END)
+#     entry.insert(0, filtered_text)
+
+
+# # Создаем строку ввода
+# entry = tk.Entry(root, width=30)
+# entry.grid(row=6, column=1)
+#
+# # Привязываем событие к строке ввода, чтобы отслеживать изменения
+# entry.bind("<KeyRelease>", on_entry_change)
+
 root.mainloop()

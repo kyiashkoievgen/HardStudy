@@ -9,7 +9,6 @@ class DB:
     def __init__(self):
         self.conn = sqlite3.connect('hard_study.db')
         self.cursor = self.conn.cursor()
-        self.dropdown_lesson_name = tk.StringVar()
 
     def __del__(self):
         self.conn.close()
@@ -67,3 +66,24 @@ class DB:
             print("Файл не найден.")
         except IOError:
             print("Ошибка ввода/вывода при чтении файла.")
+
+    def get_current_lesson(self):
+        self.cursor.execute("SELECT id, name FROM lesson_name WHERE default_lesson=1")
+        items = self.cursor.fetchall()
+        result = ('', 'Не выбрано')
+        if len(items) != 0:
+            result = (items[0][0], items[0][1])
+        return result
+
+    def set_default_lesson(self, name):
+        self.cursor.execute("UPDATE lesson_name SET default_lesson=0 WHERE default_lesson=1")
+        self.conn.commit()
+        self.cursor.execute(f"UPDATE lesson_name SET default_lesson=1 WHERE name='{name}'")
+        self.conn.commit()
+
+    def app_setting_init(self, mode, comport, profile_name, lesson_per_day, time_between_study_1, time_beetween_study_2,
+                         time_beetween_study_3, time_beetween_study_4, time_beetween_study_5, time_beetween_study_6,
+                         sent_in_less, show_time_sent, punish_time_1, punish_time_2, punish_time_3):
+        pass
+
+
