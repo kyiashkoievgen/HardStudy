@@ -1,6 +1,20 @@
 import tkinter as tk
-def show_study_window(main_win, settings):
 
+
+def center_window(window, width, height):
+    # Получите ширину и высоту экрана
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+
+    # Вычислите координаты центра родительского окна
+    center_x = int((screen_width - width) / 2)
+    center_y = int((screen_height - height) / 2)
+
+    # Установите координаты и размеры дочернего окна для позиционирования его по центру
+    window.geometry(f"{width}x{height}+{center_x}+{center_y}")
+
+
+def show_study_window(main_win, settings):
     def on_closing():
         main_win.attributes('-disabled', False)
         main_win.deiconify()
@@ -24,12 +38,30 @@ def show_study_window(main_win, settings):
     phrase = tk.Label(root, text="hello")
     phrase.grid(row=1, column=2, padx=3, pady=3)
 
+    def close_window(new_window):
+        new_window.destroy()
+        # root.deiconify()
+        meaning.config(state="normal")
+        # root.attributes('-disabled', False)
+
+    def open_window(text, delay):
+        # Создаем новое окно
+        new_window = tk.Toplevel(root)
+        center_window(new_window, 200, 100)
+        # Добавляем текстовую метку в новое окно
+        label = tk.Label(new_window, text=text)
+        label.pack()
+        meaning.config(state="disabled")
+        # root.iconify()  # .attributes('-disabled', True)
+        new_window.after(delay, lambda: close_window(new_window))
+
     def on_entry_change(event):
         # Получаем текущий текст из строки ввода
         text = meaning.get()
         text_len = len(text)
-        #for c in text:
-        print(text[text_len-1])
+        # for c in text:
+        print(text[text_len - 1])
+        open_window(text[text_len - 1], 10000)
 
     #     # Устанавливаем отфильтрованный текст обратно в строку ввода
     #     entry.delete(0, tk.END)

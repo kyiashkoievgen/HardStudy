@@ -9,17 +9,21 @@ import serial.tools.list_ports
 #     print(f"Имя порта: {port.device}, Описание: {port.description}")
 
 
+def available_ports():
+    ports = list(serial.tools.list_ports.comports())
+    if len(ports) == 0:
+        return ['']
+    else:
+        return list(serial.tools.list_ports.comports())
+
+
 class SerialDevice:
     def __init__(self, port, baudrate=9600, timeout=1):
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
         self.serial = None
-        self.avel_ports = None
-        self.available_ports()
-
-    def available_ports(self):
-        self.avel_ports = list(serial.tools.list_ports.comports())
+        self.avel_ports = available_ports()
 
     def open(self):
         try:
