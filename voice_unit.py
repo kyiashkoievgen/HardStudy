@@ -4,11 +4,12 @@ import webrtcvad
 import pygame
 import librosa
 from fastdtw import fastdtw
-from pydub import AudioSegment
 import numpy as np
 import pocketsphinx
 import os
 import pyttsx3
+from moviepy.editor import VideoFileClip
+from pydub import AudioSegment
 
 from google.cloud import speech
 import io
@@ -187,4 +188,37 @@ def speak(text, rate=150, volume=1.0, voice='pt-br'):
 #mic_record()
 #dtf('1.wav', 'recorded_audio.wav')
 #speek_recognaizer_google()
-speek_recognaizer_offline()
+#speek_recognaizer_offline()
+# video_clip = VideoFileClip('video\\4 Revolutionary Riddles.mp4')
+# audio = video_clip.audio
+# # Сохраните измененную аудиодорожку
+# audio.write_audiofile('аудиодорожка.wav')
+# # Загрузите аудиодорожку
+# audio = AudioSegment.from_file('аудиодорожка.wav')
+#
+# # Установите желаемую частоту дискретизации (например, 44100 Гц)
+# desired_sample_rate = 16000
+# audio = audio.set_frame_rate(desired_sample_rate)
+#
+# # Установите желаемое количество каналов (1 для моно, 2 для стерео)
+# desired_channels = 1
+# audio = audio.set_channels(desired_channels)
+# # Сохраните измененную аудиодорожку
+# audio.export('измененная_аудиодорожка.wav', format='wav')
+
+
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+
+# Укажите исходное видео и временной интервал для отрезка (в секундах)
+input_video = 'video\\4 Revolutionary Riddles.mp4'
+start_time = 30  # начало отрезка (в секундах)
+end_time = 60    # конец отрезка (в секундах)
+
+# Вырезаем отрезок видео
+output_video = 'вырезанный_отрезок.mp4'
+ffmpeg_extract_subclip(input_video, start_time, end_time, targetname=output_video)
+
+# Воспроизводим вырезанный отрезок видео
+from moviepy.editor import VideoFileClip
+clip = VideoFileClip(output_video)
+clip.preview()

@@ -14,6 +14,7 @@ y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 select_lesson = SelectLesson(root)
 app_settings = AppSettings(root)
+study = study.Study(root)
 
 # Кнопка
 button_file = tk.Button(root, text="Урок", command=lambda: select_lesson.show_select_dialog())
@@ -22,7 +23,7 @@ button_file.grid(row=1, column=1, padx=3, pady=3)
 settings_button = tk.Button(root, text="Settings", command=lambda: app_settings.open_settings_dialog())
 settings_button.grid(row=1, column=3, padx=3, pady=3)
 
-tk.Button(root, text="Учить", command=lambda: study.show_study_window(root, app_settings.setting)).grid(row=1, column=4, padx=3,
-                                                                                                pady=3)
+tk.Button(root, text="Учить", command=lambda: study.show_study_window(
+    select_lesson.current_lesson_id, app_settings.settings)).grid(row=1, padx=3, pady=3)
 
 root.mainloop()

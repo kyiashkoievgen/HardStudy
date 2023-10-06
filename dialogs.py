@@ -2,13 +2,17 @@ import tkinter as tk
 from tkinter import simpledialog
 from db import DB
 from tkinter import filedialog
-from comport import available_ports
+from comport import available_ports, SerialDevice
+from create_lesson import create_new_lesson_from_txt, create_new_lesson_from_mp4
 
 
 class SelectLesson:
     def __init__(self, root):
         self.db = DB()
-        self.current_lesson = self.db.get_current_lesson()
+        self.current_lesson_name = tk.StringVar()
+        cur_less = self.db.get_current_lesson()
+        self.current_lesson_name.set(cur_less[1])
+        self.current_lesson_id = cur_less[0]
         self.root = root
         self.select_dialog = ''
         self.text_file_path = ''
@@ -22,7 +26,13 @@ class SelectLesson:
 
     def show_select_dialog(self):
         def clc_ok_btm(dial):
-            self.db.set_default_lesson(self.dropdown_lesson_name.get())
+
+            selected_item = self.current_lesson_name.get()
+            if selected_item in name_lesson:
+                index = name_lesson.index(selected_item)
+                self.db.set_default_lesson(id_lesson[index])
+                self.current_lesson_id = id_lesson[index]
+                # print(f"id: {id_lesson[index]}")
             on_closing(dial)
 
         def on_closing(dial):
@@ -33,30 +43,35 @@ class SelectLesson:
         dialog = tk.Toplevel(self.root)
         dialog.protocol("WM_DELETE_WINDOW", lambda: on_closing(dialog))
         label_name = tk.Label(dialog, text="Урок")
-        label_name.pack()
-        dropdown_lesson_value = ''
+        label_name.grid(row=0, column=0)
 
         dialog.title("Выбор урока")
-        item_dropdown = tk.OptionMenu(dialog, self.dropdown_lesson_name, dropdown_lesson_value,
-                                      *self.db.fetch_lesson_name())
+        option = self.db.fetch_lesson_name()
+        id_lesson = [item[0] for item in option]
+        name_lesson = [item[1] for item in option]
+        # print(option)
+        item_dropdown = tk.OptionMenu(dialog, self.current_lesson_name, *name_lesson)
         # Привязать обработчик события выбора элемента
         # def on_select(event):
         #     lesson_name.config(text=self.dropdown_lesson_name.get())
 
         # item_dropdown.bind('<Configure>', on_select)
-        item_dropdown.pack()
+        item_dropdown.grid(row=0, column=1)
 
-        tk.Button(dialog, text="Создать урок", command=self.create_lesson_dialog).pack()
-        tk.Button(dialog, text="OK", command=lambda: clc_ok_btm(dialog)).pack()
+        tk.Button(dialog, text="Создать урок",
+                  command=lambda: self.create_lesson_dialog(file_type='txt')).grid(row=1, column=0)
+        tk.Button(dialog, text="Создать видео урок",
+                  command=lambda: self.create_lesson_dialog(file_type='mp4')).grid(row=1, column=1)
+        tk.Button(dialog, text="OK", command=lambda: clc_ok_btm(dialog)).grid(row=2, column=0)
 
         self.select_dialog = dialog
         self.root.attributes('-disabled', True)
 
-    def create_lesson_dialog(self):
+    def create_lesson_dialog(self, file_type):
         def open_file_dialog():
             file_path = filedialog.askopenfilename(
                 title="Выберите файл",
-                filetypes=(("Текстовые файлы", "*.txt"), ("Все файлы", "*.*"))
+                filetypes=(("Текстовые файлы", f"*.{file_type}"), ("Все файлы", "*.*"))
             )
             if file_path:
                 file_name.config(text=file_path)
@@ -64,7 +79,11 @@ class SelectLesson:
 
         def create_lesson():
             if self.text_file_path != '' and self.name_lesson.get() != '' and self.descr_lesson.get() != '':
-                print(self.text_file_path, self.name_lesson.get(), self.descr_lesson.get())
+                if file_type == 'txt':
+                    create_new_lesson_from_txt(self.text_file_path, self.name_lesson.get(), self.descr_lesson.get(), file_type)
+                    print(self.text_file_path, self.name_lesson.get(), self.descr_lesson.get())
+                elif file_type == 'mp4':
+                    create_new_lesson_from_mp4(self.text_file_path, self.name_lesson.get(), self.descr_lesson.get(), file_type)
             else:
                 tk.messagebox.showwarning("Предупреждение", "Заполните все поля", icon="warning", default="ok")
 
@@ -114,6 +133,7 @@ class AppSettings:
         raw_setting = self.db.app_setting_init()
         self.settings = {
             'name': tk.StringVar(),
+            'mode': tk.StringVar(),
             'comport': tk.StringVar(),
             'profile_name': tk.StringVar(),
             'lesson_per_day': tk.StringVar(),
@@ -132,7 +152,9 @@ class AppSettings:
         for key, var in self.settings.items():
             var.set(raw_setting[key])
 
-            self.comport_available = available_ports()
+        self.comport_available = available_ports()
+        print(str(self.comport_available[0]))
+        device = SerialDevice(str(self.comport_available[0]), baudrate=9600, timeout=1)
 
     def open_settings_dialog(self):
         def on_closing(dial):
@@ -154,7 +176,7 @@ class AppSettings:
 
         def on_select(event):
             new_options = available_ports()
-            print(available_ports())
+            #print(available_ports())
             item_dropdown['menu'].delete(0, 'end')
 
             # Добавляем новые элементы в OptionMenu

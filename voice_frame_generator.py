@@ -149,7 +149,7 @@ def main(args):
     frames = list(frames)
     segments = vad_collector(sample_rate, 30, 300, vad, frames)
     for i, segment in enumerate(segments):
-        path = 'chunk-%002d.wav' % (i,)
+        path = 'D:\\FFOutput\\chunk-%002d.wav' % (i,)
         print(' Writing %s' % (path,))
         write_wave(path, segment, sample_rate)
 

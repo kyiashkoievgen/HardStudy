@@ -1,4 +1,5 @@
 import serial.tools.list_ports
+import time
 
 
 # # Получаем список доступных COM-портов
@@ -14,17 +15,34 @@ def available_ports():
     if len(ports) == 0:
         return ['']
     else:
-        return list(serial.tools.list_ports.comports())
+        com_port_name = []
+        for port, desc, hwid in sorted(serial.tools.list_ports.comports()):
+            com_port_name.append(port)
+        return com_port_name
 
 
 class SerialDevice:
-    def __init__(self, port, baudrate=9600, timeout=1):
+    def __init__(self, port, baudrate=9600, timeout=10):
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
         self.serial = None
         self.avel_ports = available_ports()
-
+        # if self.open():
+        #     print("Устройство подключено")
+        #     data_to_send = b'HandShake\n'
+        #     time.sleep(3)
+        #     self.send_data(data_to_send)
+        #     received_data = b''
+        #     #i=0
+        #     #while received_data == b'':
+        #     received_data = self.receive_data(20)
+        #     print(f"Принято: {received_data}")
+        #     #    i += 1
+        #
+        #     self.close()
+        # else:
+        #     print("Не удалось подключиться к устройству")
     def open(self):
         try:
             self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
