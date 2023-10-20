@@ -18,7 +18,11 @@ def initialize_database(database_name):
             name TEXT,
             description TEXT,
 	        default_lesson	INTEGER,
-	        type_lesson	TEXT
+	        mode	INTEGER,
+	        first_lang	TEXT,
+	        second_lang	TEXT,
+	        PRIMARY KEY("id" AUTOINCREMENT),
+	        FOREIGN KEY("mode") REFERENCES "mode_study"("id")
         )
     ''')
 
@@ -33,9 +37,8 @@ def initialize_database(database_name):
 
     # Вставьте начальные данные
     initial_data = [
-        ('Восприятие на слух', 'Обучение языка с восприятием только на слух')
-        ('Чтение письмо ru>pt без \`', 'Обучение восприятия языка как текст португальского на русский без диалектических знаков')
-        ('Чтение письмо ru>pt с \`', 'Обучение восприятия языка как текст португальского на русский с диалектическими знаками')
+        ('Восприятие на слух видео файлов', 'Восприятие на слух видео файлов с возможностью добавления незнакомых фраз в mode2')
+        ('Заучивание фраз`', 'Обучение восприятия языка как текст португальского на русский без диалектических знаков')
         # Добавьте больше данных, если необходимо
     ]
 
@@ -65,6 +68,7 @@ def initialize_database(database_name):
             last_show_time	DATETIME,
             sentance_id	INTEGER,
             mode_id	INTEGER,
+            remember INTEGER DEFAULT 0
             FOREIGN KEY(lesson_id) REFERENCES lesson_body(id),
             FOREIGN KEY(sentance_id) REFERENCES lesson_body(id),
             FOREIGN KEY(mode_id) REFERENCES mode_study(id),
@@ -89,9 +93,10 @@ def initialize_database(database_name):
             sent_in_less	TEXT,
             show_time_sent	TEXT,
 	        punish_time_1	TEXT,
-	        punish_time_2	TEXT,
-	        punish_time_3	TEXT,
+	        right_answer_1	TEXT,
+	        right_answer_2	TEXT,
 	        default_setting	TEXT,
+	        apostrophe BOOL
             FOREIGN KEY(mode) REFERENCES mode_study(id),
             PRIMARY KEY(id AUTOINCREMENT)
             );
@@ -105,6 +110,35 @@ def initialize_database(database_name):
     ]
     for item in initial_data:
         cursor.execute('INSERT INTO app_settings (mode, profile_name, lesson_per_day, time_beetween_study_1, time_beetween_study_2, time_beetween_study_3, time_beetween_study_4, time_beetween_study_5, time_beetween_study_6, sent_in_less, show_time_sent, punish_time_1, punish_time_2, punish_time_3, default_setting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', item)
+
+        # Таблица с настройками приложения
+        cursor.execute('''
+               CREATE TABLE IF NOT EXISTS app_settings (
+                CREATE TABLE "languages" (
+	                            "id"	INTEGER,
+	                            "name"	TEXT,
+	                            "code"	TEXT,
+	            PRIMARY KEY("id" AUTOINCREMENT)
+                );
+
+           ''')
+
+        # Вставьте начальные данные
+        initial_data = [
+            ('Английский язык', 'en-US'),
+            ('Португальский язык', 'pt'),
+            ('Русский язык', 'ru'),
+            ('Испанский язык ', 'es'),
+            ('Немецкий язык', 'de'),
+            ('Французский язык', 'fr'),
+            ('Итальянский язык', 'it')
+
+            # Добавьте больше данных, если необходимо
+        ]
+        for item in initial_data:
+            cursor.execute(
+                'INSERT INTO app_settings (name, code) VALUES (?, ?)',
+                item)
 
     # Таблица со статистикой обучения
     cursor.execute('''
@@ -120,6 +154,34 @@ def initialize_database(database_name):
         PRIMARY KEY("id" AUTOINCREMENT)
     );
     ''')
+
+    # Таблица с содержанием имени видео файлов и на каком языке
+    cursor.execute('''
+        CREATE TABLE "video_file" (
+	    "id"	INTEGER,
+	    "file_name"	TEXT UNIQUE,
+	    "language"	TEXT,
+	    PRIMARY KEY("id" AUTOINCREMENT)
+        );
+    ''')
+
+    # Таблица с содержанием имени видео файлов и на каком языке
+    cursor.execute('''
+            CREATE TABLE "video_study" (
+	        "id"	INTEGER,
+	        "video_id"	INTEGER,
+	        "start_time"	INTEGER,
+	        "stop_time"	INTEGER,
+	        "first_leng"	TEXT,
+	        "sec_leng"	TEXT,
+        	"lesson_id"	INTEGER,
+        	"audio_file"	TEXT,
+	        "studied"	INTEGER DEFAULT 0,
+	        PRIMARY KEY("id" AUTOINCREMENT),
+	        FOREIGN KEY("lesson_id") REFERENCES "lesson_name"("id"),
+	        FOREIGN KEY("video_id") REFERENCES "video_file"("id")
+            );
+        ''')
 
     # Сохраните изменения и закройте соединение с базой данных
     conn.commit()

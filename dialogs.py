@@ -14,11 +14,13 @@ class SelectLesson:
         self.current_lesson_name.set(cur_less[1])
         self.current_lesson_id = cur_less[0]
         self.root = root
-        self.select_dialog = ''
+        self.select_dialog = None
         self.text_file_path = ''
         self.name_lesson = tk.StringVar()
         self.descr_lesson = tk.StringVar()
         self.dropdown_lesson_name = tk.StringVar()
+        self.first_lang = tk.StringVar()
+        self.second_lang = tk.StringVar()
 
     # def update_dropdown(self):
     #     items = self.db.fetch_lesson_name()
@@ -80,10 +82,12 @@ class SelectLesson:
         def create_lesson():
             if self.text_file_path != '' and self.name_lesson.get() != '' and self.descr_lesson.get() != '':
                 if file_type == 'txt':
-                    create_new_lesson_from_txt(self.text_file_path, self.name_lesson.get(), self.descr_lesson.get(), file_type)
+                    create_new_lesson_from_txt(self.text_file_path, self.first_lang.get(),  self.second_lang.get(),
+                                               self.name_lesson.get(), self.descr_lesson.get())
                     print(self.text_file_path, self.name_lesson.get(), self.descr_lesson.get())
                 elif file_type == 'mp4':
-                    create_new_lesson_from_mp4(self.text_file_path, self.name_lesson.get(), self.descr_lesson.get(), file_type)
+                    create_new_lesson_from_mp4(self.text_file_path, self.first_lang.get(),  self.second_lang.get(),
+                                               self.name_lesson.get(), self.descr_lesson.get())
             else:
                 tk.messagebox.showwarning("Предупреждение", "Заполните все поля", icon="warning", default="ok")
 
@@ -91,32 +95,19 @@ class SelectLesson:
         dialog.title("Введите название урока")
 
         # Виджеты для ввода данных
-        label1 = tk.Label(dialog, text="Название:")
-        name_lesson = tk.Entry(dialog, textvariable=self.name_lesson)
-
-        label2 = tk.Label(dialog, text="Описание:")
-        description_lesson = tk.Entry(dialog, textvariable=self.descr_lesson)
-
-        label3 = tk.Label(dialog, text="Файл:")
+        tk.Label(dialog, text="Название:").grid(row=0, column=0)
+        tk.Entry(dialog, textvariable=self.name_lesson).grid(row=0, column=1)
+        tk.Label(dialog, text="Описание:").grid(row=1, column=0)
+        tk.Entry(dialog, textvariable=self.descr_lesson).grid(row=1, column=1)
+        tk.Label(dialog, text='Язык который учишь').grid(row=2, column=0)
+        tk.OptionMenu(dialog, self.first_lang, *self.db.get_lang_list()).grid(row=2, column=1)
+        tk.Label(dialog, text='Родной язык').grid(row=2, column=2)
+        tk.OptionMenu(dialog, self.second_lang, *self.db.get_lang_list()).grid(row=2, column=3)
+        tk.Label(dialog, text="Файл:").grid(row=3, column=0)
         file_name = tk.Label(dialog, text='')
-
-        # Разместить виджеты на форме
-        label1.grid(row=0, column=0)
-        name_lesson.grid(row=0, column=1)
-
-        label2.grid(row=1, column=0)
-        description_lesson.grid(row=1, column=1)
-
-        label3.grid(row=2, column=0)
-        file_name.grid(row=2, column=1)
-
-        # Кнопка "select file"
-        select_file = tk.Button(dialog, text="Файл", command=open_file_dialog)
-        select_file.grid(row=3, columnspan=2)
-
-        # Кнопка "OK" для завершения ввода
-        ok_button = tk.Button(dialog, text="OK", command=create_lesson)
-        ok_button.grid(row=4, columnspan=2)
+        file_name.grid(row=3, column=1)
+        tk.Button(dialog, text="Файл", command=open_file_dialog).grid(row=4, columnspan=2)
+        tk.Button(dialog, text="OK", command=create_lesson).grid(row=5, columnspan=2)
 
         dialog.wait_window(dialog)  # Ожидание закрытия диалогового окна
 
@@ -146,8 +137,9 @@ class AppSettings:
             'sent_in_less': tk.StringVar(),
             'show_time_sent': tk.StringVar(),
             'punish_time_1': tk.StringVar(),
-            'punish_time_2': tk.StringVar(),
-            'punish_time_3': tk.StringVar()
+            'right_answer_1': tk.StringVar(),
+            'right_answer_2': tk.StringVar(),
+            'apostrophe': tk.BooleanVar()
         }
         for key, var in self.settings.items():
             var.set(raw_setting[key])
@@ -242,11 +234,13 @@ class AppSettings:
         tk.Label(dialog, text="Время наказания 1").grid(row=5, column=0, padx=5, pady=5)
         tk.Entry(dialog, textvariable=self.settings['punish_time_1']).grid(row=5, column=1, padx=5, pady=5)
 
-        tk.Label(dialog, text="Время наказания 2").grid(row=5, column=2, padx=5, pady=5)
-        tk.Entry(dialog, textvariable=self.settings['punish_time_2']).grid(row=5, column=3, padx=5, pady=5)
+        tk.Label(dialog, text="Ответов для выучено первый раз").grid(row=5, column=2, padx=5, pady=5)
+        tk.Entry(dialog, textvariable=self.settings['right_answer_1']).grid(row=5, column=3, padx=5, pady=5)
 
-        tk.Label(dialog, text="Время наказания 3").grid(row=5, column=4, padx=5, pady=5)
-        tk.Entry(dialog, textvariable=self.settings['punish_time_3']).grid(row=5, column=5, padx=5, pady=5)
+        tk.Label(dialog, text="Ответов для выучено последующий").grid(row=5, column=4, padx=5, pady=5)
+        tk.Entry(dialog, textvariable=self.settings['right_answer_2']).grid(row=5, column=5, padx=5, pady=5)
+
+        tk.Checkbutton(dialog, variable=self.settings['apostrophe'], text='Учитывать апострофы').grid(row=4, column=4, pady=5, padx=5)
 
         def save_setting():
             self.db.save_settings(self.settings)

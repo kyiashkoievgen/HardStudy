@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime, timedelta
+from random import shuffle
 
 
 class DB:
@@ -49,7 +50,7 @@ class DB:
         cursor.execute(f'''
         SELECT mode_study.name, mode, comport, profile_name, lesson_per_day, time_beetween_study_1, time_beetween_study_2,
         time_beetween_study_3, time_beetween_study_4, time_beetween_study_5, time_beetween_study_6, sent_in_less,
-        show_time_sent, punish_time_1, punish_time_2, punish_time_3         
+        show_time_sent, punish_time_1, right_answer_1, right_answer_2, apostrophe         
         FROM app_settings 
         JOIN mode_study ON mode_study.id=app_settings.mode
         WHERE {where_par}
@@ -170,7 +171,11 @@ class DB:
         else:
             return True
 
-    def inc_dec_right_count(self, id_phrase, cur_les_id, mode_id, inc):
+    def inc_dec_right_count(self, id_phrase, cur_les_id, mode_id, inc, remember=False):
+        if remember:
+            remember = 1
+        else:
+            remember = 0
         # проверяем есть ли это предложение в прогрессе обучения если нет то создаем запись
         self.cursor.execute('''
                                SELECT right_count
@@ -181,11 +186,11 @@ class DB:
         current_date = datetime.now()
         if len(item) == 0:
             self.cursor.execute('''INSERT INTO lesson_progress (
-                       lesson_id, show_count, right_count, last_show_time, sentance_id, mode_id
+                       lesson_id, show_count, right_count, last_show_time, sentance_id, mode_id, remember
                    )
                    VALUES (
-                       ?, 0, 0, ?, ?, ?
-                   )''', (cur_les_id, current_date, id_phrase, mode_id))
+                       ?, 0, 0, ?, ?, ?, ?
+                   )''', (cur_les_id, current_date, id_phrase, mode_id, remember))
             self.conn.commit()
         self.cursor.execute('''
                         SELECT right_count, show_count
@@ -204,9 +209,9 @@ class DB:
             right_count -= 1
         self.cursor.execute('''
                 UPDATE lesson_progress
-                SET show_count=?, right_count=?, last_show_time=?
+                SET show_count=?, right_count=?, last_show_time=?, remember=?
                 WHERE sentance_id=? AND lesson_id=? AND mode_id=?
-            ''', (show_count, right_count, current_date, id_phrase, cur_les_id, mode_id))
+            ''', (show_count, right_count, current_date, remember, id_phrase, cur_les_id, mode_id))
         self.conn.commit()
 
     def insert_new_statistic(self, cur_les_id, mode_id):
@@ -227,3 +232,90 @@ class DB:
                        WHERE id=?
                    ''', (right_answer_count, shock_count, total_answer, new_phrase, id_stat))
         self.conn.commit()
+
+    def get_remember_sent(self, cur_les, mode_id, n=5, trigger_know=4):
+        self.cursor.execute('''
+                SELECT sentance_id 
+                FROM lesson_progress
+                WHERE lesson_id=? AND mode_id=? AND right_count>=? AND remember=0
+            ''', (cur_les, mode_id, trigger_know))
+
+        items = self.cursor.fetchall()
+        shuffle(items)
+        result = []
+        if len(items) > n:
+            for i in range(n):
+                result.append(items[i])
+        else:
+            result = items
+
+        result = self.get_sent_data([item[0] for item in result])
+        for each in result:
+            each['remember'] = 0
+        return result
+
+    def get_lang_list(self):
+        self.cursor.execute('''
+            SELECT name, code
+            FROM languages
+        ''')
+        items = self.cursor.fetchall()
+
+        return [item[1] for item in items]
+
+    def get_lesson_mode(self, current_lesson_id):
+        self.cursor.execute(f"SELECT mode FROM lesson_name WHERE id='{current_lesson_id}'")
+        return self.cursor.fetchall()[0][0]
+
+    def get_video_study_data(self, cur_les, limit=''):
+        result = []
+        self.cursor.execute(f'''
+                SELECT id, video_id, start_time, stop_time, first_leng, sec_leng
+                FROM video_study
+                WHERE lesson_id=? AND NOT (first_leng IS NULL OR sec_leng IS NULL OR first_leng='music') AND studied=0
+                {limit} 
+            ''', (cur_les,))
+        items = self.cursor.fetchall()
+        if len(items) == 0:
+            self.cursor.execute('''
+                UPDATE video_study
+                SET studied=0
+                WHERE studied=1
+            ''')
+            self.cursor.execute(f'''
+                           SELECT id, video_id, start_time, stop_time, first_leng, sec_leng
+                           FROM video_study
+                           WHERE lesson_id=? AND NOT (first_leng IS NULL OR sec_leng IS NULL OR first_leng='music') AND studied=0
+                           {limit} 
+                       ''', (cur_les,))
+            items = self.cursor.fetchall()
+        for item in items:
+            result.append({
+                'id': item[0],
+                'video_id': item[1],
+                'start_time': item[2],
+                'stop_time': item[3],
+                'first_leng': item[4],
+                'sec_leng': item[5]
+            })
+
+        return result
+
+    def del_null_row(self, lesson_id):
+        self.cursor.execute('''
+                       DELETE FROM video_study
+                       WHERE lesson_id=? AND (first_leng IS NULL OR sec_leng IS NULL OR first_leng='music')
+                   ''', (lesson_id,))
+        self.conn.commit()
+
+    def get_video_file_name(self, id_file):
+        self.cursor.execute('''
+            SELECT file_name
+            FROM video_file
+            WHERE id=?
+        ''', (id_file,))
+        items = self.cursor.fetchall()
+        return items[0][0]
+
+    def set_video_studied(self, study_data):
+        pass

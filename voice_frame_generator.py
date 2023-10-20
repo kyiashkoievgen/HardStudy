@@ -36,10 +36,18 @@ def write_wave(path, audio, sample_rate):
 
 class Frame(object):
     """Represents a "frame" of audio data."""
+
     def __init__(self, bytes, timestamp, duration):
         self.bytes = bytes
         self.timestamp = timestamp
         self.duration = duration
+
+
+class Segment(object):
+    def __init__(self, segment, start_time, stop_time):
+        self.bytes = segment
+        self.start_time = start_time
+        self.stop_time = stop_time
 
 
 def frame_generator(frame_duration_ms, audio, sample_rate):
@@ -87,6 +95,9 @@ def vad_collector(sample_rate, frame_duration_ms,
 
     Returns: A generator that yields PCM audio data.
     """
+
+    start_time = 0
+    stop_time = 0
     num_padding_frames = int(padding_duration_ms / frame_duration_ms)
     # We use a deque for our sliding window/ring buffer.
     ring_buffer = collections.deque(maxlen=num_padding_frames)
@@ -108,6 +119,7 @@ def vad_collector(sample_rate, frame_duration_ms,
             if num_voiced > 0.9 * ring_buffer.maxlen:
                 triggered = True
                 sys.stdout.write('+(%s)' % (ring_buffer[0][0].timestamp,))
+                start_time = ring_buffer[0][0].timestamp
                 # We want to yield all the audio we see from now until
                 # we are NOTTRIGGERED, but we have to start with the
                 # audio that's already in the ring buffer.
@@ -125,8 +137,9 @@ def vad_collector(sample_rate, frame_duration_ms,
             # audio we've collected.
             if num_unvoiced > 0.9 * ring_buffer.maxlen:
                 sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+                stop_time = frame.timestamp + frame.duration
                 triggered = False
-                yield b''.join([f.bytes for f in voiced_frames])
+                yield Segment(b''.join([f.bytes for f in voiced_frames]), start_time, stop_time)
                 ring_buffer.clear()
                 voiced_frames = []
     if triggered:
@@ -135,24 +148,30 @@ def vad_collector(sample_rate, frame_duration_ms,
     # If we have any leftover voiced audio when we run out of input,
     # yield it.
     if voiced_frames:
-        yield b''.join([f.bytes for f in voiced_frames])
+        yield Segment(b''.join([f.bytes for f in voiced_frames]), start_time, stop_time)
 
 
-def main(args):
-    if len(args) != 2:
-        sys.stderr.write(
-            'Usage: example.py <aggressiveness> <path to wav file>\n')
-        sys.exit(1)
-    audio, sample_rate = read_wave(args[1])
-    vad = webrtcvad.Vad(int(args[0]))
+def chunk_wav(file_path, db, video_file_id, lesson_id, vad=3, padding_duration_ms=200):
+    audio, sample_rate = read_wave(f'{file_path}\\tmp_wav_file.wav')
+    vad = webrtcvad.Vad(vad)
     frames = frame_generator(30, audio, sample_rate)
     frames = list(frames)
-    segments = vad_collector(sample_rate, 30, 300, vad, frames)
+    segments = vad_collector(sample_rate, 30, padding_duration_ms, vad, frames)
     for i, segment in enumerate(segments):
-        path = 'D:\\FFOutput\\chunk-%002d.wav' % (i,)
+        path = f'{file_path}\\chunk_file\\chunk-{i}.wav'
         print(' Writing %s' % (path,))
-        write_wave(path, segment, sample_rate)
+        write_wave(path, segment.bytes, sample_rate)
+        print(video_file_id, segment.start_time, segment.stop_time, lesson_id, path)
+        try:
+            # Выполняем изменения в базе данных
+            db.cursor.execute('''INSERT INTO video_study (video_id, start_time, stop_time, lesson_id, audio_file
+                            ) VALUES (?, ?, ?, ?, ?)''', (video_file_id, segment.start_time, segment.stop_time, lesson_id, path))
+
+            db.conn.commit()
+        except Exception as e:
+            print(f"Ошибка: {e}")
+            db.conn.rollback()
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    pass

@@ -1,6 +1,8 @@
 import tkinter as tk
 from dialogs import SelectLesson, AppSettings
-import study
+import study as mode2_study
+import video_study as mode1_study
+from db import DB
 
 root = tk.Tk()
 root.title("HardStudy")
@@ -14,7 +16,19 @@ y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 select_lesson = SelectLesson(root)
 app_settings = AppSettings(root)
-study = study.Study(root)
+
+
+def on_study():
+    db = DB()
+    study = None
+    mode = db.get_lesson_mode(select_lesson.current_lesson_id)
+    if mode == 1:
+        study = mode1_study.Study(root)
+    elif mode == 2:
+        study = mode2_study.Study(root)
+
+    study.show_study_window(select_lesson.current_lesson_id, app_settings.settings)
+
 
 # Кнопка
 button_file = tk.Button(root, text="Урок", command=lambda: select_lesson.show_select_dialog())
@@ -23,7 +37,6 @@ button_file.grid(row=1, column=1, padx=3, pady=3)
 settings_button = tk.Button(root, text="Settings", command=lambda: app_settings.open_settings_dialog())
 settings_button.grid(row=1, column=3, padx=3, pady=3)
 
-tk.Button(root, text="Учить", command=lambda: study.show_study_window(
-    select_lesson.current_lesson_id, app_settings.settings)).grid(row=1, padx=3, pady=3)
+tk.Button(root, text="Учить", command=on_study).grid(row=1, padx=3, pady=3)
 
 root.mainloop()

@@ -65,11 +65,10 @@ class SerialDevice:
 
 # Пример использования класса
 if __name__ == "__main__":
-    device = SerialDevice('COM1', baudrate=9600, timeout=1)
-
+    device = SerialDevice('COM12', baudrate=9600, timeout=10)
     if device.open():
         print("Устройство подключено")
-        data_to_send = b'Hello, COM port!'
+        data_to_send = b'Smoke60000\n'
         device.send_data(data_to_send)
 
         received_data = device.receive_data(10)
