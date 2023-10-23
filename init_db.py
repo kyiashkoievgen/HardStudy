@@ -143,14 +143,18 @@ def initialize_database(database_name):
     # Таблица со статистикой обучения
     cursor.execute('''
     CREATE TABLE "statistic"(
-        "id"             INTEGER,
-        "study_date"     DATETIME,
-        "total_show"     INTEGER,
-        "right_answer"   INTEGER,
-        "shock"          INTEGER,
-        "new_phrase"     INTEGER,
-        "mode_id"        INTEGER,
-        "study_id"       INTEGER,
+        "id"	INTEGER,
+	    "study_date"	DATETIME,
+	    "total_show"	INTEGER,
+	    "right_answer"	INTEGER,
+	    "shock"	INTEGER,
+	    "new_phrase"	INTEGER,
+	    "study_id"	INTEGER,
+	    "total_sent"	INTEGER,
+	    "total_word"	INTEGER,
+	    "total_time"	INTEGER,
+	    "total_word_now"	INTEGER,
+	    "total_sent_now"	INTEGER,
         PRIMARY KEY("id" AUTOINCREMENT)
     );
     ''')

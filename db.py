@@ -1,3 +1,4 @@
+import re
 import sqlite3
 from datetime import datetime, timedelta
 from random import shuffle
@@ -224,13 +225,17 @@ class DB:
         self.conn.commit()
         return self.cursor.lastrowid
 
-    def save_statistic(self, id_stat, right_answer_count, shock_count, total_answer, new_phrase):
-        print(id_stat, right_answer_count, shock_count, total_answer, new_phrase)
-        self.cursor.execute('''
-                       UPDATE statistic
-                       SET right_answer=?, shock=?, total_show=?, new_phrase=?
-                       WHERE id=?
-                   ''', (right_answer_count, shock_count, total_answer, new_phrase, id_stat))
+    def save_statistic(self, cur_les, total_shows_now, total_sent_now, total_word_now, right_answer,
+                       new_sent_now, total_shock_now, total_time_now, total_sent, total_word):
+        self.cursor.execute('''INSERT INTO statistic (
+                    study_date, total_show, right_answer, shock, new_phrase, study_id, total_sent, total_word,
+                     total_time, total_word_now, total_sent_now   
+                     )
+                     VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                        )
+                   ''', (datetime.now(), total_shows_now, right_answer, total_shock_now, new_sent_now, cur_les,
+                         total_sent, total_word, total_time_now, total_word_now, total_sent_now))
         self.conn.commit()
 
     def get_remember_sent(self, cur_les, mode_id, n=5, trigger_know=4):
@@ -249,9 +254,6 @@ class DB:
         else:
             result = items
 
-        result = self.get_sent_data([item[0] for item in result])
-        for each in result:
-            each['remember'] = 0
         return result
 
     def get_lang_list(self):
@@ -316,6 +318,23 @@ class DB:
         ''', (id_file,))
         items = self.cursor.fetchall()
         return items[0][0]
+
+    def get_studied_sent_word(self, lessons: [], mode):
+        all_studied_word = set()
+        all_studied_sent = set()
+        for lesson in lessons:
+            self.cursor.execute('''
+                                    SELECT sentance_id 
+                                    FROM lesson_progress
+                                    WHERE lesson_id=? AND mode_id=? 
+                                ''', (lesson, mode))
+            items = self.cursor.fetchall()
+            all_studied_sent_id = [item[0] for item in items]
+            for each in self.get_sent_data(all_studied_sent_id):
+                all_studied_sent.add(each['study_phrase'])
+                for word in re.findall('(\\w+)', each['study_phrase']):
+                    all_studied_word.add(word)
+        return all_studied_sent, all_studied_word
 
     def set_video_studied(self, study_data):
         pass
