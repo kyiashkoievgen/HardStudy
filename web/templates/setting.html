@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/setting.css') }}">
+</head>
+<body>
+
+<h1>Настройки</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<form action="/process" method="post">
+    <div class="form-group">
+        <label>Имя профиля настроек:</label>
+        <input type="text" value="2">
+    </div>
+
+    <div class="form-group">
+        <label>Режим:</label>
+        <select>
+            <option>Выберите режим</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Звучание фраз:</label>
+        <input type="text">
+    </div>
+
+    <div class="form-group">
+        <label>Количество занятий в день:</label>
+        <input type="text" value="5">
+    </div>
+
+    <div class="form-group">
+        <label>Время после 1-го правильного ответа:</label>
+        <input type="text" value="10">
+    </div>
+
+    <div class="form-group">
+        <label>Время после 2-го правильного ответа:</label>
+        <input type="text" value="20">
+    </div>
+
+    <div class="form-group">
+        <label>Время после 3-го правильного ответа:</label>
+        <input type="text" value="60">
+    </div>
+
+    <div class="form-group">
+        <label>Время после 4-го правильного ответа:</label>
+        <input type="text" value="480">
+    </div>
+
+    <div class="form-group">
+        <label>Время после 5-го правильного ответа:</label>
+        <input type="text" value="10080">
+    </div>
+
+    <div class="form-group">
+        <label>Время после 6-го правильного ответа:</label>
+        <input type="text" value="10080">
+    </div>
+
+    <div class="form-group">
+        <label>Время показа подсказки:</label>
+        <input type="text" value="5000">
+    </div>
+
+    <div class="form-group">
+        <label>Количество предложений в уроке:</label>
+        <input type="text" value="6">
+    </div>
+
+    <div class="form-group">
+        <label>Время наказания 1:</label>
+        <input type="text" value="1">
+    </div>
+
+    <div class="form-group">
+        <label>Ответов для выучено первый раз:</label>
+        <input type="text" value="10">
+    </div>
+
+    <div class="form-group">
+        <label>Ответов для выучено последующий:</label>
+        <input type="text" value="5">
+    </div>
+
+    <div class="form-group">
+        <label>Учитывать апострофы:</label>
+        <input type="checkbox">
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Сохранить изменения">
+        <button>Создать новый профиль</button>
+    </div>
+</form>
+</body>
+</html>
+

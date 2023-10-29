@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Интерфейс</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+
+</head>
+<body>
+
+    <script>
+        // Создаем глобальную переменную для данных
+         let globalData = {{ jsonStr|tojson|safe }};
+    </script>
+<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+
+<div id="container">
+    <div id="menu">
+        <a href="#" onclick="showFrame('settings')">Настройки</a>
+        <a id="f2" >Фрейм 1</a>
+        <a id="f1">alert</a>
+        <a href="#" onclick="showFrame('frame2')">Фрейм 2</a>
+    </div>
+
+    <div id="content">
+        <iframe id="settings" src="/settings"></iframe>
+        <iframe id="frame1" src="https://example.com/"></iframe>
+        <iframe id="frame2" src="https://openai.com/"></iframe>
+    </div>
+</div>
+
+<script>
+    function showFrame(frameId) {
+        const frames = document.querySelectorAll('iframe');
+        frames.forEach(frame => {
+            frame.style.display = 'none';
+        });
+        document.getElementById(frameId).style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
+

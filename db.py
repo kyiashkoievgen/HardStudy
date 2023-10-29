@@ -2,11 +2,15 @@ import re
 import sqlite3
 from datetime import datetime, timedelta
 from random import shuffle
+import os
 
 
 class DB:
-    def __init__(self):
-        self.conn = sqlite3.connect('hard_study.db')
+    def __init__(self, db_name='hard_study.db'):
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        DATABASE = os.path.join(BASE_DIR, db_name)
+        print(DATABASE)
+        self.conn = sqlite3.connect(DATABASE)
         self.cursor = self.conn.cursor()
 
     def __del__(self):
@@ -109,13 +113,14 @@ class DB:
         items = self.cursor.fetchall()
         return [item[0] for item in items]
 
-    def get_progress_sentance(self, cur_les, mode_id, right_answer, time_for_new_sent=None):
+    def get_progress_sentance(self, cur_les, mode_id, right_answer, limit, time_for_new_sent=None):
         if time_for_new_sent is None:
             self.cursor.execute('''
                 SELECT sentance_id 
                 FROM lesson_progress
                 WHERE lesson_id=? AND mode_id=? AND right_count=? 
-            ''', (cur_les, mode_id, right_answer))
+                LIMIT ?
+            ''', (cur_les, mode_id, right_answer, limit))
         else:
             current_date = datetime.now()
             time_ago = current_date - timedelta(minutes=int(time_for_new_sent))
@@ -124,7 +129,8 @@ class DB:
                 SELECT sentance_id 
                 FROM lesson_progress
                 WHERE lesson_id=? AND mode_id=? AND right_count=? AND last_show_time<=?
-            ''', (cur_les, mode_id, right_answer, time_ago))
+                LIMIT ?
+            ''', (cur_les, mode_id, right_answer, time_ago, limit))
 
         items = self.cursor.fetchall()
         return [item[0] for item in items]

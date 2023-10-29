@@ -37,7 +37,7 @@ class Phrase:
 
 
 class Study:
-    def __init__(self, main_win):
+    def __init__(self, main_win=None):
         self.pred_time = None
         self.time_pause = None
         self.time_start = None
@@ -52,6 +52,7 @@ class Study:
         self.root = None
         self.meaning = None
         self.phrase = None
+        self.know_phrase = set()
         self.study_data = None
         self.main_win = main_win
         self.cur_les = None
@@ -66,11 +67,13 @@ class Study:
         #  получить список того что будем учить
 
     def get_study_sent(self):
+        self.know_phrase = set()
         num_new_sent = int(self.settings['sent_in_less'].get())
         right_answer = 0
 
         # находим предложения которые в обучении но на которые не было отвечено правильно
-        list_sent_id_in_progress = self.db.get_progress_sentance(self.cur_les, self.mode, right_answer)
+        list_sent_id_in_progress = self.db.get_progress_sentance(self.cur_les, self.mode, right_answer,
+                                                                 int(self.settings['right_answer_2'].get()))
         self.add_sent_num = num_new_sent - len(list_sent_id_in_progress)
         if self.add_sent_num < 0:
             self.add_sent_num = 0
@@ -84,12 +87,19 @@ class Study:
         z_study = self.db.get_sent_data(list_sent_id_in_progress)
         for each in z_study:
             for i in range(0, int(self.settings['right_answer_1'].get())):
-                self.phrase_list.append(
-                    # если хоть одно из 10 предложений введено правильно увеличиваем счетчик правильных ответов
-                    # при неправильном ответе ничего на убавляется так как и так их 0
-                    Phrase(each['id'], each['study_phrase'], each['phrase_audio'], each['phrase_meaning'],
-                           each['meaning_audio'], False, False, False, True, False)
-                )
+                if i == 0:
+                    self.phrase_list.append(
+                        # если хоть одно из 10 предложений введено правильно увеличиваем счетчик правильных ответов
+                        Phrase(each['id'], each['study_phrase'], each['phrase_audio'], each['phrase_meaning'],
+                               each['meaning_audio'], False, False, False, True, True)
+                    )
+                else:
+                    self.phrase_list.append(
+                        # если хоть одно из 10 предложений введено правильно увеличиваем счетчик правильных ответов
+                        # при неправильном ответе ничего на убавляется так как и так их 0
+                        Phrase(each['id'], each['study_phrase'], each['phrase_audio'], each['phrase_meaning'],
+                               each['meaning_audio'], False, False, False, True, False)
+                    )
 
         # добавляем предложения которые нужно повторять
         # предложения которые были отвечены правильно 3 раза повторяем 5 раз если при показе в первый раз была ошибка
@@ -99,6 +109,7 @@ class Study:
             time_for_new_sent = self.settings[f'time_beetween_study_{right_answer}'].get()
             # print(right_answer, time_for_new_sent)
             list_sent_id_for_repiet.extend(self.db.get_progress_sentance(self.cur_les, self.mode, right_answer,
+                                                                         int(self.settings['right_answer_2'].get()),
                                                                          time_for_new_sent))
         if len(list_sent_id_for_repiet) > 0:
             for each in self.db.get_sent_data(list_sent_id_for_repiet):
@@ -125,6 +136,7 @@ class Study:
             time_for_new_sent = self.settings[f'time_beetween_study_{right_answer}'].get()
             # print(right_answer, time_for_new_sent)
             list_sent_id_for_repiet.extend(self.db.get_progress_sentance(self.cur_les, self.mode, right_answer,
+                                                                         int(self.settings['right_answer_2'].get()),
                                                                          time_for_new_sent))
         if len(list_sent_id_for_repiet) == 0:
             list_sent_id_for_repiet = self.db.get_remember_sent(self.cur_les, self.mode)
@@ -196,13 +208,11 @@ class Study:
         window_pause.after(self.pause_time, lambda: close_window_pause(window_pause))
 
     # заполнить переменные содержащие обучающий материал если они закончились закрыть окно
-    def next_sent(self, next_id=False):
+    def next_sent(self):
         try:
-            if next_id:
-                id_sent = self.cur_les_data.id_phrase
-                while id_sent == self.cur_les_data.id_phrase:
-                    self.cur_les_data = next(self.study_data)
-            else:
+            self.cur_les_data = next(self.study_data)
+            #print(self.cur_les_data.id_phrase, self.know_phrase)
+            while self.cur_les_data.id_phrase in self.know_phrase:
                 self.cur_les_data = next(self.study_data)
 
             self.phrase.config(text=self.cur_les_data.phrase_meaning)
@@ -350,10 +360,11 @@ class Study:
                 #           each.inc_flag, each.dec_flag)
                 # print('-------------------------------------------------------------')
 
-                if not (self.sound_help_flag or self.help_flag) and self.cur_les_data.dec_flag:
-                    self.next_sent(next_id=True)
-                else:
-                    self.next_sent(next_id=False)
+                if not (self.sound_help_flag or self.help_flag or self.cur_les_data.was_mistake_flag) and \
+                        self.cur_les_data.dec_flag:
+                    self.know_phrase.add(self.cur_les_data.id_phrase)
+
+                self.next_sent()
 
         def on_help():
             if not self.help_flag:
