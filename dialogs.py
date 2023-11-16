@@ -32,7 +32,7 @@ class SelectLesson:
             selected_item = self.current_lesson_name.get()
             if selected_item in name_lesson:
                 index = name_lesson.index(selected_item)
-                self.db.set_default_lesson(id_lesson[index])
+                self.db.set_default_lesson([id_lesson[index]])
                 self.current_lesson_id = id_lesson[index]
                 # print(f"id: {id_lesson[index]}")
             on_closing(dial)
@@ -120,11 +120,8 @@ class AppSettings:
     def __init__(self, root):
         self.root = root
         self.db = DB()
-        self.mode = None
         raw_setting = self.db.app_setting_init()
         self.settings = {
-            'name': tk.StringVar(),
-            'mode': tk.StringVar(),
             'comport': tk.StringVar(),
             'profile_name': tk.StringVar(),
             'lesson_per_day': tk.StringVar(),
@@ -141,12 +138,13 @@ class AppSettings:
             'right_answer_2': tk.StringVar(),
             'apostrophe': tk.BooleanVar()
         }
+        print(raw_setting)
         for key, var in self.settings.items():
             var.set(raw_setting[key])
 
         self.comport_available = available_ports()
         print(str(self.comport_available[0]))
-        device = SerialDevice(str(self.comport_available[0]), baudrate=9600, timeout=1)
+        # device = SerialDevice(str(self.comport_available[0]), baudrate=9600, timeout=1)
 
     def open_settings_dialog(self):
         def on_closing(dial):
@@ -160,11 +158,6 @@ class AppSettings:
         dialog.title("Настройки")
 
         self.root.attributes('-disabled', True)
-
-        #dropdown_mode_value = self.settings['name'].get()
-        tk.Label(dialog, text="Режим").grid(row=1, column=0, padx=5, pady=5)
-        item_dropdown = tk.OptionMenu(dialog, self.settings['name'], *self.db.fetch_mode_name())
-        item_dropdown.grid(row=1, column=1, padx=5, pady=5)
 
         def on_select(event):
             new_options = available_ports()
@@ -180,7 +173,7 @@ class AppSettings:
             item_dropdown['menu'].delete(0, 'end')
             # Добавляем новые элементы в OptionMenu
             for option in new_options:
-                item_dropdown['menu'].add_command(label=option, command=tk._setit(selected_profile_name, option))
+                item_dropdown['menu'].add_command(label=option['name'], command=tk._setit(selected_profile_name, option['name']))
 
         def on_select_name_profile(*args):
             selected_item = selected_profile_name.get()

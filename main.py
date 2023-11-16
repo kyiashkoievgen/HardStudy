@@ -1,6 +1,6 @@
 import tkinter as tk
 from dialogs import SelectLesson, AppSettings
-import study as mode2_study
+from study import StudyPy
 import video_study as mode1_study
 from db import DB
 
@@ -20,14 +20,10 @@ app_settings = AppSettings(root)
 
 def on_study():
     db = DB()
-    study = None
     mode = db.get_lesson_mode(select_lesson.current_lesson_id)
-    if mode == 1:
-        study = mode1_study.Study(root)
-    elif mode == 2:
-        study = mode2_study.Study(root)
+    study = StudyPy(root)
 
-    study.show_study_window(select_lesson.current_lesson_id, app_settings.settings)
+    study.show_study_window([select_lesson.current_lesson_id])
 
 
 # Кнопка

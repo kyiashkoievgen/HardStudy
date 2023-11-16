@@ -6,6 +6,7 @@ from comport import SerialDevice
 from unidecode import unidecode
 from random import shuffle
 import re
+import json
 
 
 def center_window(window, width, height, dx=0, dy=0):
@@ -35,58 +36,62 @@ class Phrase:
         self.inc_flag = inc_flag
         self.dec_flag = dec_flag
 
+    def phrase_to_dict(self):
+        return {
+            'id_phrase': self.id_phrase,
+            'phrase_sent': self.phrase_sent,
+            'phrase_audio': self.phrase_audio,
+            'phrase_meaning': self.phrase_meaning,
+            'phrase_meaning_audio': self.phrase_meaning_audio,
+            'was_help_flag': self.was_help_flag,
+            'was_help_sound_flag': self.was_help_sound_flag,
+            'was_mistake_flag': self.was_mistake_flag,
+            'inc_flag': self.inc_flag,
+            'dec_flag': self.dec_flag
+        }
+
 
 class Study:
-    def __init__(self, main_win=None):
-        self.pred_time = None
+    def __init__(self):
         self.time_pause = None
         self.time_start = None
-        self.time_count = 0
+        self.time_stop = None
+        self.duration = None
+        self.shock_count = None
+        self.know_phrase = None
+        self.db = DB()
         self.phrase_list = []
-        self.pause_time = 60000
-        self.help_flag = False
-        self.sound_help_flag = False
         self.add_sent_num = 0
-        self.right_answer_count_in_lesson = 0
-        self.shock_count = 0
-        self.root = None
         self.meaning = None
         self.phrase = None
-        self.know_phrase = set()
         self.study_data = None
-        self.main_win = main_win
-        self.cur_les = None
+        self.cur_les = []
         self.id_phrase = ''
         self.cur_les_data = Phrase(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        self.mistake = False
-        self.settings = None
-        self.comport = None
-        self.db = DB()
-        self.mode = None
+        self.settings = self.db.app_setting_init()
 
-        #  получить список того что будем учить
-
+    #  получить список того что будем учить
     def get_study_sent(self):
         self.know_phrase = set()
-        num_new_sent = int(self.settings['sent_in_less'].get())
+        num_new_sent = int(self.settings['sent_in_less'])
         right_answer = 0
 
         # находим предложения которые в обучении но на которые не было отвечено правильно
-        list_sent_id_in_progress = self.db.get_progress_sentance(self.cur_les, self.mode, right_answer,
-                                                                 int(self.settings['right_answer_2'].get()))
+        list_sent_id_in_progress = self.db.get_progress_sentance(self.cur_les, right_answer,
+                                                                 int(self.settings['right_answer_2']))
         self.add_sent_num = num_new_sent - len(list_sent_id_in_progress)
         if self.add_sent_num < 0:
             self.add_sent_num = 0
         # если таких предложений меньше чем количества новых в уроке добавляем из общего числа те которые еще не учились
         if self.add_sent_num > 0:
-            list_sent_id_add_to_progress = self.db.get_new_sentance(self.cur_les, self.mode, self.add_sent_num)
+            list_sent_id_add_to_progress = self.db.get_new_sentance(self.cur_les, self.add_sent_num)
             list_sent_id_in_progress.extend(list_sent_id_add_to_progress)
             self.add_sent_num = len(list_sent_id_add_to_progress)
 
         # добавляем в урок предложения с нулевым количеством правильных ответов в количестве 10шт
         z_study = self.db.get_sent_data(list_sent_id_in_progress)
         for each in z_study:
-            for i in range(0, int(self.settings['right_answer_1'].get())):
+            for i in range(0, int(self.settings['right_answer_1'])):
                 if i == 0:
                     self.phrase_list.append(
                         # если хоть одно из 10 предложений введено правильно увеличиваем счетчик правильных ответов
@@ -106,14 +111,14 @@ class Study:
         # то уменьшаем количество правильных ответов последующие разы не уменьшаем счетчик правильных ответов
         list_sent_id_for_repiet = []
         for right_answer in range(1, 4):
-            time_for_new_sent = self.settings[f'time_beetween_study_{right_answer}'].get()
+            time_for_new_sent = self.settings[f'time_beetween_study_{right_answer}']
             # print(right_answer, time_for_new_sent)
-            list_sent_id_for_repiet.extend(self.db.get_progress_sentance(self.cur_les, self.mode, right_answer,
-                                                                         int(self.settings['right_answer_2'].get()),
+            list_sent_id_for_repiet.extend(self.db.get_progress_sentance(self.cur_les, right_answer,
+                                                                         int(self.settings['right_answer_2']),
                                                                          time_for_new_sent))
         if len(list_sent_id_for_repiet) > 0:
             for each in self.db.get_sent_data(list_sent_id_for_repiet):
-                for i in range(0, int(self.settings['right_answer_2'].get())):
+                for i in range(0, int(self.settings['right_answer_2'])):
                     if i == 0:
                         self.phrase_list.append(
                             # если 1-е предложений введено правильно увеличиваем счетчик правильных ответов
@@ -133,13 +138,13 @@ class Study:
         # последующие разы перемешиваем и они не влияют на счетчик правильных ответов
         list_sent_id_for_repiet = []
         for right_answer in range(4, 7):
-            time_for_new_sent = self.settings[f'time_beetween_study_{right_answer}'].get()
+            time_for_new_sent = self.settings[f'time_beetween_study_{right_answer}']
             # print(right_answer, time_for_new_sent)
-            list_sent_id_for_repiet.extend(self.db.get_progress_sentance(self.cur_les, self.mode, right_answer,
-                                                                         int(self.settings['right_answer_2'].get()),
+            list_sent_id_for_repiet.extend(self.db.get_progress_sentance(self.cur_les, right_answer,
+                                                                         int(self.settings['right_answer_2']),
                                                                          time_for_new_sent))
         if len(list_sent_id_for_repiet) == 0:
-            list_sent_id_for_repiet = self.db.get_remember_sent(self.cur_les, self.mode)
+            list_sent_id_for_repiet = self.db.get_remember_sent(self.cur_les)
         if len(list_sent_id_for_repiet) > 0:
             repeat_for_understanding = self.db.get_sent_data(list_sent_id_for_repiet)
             for each in repeat_for_understanding:
@@ -148,7 +153,7 @@ class Study:
                            each['meaning_audio'], False, False, False, True, True)
                 )
 
-            for i in range(0, int(self.settings['right_answer_2'].get()) - 1):
+            for i in range(0, int(self.settings['right_answer_2']) - 1):
                 shuffle(repeat_for_understanding)
                 for each in repeat_for_understanding:
                     self.phrase_list.append(
@@ -167,63 +172,6 @@ class Study:
     def get_study_data(self):
         for each in self.phrase_list:
             yield each
-
-    # открыть окно с подсказкой
-    def open_window_help(self, text, delay):
-        # закрыть окно с подсказкой
-        def close_window(window):
-            window.destroy()
-            # root.deiconify()
-            self.meaning.config(state="normal")
-            # root.attributes('-disabled', False)
-
-        # Создаем новое окно
-        new_window = tk.Toplevel(self.root)
-        center_window(new_window, 200, 100)
-        # Добавляем текстовую метку в новое окно
-        label = tk.Label(new_window, text=text, font=("Arial", 12))
-        label.pack()
-        self.meaning.config(state="disabled")
-        # root.iconify()  # .attributes('-disabled', True)
-        self.sound_help_flag = True
-        new_window.after(100, lambda: play_sound(f'audio\\{self.cur_les_data.phrase_audio}.mp3'))
-        new_window.after(delay, lambda: close_window(new_window))
-
-    def open_window_pause(self):
-        # закрыть окно
-        def close_window_pause(window):
-            window.destroy()
-            # root.deiconify()
-            self.meaning.config(state="normal")
-            # root.attributes('-disabled', False)
-
-        self.comport.send_data(b'Smoke60000\n')
-        # Создаем новое окно
-        window_pause = tk.Toplevel(self.root)
-        center_window(window_pause, 200, 100)
-        # Добавляем текстовую метку в новое окно
-        tk.Label(window_pause, text='Перекур', font=("Arial", 12)).pack()
-        self.meaning.config(state="disabled")
-        # root.iconify()  # .attributes('-disabled', True)
-        window_pause.after(self.pause_time, lambda: close_window_pause(window_pause))
-
-    # заполнить переменные содержащие обучающий материал если они закончились закрыть окно
-    def next_sent(self):
-        try:
-            self.cur_les_data = next(self.study_data)
-            #print(self.cur_les_data.id_phrase, self.know_phrase)
-            while self.cur_les_data.id_phrase in self.know_phrase:
-                self.cur_les_data = next(self.study_data)
-
-            self.phrase.config(text=self.cur_les_data.phrase_meaning)
-            self.root.after(100, play_sound(f'audio\\{self.cur_les_data.phrase_meaning_audio}.mp3'))
-            self.sound_help_flag = False
-            self.help_flag = False
-            self.mistake = False
-
-        except StopIteration:
-            self.progress_save()
-            self.on_closing_study_window()
 
     def progress_save(self):
         inc_list = dict()
@@ -247,7 +195,7 @@ class Study:
                     if not (each.was_mistake_flag or each.was_help_flag):
                         right_answer += 1
                         rem = not (each.was_mistake_flag or each.was_help_sound_flag or each.was_help_flag)
-                        self.db.inc_dec_right_count(each.id_phrase, self.cur_les, self.mode, inc=True, remember=rem)
+                        self.db.inc_dec_right_count(each.id_phrase, self.cur_les[0], inc=True, remember=rem) #!!!!!
                     del (inc_list[f'{each.id_phrase}'])
                 if not (f'{each.id_phrase}' in inc_list):
                     inc_list[f'{each.id_phrase}'] = not (each.was_mistake_flag or each.was_help_flag)
@@ -274,22 +222,22 @@ class Study:
         for key in inc_list.keys():
             if inc_list[key]:
                 right_answer += 1
-                self.db.inc_dec_right_count(int(key), self.cur_les, self.mode, inc=True, remember=rem_list[key])
+                self.db.inc_dec_right_count(int(key), self.cur_les[0], inc=True, remember=rem_list[key])
         for key in dec_list.keys():
             if dec_list[key]:
-                self.db.inc_dec_right_count(int(key), self.cur_les, self.mode, inc=False, remember=rem_list[key])
+                self.db.inc_dec_right_count(int(key), self.cur_les[0], inc=False, remember=rem_list[key])
 
         total_shows_now = len(self.phrase_list)
         total_sent_now = len(all_id)
         total_word_now = len(all_word)
         new_sent_now = self.add_sent_num
         total_shock_now = self.shock_count
-        all_sent, all_words = self.db.get_studied_sent_word([self.cur_les], self.mode)
-        total_sent = len(all_sent)
-        total_word = len(all_words)
-        total_time_now = (datetime.now() - self.time_start - timedelta(seconds=self.time_pause)).seconds
+        all_studied = self.db.get_studied_sent_word(self.cur_les)[0]
+        total_sent = len(all_studied['studied_sent'])
+        total_word = len(all_studied['studied_word'])
         self.db.save_statistic(self.cur_les, total_shows_now, total_sent_now, total_word_now, right_answer,
-                               new_sent_now, total_shock_now, total_time_now, total_sent, total_word)
+                               new_sent_now, total_shock_now, self.duration, total_sent, total_word,
+                               self.time_start, self.time_stop, all_studied['full_understand'])
 
         # print('inc-', inc_list)
         # print('---------------------')
@@ -297,6 +245,112 @@ class Study:
         # print('---------------------')
         # print('rem-', rem_list)
         # print('---------------------------------------------------------------------')
+
+
+class WebStudy(Study):
+    def __init__(self, list_sent_id):
+        super().__init__()
+        self.cur_les = list_sent_id
+        self.db.set_default_lesson(self.cur_les)
+
+    def get_study_data_as_list(self):
+        self.get_study_sent()
+        result = []
+        for phrase in self.phrase_list:
+            phrase_dict = phrase.phrase_to_dict()
+            # если не учитываем апострофические знаки
+            if self.settings['apostrophe'] == "False":
+                phrase_dict['phrase_sent'] = unidecode(phrase_dict['phrase_sent'])
+            result.append(phrase_dict)
+        return result, self.add_sent_num
+
+    def save_progress_from_web(self, phrase_list, add_sent_num, shock_count, time_start, time_stop, duration):
+        self.add_sent_num = add_sent_num
+        self.shock_count = shock_count
+        self.time_start = time_start
+        self.time_stop = time_stop
+        self.duration = duration
+        for phrase in phrase_list:
+            self.phrase_list.append(Phrase(phrase['id_phrase'], phrase['phrase_sent'], '', '', '', phrase['was_help_flag'],
+                                           phrase['was_help_sound_flag'], phrase['was_mistake_flag'],
+                                           phrase['inc_flag'], phrase['dec_flag']))
+        self.progress_save()
+        return self.db.get_statistic()
+
+
+class StudyPy(Study):
+    def __init__(self, main_win=None):
+        super().__init__()
+        self.pred_time = None
+        self.time_count = 0
+        self.pause_time = 60000
+        self.help_flag = False
+        self.sound_help_flag = False
+        self.right_answer_count_in_lesson = 0
+        self.root = None
+        self.main_win = main_win
+        self.mistake = False
+        self.comport = None
+
+    # открыть окно с подсказкой
+    def open_window_help(self, text, delay):
+        # закрыть окно с подсказкой
+        def close_window(window):
+            window.destroy()
+            # root.deiconify()
+            self.meaning.config(state="normal")
+            # root.attributes('-disabled', False)
+
+        # Создаем новое окно
+        new_window = tk.Toplevel(self.root)
+        center_window(new_window, 400, 100)
+        # Добавляем текстовую метку в новое окно
+        label = tk.Label(new_window, text=text, font=("Arial", 12))
+        label.pack()
+        self.meaning.config(state="disabled")
+        # root.iconify()  # .attributes('-disabled', True)
+        self.sound_help_flag = True
+        new_window.after(100, lambda: play_sound(f'web\\static\\audio\\{self.cur_les_data.phrase_audio}.mp3'))
+        new_window.after(delay, lambda: close_window(new_window))
+
+    def open_window_pause(self, time=b'Smoke60000\n'):
+        # закрыть окно
+        def close_window_pause(window):
+            window.destroy()
+            # root.deiconify()
+            self.meaning.config(state="normal")
+            # root.attributes('-disabled', False)
+
+        self.comport.send_data(time)
+        # Создаем новое окно
+        window_pause = tk.Toplevel(self.root)
+        center_window(window_pause, 200, 100)
+        # Добавляем текстовую метку в новое окно
+        tk.Label(window_pause, text='Перекур', font=("Arial", 12)).pack()
+        self.meaning.config(state="disabled")
+        # root.iconify()  # .attributes('-disabled', True)
+        window_pause.after(self.pause_time, lambda: close_window_pause(window_pause))
+
+    # заполнить переменные содержащие обучающий материал если они закончились закрыть окно
+    def next_sent(self):
+        try:
+            self.cur_les_data = next(self.study_data)
+            # print(self.cur_les_data.id_phrase, self.know_phrase)
+            while self.cur_les_data.id_phrase in self.know_phrase:
+                self.cur_les_data = next(self.study_data)
+
+            self.phrase.config(text=self.cur_les_data.phrase_meaning)
+            self.root.after(100, play_sound(f'web\\static\\audio\\{self.cur_les_data.phrase_meaning_audio}.mp3'))
+            self.sound_help_flag = False
+            self.help_flag = False
+            self.mistake = False
+
+        except StopIteration:
+            self.time_stop = datetime.now()
+            self.duration = (self.time_stop - self.time_start - timedelta(seconds=self.time_pause)).seconds
+            self.progress_save()
+            self.open_window_pause(time=b'Smoke600000\n')
+            self.on_closing_study_window()
 
     def on_closing_study_window(self):
         self.comport.close()
@@ -307,7 +361,7 @@ class Study:
         self.main_win.deiconify()
         self.root.destroy()
 
-    def show_study_window(self, cur_les, settings, short=False):
+    def show_study_window(self, cur_les):
 
         # действия при вводе ответа
         def on_entry_change_study(event):
@@ -319,7 +373,7 @@ class Study:
             text = self.meaning.get()
             text_len = len(text)
             # режим 2 не учитывает апострофические знаки
-            if self.settings['apostrophe']:
+            if self.settings['apostrophe'] == "False":
                 text = unidecode(text)
                 self.cur_les_data.phrase_sent = unidecode(self.cur_les_data.phrase_sent)
             # проверка правильности введенного символа
@@ -345,11 +399,12 @@ class Study:
                 else:
                     self.cur_les_data.was_mistake_flag = False
                     self.right_answer_count_in_lesson += 1
-                    if self.right_answer_count_in_lesson == 5:
+
+                    if self.cur_les_data.dec_flag or self.right_answer_count_in_lesson == 5:
                         self.open_window_pause()
                         self.right_answer_count_in_lesson = 0
 
-                play_sound(f'audio\\{self.cur_les_data.phrase_audio}.mp3')
+                play_sound(f'web\\static\\audio\\{self.cur_les_data.phrase_audio}.mp3')
                 # если слово было введено правильно без произведения звуковой подсказки то показываем одни раз
 
                 self.cur_les_data.was_help_flag = self.help_flag
@@ -369,22 +424,20 @@ class Study:
         def on_help():
             if not self.help_flag:
                 self.help_flag = True
-            self.open_window_help(self.cur_les_data.phrase_sent, int(self.settings['show_time_sent'].get()))
+            self.open_window_help(self.cur_les_data.phrase_sent, int(self.settings['show_time_sent']))
 
         def on_speak():
             self.sound_help_flag = True
-            play_sound(f'audio\\{self.cur_les_data.phrase_audio}.mp3')
+            play_sound(f'web\\static\\audio\\{self.cur_les_data.phrase_audio}.mp3')
 
         self.time_start = datetime.now()
         self.pred_time = datetime.now()
         self.time_pause = 0
         self.shock_count = 0
         self.cur_les = cur_les
-        self.settings = settings
-        self.mode = self.settings['mode'].get()
-        self.comport = SerialDevice(settings['comport'].get())
+        self.settings = self.db.app_setting_init()
+        self.comport = SerialDevice(self.settings['comport'])
         self.comport.open()
-        # self.id_stat = self.db.insert_new_statistic(self.cur_les, self.mode)
         self.main_win.attributes('-disabled', True)
         self.main_win.iconify()
         self.root = tk.Tk()

@@ -57,7 +57,7 @@ def create_new_lesson_from_txt(file_path, first_lang,  second_lang, name_lesson,
 
 
 def create_new_lesson_from_mp4(video_file_path, first_lang,  second_lang, name_lesson, description_lesson):
-    file_path = 'audio\\tmp_file'
+    file_path = 'web/static/audio\\tmp_file'
     db = DB()
     db.cursor.execute('INSERT INTO lesson_name (name, description, mode, first_lang, second_lang) VALUES (?, ?, ?, ?)',
                       (name_lesson, description_lesson, 1, first_lang,  second_lang))

@@ -53,3 +53,26 @@ body {
     flex: 1;
     padding: 20px;
 }
+
+.no_hide {
+    display: block;
+}
+
+#select_lesson{
+
+}
+
+.hide {
+    display: none;
+}
+
+#select_lesson ol{
+    font-size: small;
+    color: white;
+}
+
+#select_lesson li{
+    font-size: smaller;
+    font-style: italic;
+    line-height: 150%;
+}

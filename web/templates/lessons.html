@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+{# страничка для фрейма в котором выбор уроков #}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lessons.css') }}">
+</head>
+<body>
+<h2>Уроки</h2>
+<script>
+    {# после загрузки странички смотрим уроки которые в обучении и добавляем их на главный экран  #}
+    function my_lesson_loaded(data){
+        let check_box = data.contentDocument.getElementsByClassName('checkbox');
+        let select_lesson = window.parent.document.getElementById('select_lesson');
+        for ( let cb of check_box ) {
+            if (cb.checked) {
+                let el = document.createElement("li");
+                el.innerText = cb.parentElement.children[1].getAttribute('value');
+                let id_sent = document.createElement('input');
+                id_sent.setAttribute('type', 'hidden');
+                id_sent.setAttribute('class', 'id_sent');
+                id_sent.setAttribute('name', cb.parentElement.children[0].getAttribute('value'));
+                id_sent.setAttribute('value', cb.parentElement.children[1].getAttribute('value'));
+                el.appendChild(id_sent)
+                select_lesson.children[0].appendChild(el);
+                select_lesson.classList.remove('hide');
+            }
+        }
+    }
+    {# обработка фильтров уроков#}
+    function select_onchange(select_name){
+        let request = "/all_lesson?select_name=" + select_name.name + "&value=" + select_name.value;
+        document.querySelectorAll('iframe')[0].contentDocument.location = request;
+        request = "/all_lesson?my_lesson=True&select_name=" + select_name.name + "&value=" + select_name.value;
+        document.querySelectorAll('iframe')[1].contentDocument.location = request;
+    }
+</script>
+<div class="control-group">
+    <label>Тип</label>
+    <select name="mode" onchange="select_onchange(this)">
+        <option value="all">Все</option>
+        {% for mode in list_mode %}
+
+        <option value="{{ mode['id'] }}"
+            {% if lesson_filter['mode']==mode['id'] %}
+                selected
+            {% endif %}
+        >{{ mode['name'] }}</option>
+        {% endfor %}
+    </select>
+    <label>Изучаемый язык</label>
+    <select name="lang1" onchange="select_onchange(this)">
+        <option value="all">Все</option>
+        {% for lang in list_lang %}
+        <option value="{{ lang['code'] }}"
+            {% if lesson_filter['lang1']==lang['code'] %}
+                selected
+            {% endif %}
+
+        >{{ lang['name'] }}</option>
+        {% endfor %}
+    </select>
+    <label>Родной язык</label>
+    <select name="lang2" onchange="select_onchange(this)">
+        <option value="all">Все</option>
+        {% for lang in list_lang %}
+        <option value="{{ lang['code'] }}"
+                {% if lesson_filter['lang2']==lang['code'] %}
+                selected
+                {% endif %}
+
+        >{{ lang['name'] }}</option>
+        {% endfor %}
+    </select>
+    <button>Создать</button>
+</div>
+<div class="central_block">
+    <div class="list-lesson-group" id="all-lesson">
+        <label>Все уроки</label>
+        <div class="table_head">
+            <div class="head_row_name">Название</div>
+            <div class="head_row">Слов</div>
+            <div class="head_row">Фраз</div>
+            <div class="head_row">Язык 1</div>
+            <div class="head_row">Язык 2</div>
+        </div>
+        {# фрейм для всех уроков #}
+        <iframe name="all_lesson" src="/all_lesson"></iframe>
+    </div>
+    <div class="list-lesson-group" id="my-lesson">
+        <label>Мои уроки</label>
+        <div class="table_head">
+            <div class="head_row_name">Название</div>
+            <div class="head_row_my">Слов</div>
+            <div class="head_row_my">Фраз</div>
+            <div class="head_row">Язык 1</div>
+            <div class="head_row">Язык 2</div>
+        </div>
+        {# фрейм для уроков пользователя #}
+        <iframe name="my_lesson" src="/all_lesson?my_lesson=True" onload="my_lesson_loaded(this)"></iframe>
+    </div>
+</div>
+
+</body>

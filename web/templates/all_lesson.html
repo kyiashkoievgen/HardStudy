@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+{# страница со всеми доступными уроками и текущими уроками пользователя #}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lessons.css') }}">
+</head>
+<body>
+<script>
+    {# в главном окне убирает все ранее добавленные уроки #}
+    function clear_select_item(data){
+        let li_tags = data.children[0].getElementsByTagName('li');
+        while (li_tags.length>0){
+            li_tags[0].remove();
+            li_tags = data.children[0].getElementsByTagName('li');
+        }
+    }
+    {# действия при нажатии на ссылку #}
+    function on_link(data){
+        //в главном окне находим блок где находятся в выбранные уроки
+        let select_lesson = window.parent.parent.document.getElementById('select_lesson');
+        clear_select_item(select_lesson)
+
+        {# создаем пункт списка в котором будут отображаться выбранные уроки и храниться информация об уроке #}
+        let el = document.createElement("li");
+        el.innerText = data.parentElement.children[1].getAttribute('value');
+        let id_sent = document.createElement('input');
+        id_sent.setAttribute('type','hidden');
+        id_sent.setAttribute('class', 'id_sent');
+        id_sent.setAttribute('name', data.parentElement.children[0].getAttribute('value'));
+        id_sent.setAttribute('value', data.parentElement.children[1].getAttribute('value'));
+        el.appendChild(id_sent);
+
+        {# добавляем урок на главную страницу в блок с выбранными уроками #}
+        select_lesson.children[0].appendChild(el);
+        select_lesson.classList.remove('hide');
+
+        {# если клик по ссылке то находим все checkbox и убираем checked #}
+        let check_box = document.getElementsByClassName('checkbox')
+        for ( let cb of check_box ) {
+            cb.checked = false
+        }
+        check_box = window.parent.window.frames[1].document.getElementsByClassName('checkbox')
+        for ( let cb of check_box ) {
+            cb.checked = false
+        }
+    }
+
+    {# действия checkbox #}
+    function on_check_box(data){
+        {# в главном окне находим блок где находятся в выбранные уроки#}
+        let select_lesson = window.parent.parent.document.getElementById('select_lesson');
+        clear_select_item(select_lesson);
+
+        {# находим все отмеченные checkbox и добавляем информацию из них на главный экран в блок с выбранными уроками #}
+        let check_box = document.getElementsByClassName('checkbox');
+        let some_checked = false;
+        for ( let cb of check_box ) {
+            if (cb.checked) {
+                some_checked = true;
+                let el = document.createElement("li");
+                el.innerText = cb.parentElement.children[1].getAttribute('value');
+                let id_sent = document.createElement('input');
+                id_sent.setAttribute('type', 'hidden');
+                id_sent.setAttribute('class', 'id_sent');
+                id_sent.setAttribute('name', cb.parentElement.children[0].getAttribute('value'));
+                id_sent.setAttribute('value', cb.parentElement.children[1].getAttribute('value'));
+                el.appendChild(id_sent);
+                select_lesson.children[0].appendChild(el);
+            }
+        }
+        {# если что то выбрано то показываем блок с уроками на главном экране #}
+        if (some_checked){
+            select_lesson.classList.remove('hide');
+        }else {
+            select_lesson.classList.add('hide');
+        }
+
+
+    }
+</script>
+<ol class="lesson-line">
+    {% for lesson in list_all_lesson %}
+    <li>
+        <div class="lesson-info">
+            <div class="list_row_name">
+                <div class="lesson-name">
+                    <input name="id_sent" type="hidden" value="{{ lesson['id'] }}">
+                    <input name="name_sent" type="hidden" value="{{ lesson['name'] }}">
+                    {# определяем это общие уроки или те что в прогрессе если те что в учебе добавляем checkbox #}
+                    {% if lesson['studied_word'] %}
+                    <input class="checkbox" type="checkbox" onchange="on_check_box(this)"
+                        {% if lesson['default_lesson']==1 %}
+                            checked
+                        {% endif %}
+                    >
+                    {% endif %}
+                    <a href="#" onclick="on_link(this);">{{ lesson['name'] }}</a>
+                </div>
+                <div><b>Тип: {{ lesson['mode_name'] }}</b></div>
+                <div class="lesson-descr"><p>{{ lesson['description'] }}</p></div>
+            </div>
+            <div class="list_row">
+                {{ lesson['word_numer'] }}<br>
+                {% if lesson['studied_word'] %}
+                Учу:{{ lesson['studied_word'] }}
+                {% endif %}
+            </div>
+            <div class="list_row">
+                {{ lesson['sentence_numer'] }}
+                {% if lesson['studied_word'] %}
+                <br>Учу:{{ lesson['studied_sent'] }}<br>
+                ОК:{{ lesson['full_understand'] }}
+                {% endif %}
+            </div>
+            <div class="list_row">{{ lesson['first_lang'] }}</div>
+            <div class="list_row">{{ lesson['second_lang'] }}</div>
+        </div>
+    </li>
+    {% endfor %}
+
+    </ol>
+</body>
+</html>

@@ -21,6 +21,8 @@ def initialize_database(database_name):
 	        mode	INTEGER,
 	        first_lang	TEXT,
 	        second_lang	TEXT,
+	        "sentence_numer"	INTEGER,
+	        "word_numer"	INTEGER,
 	        PRIMARY KEY("id" AUTOINCREMENT),
 	        FOREIGN KEY("mode") REFERENCES "mode_study"("id")
         )
@@ -67,7 +69,6 @@ def initialize_database(database_name):
             right_count	integer,
             last_show_time	DATETIME,
             sentance_id	INTEGER,
-            mode_id	INTEGER,
             remember INTEGER DEFAULT 0
             FOREIGN KEY(lesson_id) REFERENCES lesson_body(id),
             FOREIGN KEY(sentance_id) REFERENCES lesson_body(id),
@@ -80,7 +81,6 @@ def initialize_database(database_name):
     cursor.execute('''
            CREATE TABLE IF NOT EXISTS app_settings (
             id	INTEGER,
-            mode	TEXT,
             comport	TEXT,
             profile_name	TEXT,
             lesson_per_day	TEXT,
@@ -154,7 +154,10 @@ def initialize_database(database_name):
 	    "total_word"	INTEGER,
 	    "total_time"	INTEGER,
 	    "total_word_now"	INTEGER,
-	    "total_sent_now"	INTEGER,
+	    "total_sent_now"	INTEGER,	
+	    "time_start"	DATETIME,
+	    "time_stop"	DATETIME,
+	    "full_understand"	INTEGER,
         PRIMARY KEY("id" AUTOINCREMENT)
     );
     ''')

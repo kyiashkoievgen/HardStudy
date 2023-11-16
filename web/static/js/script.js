@@ -1,6 +1,7 @@
 let port = null
 let writer = null
 window.onload = async function () {
+    showFrame('lessons');
     const button = document.getElementById('f1');
     button.addEventListener('click', function () {
         main();
@@ -14,26 +15,7 @@ window.onload = async function () {
 let predTime = new Date();
 let timePause = 0;
 
-function onEntryChangeStudy() {
-    let currentTime = new Date();
-    let deltaTime = (currentTime - predTime) / 1000; // seconds
-
-    if (deltaTime > 180) {
-        timePause += deltaTime;
-    }
-
-    predTime = currentTime;
-
-    let text = document.getElementById('meaning').value; // предполагаем, что есть элемент input с id="meaning"
-    let textLen = text.length;
-
-    if (settings.apostrophe) {
-        text = unidecode(text); // Здесь потребуется функция или библиотека для транслитерации
-        curLesData.phraseSent = unidecode(curLesData.phraseSent);
-    }
-
-    if (textLen > 0 && text[textLen - 1].toLowerCase() !== curLesData.phraseSent[textLen - 1].toLowerCase()) {
-        document.getElementById('meaning').value = text.substring(0, textLen - 1);
+   document.getElementById('meaning').value = text.substring(0, textLen - 1);
         comport.sendData('Shock100\n'); // Здесь потребуется адаптация под ваше API или библиотеку
         shockCount++;
         console.log('Shock');
@@ -180,4 +162,22 @@ async function main() {
 
 }
 
+function playSound(src) {
+    let audio = new Audio(src);
+    audio.play();
+}
 
+playSound('path/to/your/audiofile.mp3');
+
+let audio = new Audio('path/to/your/audiofile.mp3');
+
+function playSound() {
+    audio.currentTime = 0; // Если хотите начать воспроизведение с начала каждый раз
+    audio.play();
+}
+
+audio.addEventListener('ended', function() {
+    console.log('Audio playback has ended.');
+});
+
+<button onClick="playSound('path/to/your/audiofile.mp3')">Play Sound</button>

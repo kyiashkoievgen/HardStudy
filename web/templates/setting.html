@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Настройки</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/setting.css') }}">
 </head>
 <body>
-
+    <script>
+        // Создаем глобальную переменную для данных
+         let globalData = {{ Settings|tojson|safe }};
+    </script>
 <h1>Настройки</h1>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -19,92 +21,109 @@
     </ul>
   {% endif %}
 {% endwith %}
-<form action="/process" method="post">
+<script>
+    function create_new_profile(){
+        let name_profile = prompt('Введите название')
+        if (name_profile != null && name_profile !== ''){
+            document.setting_form.profile_name.value = name_profile
+            document.forms[0].action = '/create_new_profile'
+            document.forms[0].submit()
+        }
+    }
+
+</script>
+<form action="/save_settings" method="post" name="setting_form">
     <div class="form-group">
         <label>Имя профиля настроек:</label>
-        <input type="text" value="2">
-    </div>
-
-    <div class="form-group">
-        <label>Режим:</label>
-        <select>
-            <option>Выберите режим</option>
+        <input type="hidden" name="profile_name" value="{{Settings['profile_name']}}">
+        <input type="hidden" name="comport" value="{{Settings['comport']}}">
+        <select name="profile_id" onchange="location.href='/change_setting_profile?profile_id='+this.value.toString();">
+            <option value="{{Settings['id']}}" selected> {{Settings['profile_name']}} </option>
+            {% for name in name_settings %}
+                {% if name['id'] != Settings['id'] %}
+                    <option value="{{ name['id']}}">{{ name["name"]}}</option>
+                {% endif %}
+            {% endfor %}
         </select>
     </div>
 
     <div class="form-group">
-        <label>Звучание фраз:</label>
-        <input type="text">
-    </div>
-
-    <div class="form-group">
         <label>Количество занятий в день:</label>
-        <input type="text" value="5">
+        <input type="text" name="lesson_per_day" value="{{Settings['lesson_per_day']}}">
     </div>
 
     <div class="form-group">
         <label>Время после 1-го правильного ответа:</label>
-        <input type="text" value="10">
+        <input type="text" name="time_beetween_study_1" value="{{Settings['time_beetween_study_1']}}">
     </div>
 
     <div class="form-group">
         <label>Время после 2-го правильного ответа:</label>
-        <input type="text" value="20">
+        <input type="text" name="time_beetween_study_2" value="{{Settings['time_beetween_study_2']}}">
     </div>
 
     <div class="form-group">
         <label>Время после 3-го правильного ответа:</label>
-        <input type="text" value="60">
+        <input type="text" name="time_beetween_study_3" value="{{Settings['time_beetween_study_3']}}">
     </div>
 
     <div class="form-group">
         <label>Время после 4-го правильного ответа:</label>
-        <input type="text" value="480">
+        <input type="text" name="time_beetween_study_4" value="{{Settings['time_beetween_study_4']}}">
     </div>
 
     <div class="form-group">
         <label>Время после 5-го правильного ответа:</label>
-        <input type="text" value="10080">
+        <input type="text" name="time_beetween_study_5" value="{{Settings['time_beetween_study_5']}}">
     </div>
 
     <div class="form-group">
         <label>Время после 6-го правильного ответа:</label>
-        <input type="text" value="10080">
+        <input type="text" name="time_beetween_study_6" value="{{Settings['time_beetween_study_6']}}">
     </div>
 
     <div class="form-group">
         <label>Время показа подсказки:</label>
-        <input type="text" value="5000">
+        <input type="text" name="show_time_sent" value="{{Settings['show_time_sent']}}">
     </div>
 
     <div class="form-group">
         <label>Количество предложений в уроке:</label>
-        <input type="text" value="6">
+        <input type="text" name="sent_in_less" value="{{Settings['sent_in_less']}}">
     </div>
 
     <div class="form-group">
-        <label>Время наказания 1:</label>
-        <input type="text" value="1">
+        <label>Время наказания:</label>
+        <input type="text" name="punish_time_1" value="{{Settings['punish_time_1']}}">
     </div>
 
     <div class="form-group">
         <label>Ответов для выучено первый раз:</label>
-        <input type="text" value="10">
+        <input type="text" name="right_answer_1" value="{{Settings['right_answer_1']}}">
     </div>
 
     <div class="form-group">
         <label>Ответов для выучено последующий:</label>
-        <input type="text" value="5">
+        <input type="text" name="right_answer_2" value="{{Settings['right_answer_2']}}">
     </div>
 
     <div class="form-group">
         <label>Учитывать апострофы:</label>
-        <input type="checkbox">
+        {% with apostrophe = Settings['apostrophe'] %}
+
+               {% if apostrophe=="True" %}
+                <input value=True name="apostrophe" type="checkbox" checked>
+                {% else %}
+                <input value=False name="apostrophe" type="checkbox">
+               {% endif %}
+
+        {% endwith %}
+
     </div>
 
     <div class="form-group">
         <input type="submit" value="Сохранить изменения">
-        <button>Создать новый профиль</button>
+        <button onclick="create_new_profile();">Создать новый профиль</button>
     </div>
 </form>
 </body>

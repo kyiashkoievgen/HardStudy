@@ -1,0 +1,138 @@
+.control-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    padding: 5px;
+    justify-content: center;
+    background: lightgray;
+}
+
+.list-lesson-group {
+    display: inline-block;
+    width: 550px;
+    height: 600px;
+    border-style: inset;
+    border-width: thin;
+    padding: 5px;
+}
+
+.list-lesson-group label {
+    display: flex;
+    margin: 0 10px;
+    font-weight: bold;
+    justify-content: space-evenly;
+}
+
+iframe {
+    height: 550px;
+    width: 100%;
+    display: flex;
+    border-style: none;
+}
+
+.central_block {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+li {
+    margin: 0 20px 0 20px;
+}
+
+.lesson-line {
+    display: contents;
+}
+
+.lesson-info {
+    border-width: thick;
+    border-bottom-style: ridge;
+    display: inline-flex;
+}
+
+.lesson-text {
+    width: 200px;
+    display: inline-block;
+}
+
+.lesson-descr {
+    display: block;
+}
+
+.table_head {
+    display: flex;
+    background-color: lightgray;
+    justify-content: center;
+    margin: 5px;
+}
+
+.head_row_name {
+    width: 200px;
+    display: flex;
+    border-style: groove;
+    border-color: white;
+    justify-content: space-evenly;
+}
+
+.head_row {
+    display: flex;
+    width: 70px;
+    border-style: groove;
+    border-color: white;
+    justify-content: space-evenly;
+}
+
+.head_row_my {
+    display: flex;
+    width: 80px;
+    border-style: groove;
+    border-color: white;
+    justify-content: space-evenly;
+}
+
+.list_row_name {
+    width: 195px;
+    display: flex;
+    flex-direction: column;
+}
+
+.lesson-name {
+    display: inline-flex;
+    padding: 0;
+}
+
+.list_row_name a {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+div.list_row_name:hover{
+    background-color: lightgray;
+}
+
+.list_row {
+    display: flex;
+    width: 73px;
+    justify-content: space-evenly;
+}
+label {
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+select {
+    margin: 0 30px 0 0px;
+}
+
+.hide {
+    display: none;
+}
+
+.no_hide {
+    display: block;
+}
