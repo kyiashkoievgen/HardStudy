@@ -1,24 +1,7 @@
-from datetime import datetime, timedelta
-import tkinter as tk
 from db import DB
-from voice_unit import play_sound
-from comport import SerialDevice
 from unidecode import unidecode
 from random import shuffle
 import re
-
-
-def center_window(window, width, height, dx=0, dy=0):
-    # Получите ширину и высоту экрана
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-
-    # Вычислите координаты центра родительского окна
-    center_x = int((screen_width - width) / 2) + dx
-    center_y = int((screen_height - height) / 2) + dy
-
-    # Установите координаты и размеры дочернего окна для позиционирования его по центру
-    window.geometry(f"{width}x{height}+{center_x}+{center_y}")
 
 
 class Phrase:
@@ -201,7 +184,7 @@ class Study:
                     if not (each.was_mistake_flag or each.was_help_flag):
                         right_answer += 1
                         rem = not (each.was_mistake_flag or each.was_help_sound_flag or each.was_help_flag)
-                        self.db.inc_dec_right_count(each.id_phrase, self.cur_les[0], inc=True, remember=rem) #!!!!!
+                        self.db.inc_dec_right_count(each.id_phrase, self.cur_les[0], inc=True, remember=rem)  # !!!!!
                     del (inc_list[f'{each.id_phrase}'])
                 if not (f'{each.id_phrase}' in inc_list):
                     inc_list[f'{each.id_phrase}'] = not (each.was_mistake_flag or each.was_help_flag)
@@ -277,198 +260,9 @@ class WebStudy(Study):
         self.time_stop = time_stop
         self.duration = duration
         for phrase in phrase_list:
-            self.phrase_list.append(Phrase(phrase['id_phrase'], phrase['phrase_sent'], '', '', '', phrase['was_help_flag'],
-                                           phrase['was_help_sound_flag'], phrase['was_mistake_flag'],
-                                           phrase['inc_flag'], phrase['dec_flag']))
+            self.phrase_list.append(
+                Phrase(phrase['id_phrase'], phrase['phrase_sent'], '', '', '', phrase['was_help_flag'],
+                       phrase['was_help_sound_flag'], phrase['was_mistake_flag'],
+                       phrase['inc_flag'], phrase['dec_flag']))
         self.progress_save()
         return self.db.get_statistic()
-
-
-class StudyPy(Study):
-    def __init__(self, main_win=None):
-        super().__init__()
-        self.pred_time = None
-        self.time_count = 0
-        self.pause_time = 60000
-        self.help_flag = False
-        self.sound_help_flag = False
-        self.right_answer_count_in_lesson = 0
-        self.root = None
-        self.main_win = main_win
-        self.mistake = False
-        self.comport = None
-
-    # открыть окно с подсказкой
-    def open_window_help(self, text, delay):
-        # закрыть окно с подсказкой
-        def close_window(window):
-            window.destroy()
-            # root.deiconify()
-            self.meaning.config(state="normal")
-            # root.attributes('-disabled', False)
-
-        # Создаем новое окно
-        new_window = tk.Toplevel(self.root)
-        center_window(new_window, 400, 100)
-        # Добавляем текстовую метку в новое окно
-        label = tk.Label(new_window, text=text, font=("Arial", 12))
-        label.pack()
-        self.meaning.config(state="disabled")
-        # root.iconify()  # .attributes('-disabled', True)
-        self.sound_help_flag = True
-        new_window.after(100, lambda: play_sound(f'web\\static\\audio\\{self.cur_les_data.phrase_audio}.mp3'))
-        new_window.after(delay, lambda: close_window(new_window))
-
-    def open_window_pause(self, time=b'Smoke60000\n'):
-        # закрыть окно
-        def close_window_pause(window):
-            window.destroy()
-            # root.deiconify()
-            self.meaning.config(state="normal")
-            # root.attributes('-disabled', False)
-
-        self.comport.send_data(time)
-        # Создаем новое окно
-        window_pause = tk.Toplevel(self.root)
-        center_window(window_pause, 200, 100)
-        # Добавляем текстовую метку в новое окно
-        tk.Label(window_pause, text='Перекур', font=("Arial", 12)).pack()
-        self.meaning.config(state="disabled")
-        # root.iconify()  # .attributes('-disabled', True)
-        window_pause.after(self.pause_time, lambda: close_window_pause(window_pause))
-
-    # заполнить переменные содержащие обучающий материал если они закончились закрыть окно
-    def next_sent(self):
-        try:
-            self.cur_les_data = next(self.study_data)
-            # print(self.cur_les_data.id_phrase, self.know_phrase)
-            while self.cur_les_data.id_phrase in self.know_phrase:
-                self.cur_les_data = next(self.study_data)
-
-            self.phrase.config(text=self.cur_les_data.phrase_meaning)
-            self.root.after(100, play_sound(f'web\\static\\audio\\{self.cur_les_data.phrase_meaning_audio}.mp3'))
-            self.sound_help_flag = False
-            self.help_flag = False
-            self.mistake = False
-
-        except StopIteration:
-            self.time_stop = datetime.now()
-            self.duration = (self.time_stop - self.time_start - timedelta(seconds=self.time_pause)).seconds
-            self.progress_save()
-            self.open_window_pause(time=b'Smoke600000\n')
-            self.on_closing_study_window()
-
-    def on_closing_study_window(self):
-        self.comport.close()
-        self.shock_count = 0
-        self.right_answer_count_in_lesson = 0
-        self.add_sent_num = 0
-        self.main_win.attributes('-disabled', False)
-        self.main_win.deiconify()
-        self.root.destroy()
-
-    def show_study_window(self, cur_les):
-
-        # действия при вводе ответа
-        def on_entry_change_study(event):
-            delta_time = (datetime.now() - self.pred_time).seconds
-            if delta_time > 180:
-                self.time_pause += delta_time
-            self.pred_time = datetime.now()
-            # Получаем текущий текст из строки ввода
-            text = self.meaning.get()
-            text_len = len(text)
-            # режим 2 не учитывает апострофические знаки
-            if self.settings['apostrophe'] == "False":
-                text = unidecode(text)
-                self.cur_les_data.phrase_sent = unidecode(self.cur_les_data.phrase_sent)
-            # проверка правильности введенного символа
-            if (text_len > 0) and (text[text_len - 1].lower() != self.cur_les_data.phrase_sent[text_len - 1].lower()):
-                # если не правильно то удаляем этот символ и Shock
-                self.meaning.delete(0, tk.END)
-                self.meaning.insert(0, text[0:text_len - 1])
-                self.comport.send_data(b'Shock100\n')
-                self.shock_count += 1
-                print('Shock')
-                self.mistake = True
-
-            # если все правильно проверяем окончание фразы
-            elif text_len == len(self.cur_les_data.phrase_sent):
-                self.meaning.delete(0, tk.END)
-
-                # проверяем были ли ошибки
-                if self.mistake:
-                    self.right_answer_count_in_lesson = 0
-                    self.mistake = False
-                    self.cur_les_data.was_mistake_flag = True
-
-                else:
-                    self.cur_les_data.was_mistake_flag = False
-                    self.right_answer_count_in_lesson += 1
-
-                    if self.cur_les_data.dec_flag or self.right_answer_count_in_lesson == 5:
-                        self.open_window_pause()
-                        self.right_answer_count_in_lesson = 0
-
-                play_sound(f'web\\static\\audio\\{self.cur_les_data.phrase_audio}.mp3')
-                # если слово было введено правильно без произведения звуковой подсказки то показываем одни раз
-
-                self.cur_les_data.was_help_flag = self.help_flag
-                self.cur_les_data.was_help_sound_flag = self.sound_help_flag
-
-                # for each in self.phrase_list:
-                #     print(each.phrase_sent, each.was_help_flag, each.was_help_sound_flag, each.was_mistake_flag,
-                #           each.inc_flag, each.dec_flag)
-                # print('-------------------------------------------------------------')
-
-                if not (self.sound_help_flag or self.help_flag or self.cur_les_data.was_mistake_flag) and \
-                        self.cur_les_data.dec_flag:
-                    self.know_phrase.add(self.cur_les_data.id_phrase)
-
-                self.next_sent()
-
-        def on_help():
-            if not self.help_flag:
-                self.help_flag = True
-            self.open_window_help(self.cur_les_data.phrase_sent, int(self.settings['show_time_sent']))
-
-        def on_speak():
-            self.sound_help_flag = True
-            play_sound(f'web\\static\\audio\\{self.cur_les_data.phrase_audio}.mp3')
-
-        self.time_start = datetime.now()
-        self.pred_time = datetime.now()
-        self.time_pause = 0
-        self.shock_count = 0
-        self.cur_les = cur_les
-        self.settings = self.db.app_setting_init()
-        self.comport = SerialDevice(self.settings['comport'])
-        self.comport.open()
-        self.main_win.attributes('-disabled', True)
-        self.main_win.iconify()
-        self.root = tk.Tk()
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing_study_window)
-        self.root.title("HardStudy")
-        self.root.iconbitmap('icon.ico')
-        window_width = 600
-        window_height = 300
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        x = (screen_width - window_width) // 2
-        y = (screen_height - window_height) // 2
-        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
-        tk.Label(self.root, text="Переведите:").grid(row=1, column=1, padx=3, pady=3)
-        self.phrase = tk.Label(self.root, text='', font=("Arial", 12))
-        self.phrase.grid(row=1, column=2, padx=3, pady=3)
-        tk.Label(self.root, text="Значение:").grid(row=2, column=1, padx=3, pady=3)
-        self.meaning = tk.Entry(self.root, width=30, font=("Arial", 12))
-        self.meaning.grid(row=2, column=2, padx=3, pady=3)
-        tk.Button(self.root, text='Помощь', command=on_help).grid(row=2, column=3, padx=3, pady=3)
-        tk.Button(self.root, text='Произнести', command=on_speak).grid(row=2, column=4, padx=3, pady=3)
-
-        self.get_study_sent()
-        self.meaning.bind("<KeyRelease>", on_entry_change_study)
-        self.study_data = self.get_study_data()
-        self.next_sent()
-
-        self.root.mainloop()
