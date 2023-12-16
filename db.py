@@ -162,7 +162,7 @@ class DB:
         cur_les = array_to_str(cur_les_list)
         self.cursor.execute(f'''
                         SELECT id 
-                        FROM lesson_body
+                        FROM lesson_sentence
                         WHERE (lession_id in {cur_les}) AND (id NOT IN 
                             (SELECT sentance_id FROM lesson_progress WHERE lesson_id in {cur_les}))
                         LIMIT ?
@@ -178,7 +178,7 @@ class DB:
                 id_el = id_el[0]
             self.cursor.execute('''
                 SELECT what_to_learn, value_in_another_language, what_to_learn_audio, value_in_another_language_audio
-                FROM lesson_body
+                FROM lesson_sentence
                 WHERE id=?
             ''', (id_el,))
             item = self.cursor.fetchall()
@@ -442,7 +442,7 @@ class DB:
             if mode[0] == 2:
                 query = '''
                         SELECT what_to_learn
-                        FROM lesson_body
+                        FROM lesson_sentence
                         WHERE lession_id=?
                     '''
             elif mode[0] == 1:

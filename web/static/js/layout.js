@@ -69,7 +69,7 @@ class SerialDevice {
     async smoke() {
         if (this.writer !== null){
             let encoder = new TextEncoder(); // всегда кодирует в UTF-8
-            let uint8Array = encoder.encode("\nSmoke60000\n");
+            let uint8Array = encoder.encode("\nSmoke15000\n");
             await this.writer.write(uint8Array);
         }
     }
@@ -77,7 +77,7 @@ class SerialDevice {
     async shock() {
         if (this.writer !== null){
             let encoder = new TextEncoder(); // всегда кодирует в UTF-8
-            let uint8Array = encoder.encode("\nShock150\n");
+            let uint8Array = encoder.encode("\nShock800\n");
             await this.writer.write(uint8Array);
         }
     }

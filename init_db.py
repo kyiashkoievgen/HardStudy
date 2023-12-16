@@ -49,7 +49,7 @@ def initialize_database(database_name):
 
     # Таблица с содержанием уроков
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lesson_body (
+        CREATE TABLE IF NOT EXISTS lesson_sentence (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             lession_id INTEGER,
             what_to_learn TEXT,
@@ -70,8 +70,8 @@ def initialize_database(database_name):
             last_show_time	DATETIME,
             sentance_id	INTEGER,
             remember INTEGER DEFAULT 0
-            FOREIGN KEY(lesson_id) REFERENCES lesson_body(id),
-            FOREIGN KEY(sentance_id) REFERENCES lesson_body(id),
+            FOREIGN KEY(lesson_id) REFERENCES lesson_sentence(id),
+            FOREIGN KEY(sentance_id) REFERENCES lesson_sentence(id),
             FOREIGN KEY(mode_id) REFERENCES mode_study(id),
             PRIMARY KEY(id AUTOINCREMENT)
         )

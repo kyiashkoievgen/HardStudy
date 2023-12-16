@@ -1,6 +1,7 @@
 import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response, json
+from gpt_db import get_chats, get_chats_messages, get_model, send_messages
 from study import WebStudy, Phrase
 from db import DB
 
@@ -8,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 
 # главная страница сайта меню все фреймы
-@app.route('/index')
+@app.route('/')
 def index():
     return render_template('layout.html')
 
@@ -155,6 +156,37 @@ def save_result():
 @app.route('/stat')
 def stat():
     return render_template('stat.html')
+
+@app.route('/create_lesson_form')
+def create_lesson_form():
+    db = DB()
+    list_lang = db.get_all_mode_lang_name(mode=False)
+    return render_template('create_lesson.html', list_lang=list_lang)
+
+@app.route('/create_lesson', methods=['POST'])
+def create_lesson():
+    req = request.form.to_dict()
+    if req['name_lesson']=='':
+        flash('Пожалуйста, правильно заполните все поля!')
+    return redirect(url_for('create_lesson_form'))
+
+@app.route('/chatgpt')
+def chatgpt():
+    chats_names = get_chats()
+    return render_template('chatgpt.html', chats=chats_names)
+
+@app.route('/chat_messages/<chat_id>')
+def chat_messages(chat_id):
+    chats_messages = get_chats_messages(chat_id)
+    models = get_model()
+    return render_template('chat_messages.html', messages=chats_messages, models=models, chat_id=chat_id)
+
+@app.route('/chat_messages/new/<chat_id>', methods=['POST'])
+def chat_messages_new(chat_id):
+    gpt_data = request.form.to_dict()['gpt_request']
+    chat_name = request.form.get('chat_name')
+    send_messages(gpt_data, chat_id, chat_name)
+    return redirect(url_for('chat_messages', chat_id=chat_id))
 
 if __name__ == '__main__':
     app.run(debug=True)

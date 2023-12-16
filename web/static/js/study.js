@@ -15,21 +15,13 @@ function removeDiacritics(str) {
 }
 
 function open_window_pause(){
-    document.getElementById('pause_box_back').style.display = "block";
-     window.parent.serial_device.smoke();
-    setTimeout(function (){
-        document.getElementById('pause_box_back').style.display = "none";
-    }, 60000);
+    window.parent.serial_device.smoke();
+    show_message('Перекур', 30000);
 }
 
 function on_help(){
     help_flag = true;
-    document.getElementById('help_box').innerText = lesson_data[curr_sent_count].phrase_sent;
-    document.getElementById('help_box_back').style.display = "block";
-    setTimeout(function (){
-        document.getElementById('help_box_back').style.display = "none";
-        document.getElementById('input_text').focus();
-    }, 5000);
+    show_message(lesson_data[curr_sent_count].phrase_sent, 5000)
     lesson_data[curr_sent_count].phrase_audio.play();
 }
 
@@ -39,8 +31,25 @@ function on_sound(){
     document.getElementById('input_text').focus();
 }
 
+function on_one_letter(){
+    let symbol_num = document.getElementById('input_text').value.length
+    show_message(lesson_data[curr_sent_count].phrase_sent.slice(symbol_num, symbol_num+1), 500)
+    document.getElementById('one_letter').style.display = "none";
+}
+
+function show_message(text, time){
+    document.getElementById('message_box_message').innerText = text;
+    document.getElementById('message_box').style.display = "block";
+    document.getElementById('input_text').style.display = "none"
+    setTimeout(function (){
+        document.getElementById('message_box').style.display = "none";
+        document.getElementById('input_text').style.display = "block"
+        document.getElementById('input_text').focus();
+    }, time);
+}
+
 function next(){
-    //console.info('next');
+    document.getElementById('one_letter').style.display = "block";
     mistake = false;
     help_flag = false;
     sound_help_flag = false;

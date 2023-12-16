@@ -20,11 +20,8 @@
     <script src="{{ url_for('static', filename='js/study.js') }}" defer></script>
 </head>
 <body onload="on_download();">
-<div class="message_box_back" id="help_box_back">
-    <div class="message_box" id="help_box"></div>
-</div>
-<div class="message_box_back" id="pause_box_back">
-    <div class="message_box" id="pause_box">Перекур</div>
+<div class="message_box_back" id="message_box">
+    <div class="message_box" id="message_box_message"></div>
 </div>
 <form id="response" name="response" action="/save_result" method="post" target="stat">
     <input type="hidden" name="add_sent_num" value="{{ add_sent_num }}">
@@ -49,6 +46,7 @@
         <textarea id="input_text" onkeyup="onEntryChangeStudy()"></textarea>
         <button onclick="on_help()">Показать</button>
         <button onclick="on_sound()">Произнести</button>
+        <button id="one_letter" onclick="on_one_letter()">Символ</button>
     </div>
 
 </div>

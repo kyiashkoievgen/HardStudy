@@ -1,7 +1,6 @@
 import tkinter as tk
 from dialogs import SelectLesson, AppSettings
 from study import StudyPy
-import video_study as mode1_study
 from db import DB
 
 root = tk.Tk()

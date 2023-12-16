@@ -136,3 +136,25 @@ select {
 .no_hide {
     display: block;
 }
+
+.create_main {
+    display: flex;
+    margin-bottom: 5px;
+    padding: 5px;
+    justify-content: space-evenly;
+}
+
+.create_form{
+    display: flex;
+    margin: 10px 20px 10px 20px;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: lightgray;
+}
+
+.create_main li{
+    display: flex;
+    margin: 10px 20px 10px 20px;
+    justify-content: flex-start;
+    align-items: center;
+}

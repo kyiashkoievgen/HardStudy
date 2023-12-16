@@ -35,7 +35,7 @@ def create_new_lesson_from_txt(file_path, first_lang,  second_lang, name_lesson,
                 value_in_another_language_mp3_name = hash_object.hexdigest()
                 try:
                     # Выполняем изменения в базе данных
-                    db.cursor.execute('''INSERT INTO lesson_body (lession_id, what_to_learn, 
+                    db.cursor.execute('''INSERT INTO lesson_sentence (lession_id, what_to_learn, 
                        value_in_another_language, what_to_learn_audio, value_in_another_language_audio
                         ) VALUES (?, ?, ?, ?, ?)''', (lesson_name_id, what_to_learn, value_in_another_language,
                                                       what_to_learn_mp3_name, value_in_another_language_mp3_name))

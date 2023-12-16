@@ -35,6 +35,7 @@
         request = "/all_lesson?my_lesson=True&select_name=" + select_name.name + "&value=" + select_name.value;
         document.querySelectorAll('iframe')[1].contentDocument.location = request;
     }
+
 </script>
 <div class="control-group">
     <label>Тип</label>
@@ -73,7 +74,7 @@
         >{{ lang['name'] }}</option>
         {% endfor %}
     </select>
-    <button>Создать</button>
+    <button onclick="document.location = '/create_lesson_form'">Создать</button>
 </div>
 <div class="central_block">
     <div class="list-lesson-group" id="all-lesson">

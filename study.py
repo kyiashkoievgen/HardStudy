@@ -6,7 +6,6 @@ from comport import SerialDevice
 from unidecode import unidecode
 from random import shuffle
 import re
-import json
 
 
 def center_window(window, width, height, dx=0, dy=0):
@@ -105,6 +104,13 @@ class Study:
                         Phrase(each['id'], each['study_phrase'], each['phrase_audio'], each['phrase_meaning'],
                                each['meaning_audio'], False, False, False, True, False)
                     )
+
+        # добавляем в урок предложения с нулевым количеством правильных ответов для тестирования их изучения
+        for each in z_study:
+            self.phrase_list.append(
+                Phrase(each['id'], each['study_phrase'], each['phrase_audio'], each['phrase_meaning'],
+                       each['meaning_audio'], False, False, False, True, True)
+            )
 
         # добавляем предложения которые нужно повторять
         # предложения которые были отвечены правильно 3 раза повторяем 5 раз если при показе в первый раз была ошибка
