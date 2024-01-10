@@ -1,27 +1,53 @@
 import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response, json
+
 from gpt_db import get_chats, get_chats_messages, get_model, send_messages
-from study import WebStudy, Phrase
+from study import WebStudy
 from db import DB
+from web.hard_study.modls import db, User
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+app.config[
+    'SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://ewgen:Zaqplm!234@localhost/hard_study'  # Используйте свой путь к базе данных
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+db.init_app(app)
+
+
+
+
 
 # главная страница сайта меню все фреймы
 @app.route('/')
 def index():
+    #db.drop_all()
+    #db.create_all()
+    # words_to_find = ['Eu', 'ter']
+    # word_in = Word.word.in_(words_to_find)
+    # words = Word.query.filter(word_in).all()
+    # dd = true()
+    # sent = Sentence.query.filter_by(language_id=2).all()
+    # for word in words:
+    #     dd = and_(dd, Sentence.words.any(Word.id == word.id))
+    # sent = Sentence.query.filter(dd).all()
+    # print(sent)
+    user = User(username='jey').query.first()
+    print(user.check_password('Zaqplm!234'))
     return render_template('layout.html')
+
 
 # домашняя страница сайта
 @app.route('/home')
 def home():
     return render_template('content_home.html')
 
+
 # о разработчиках
 @app.route('/about')
 def about():
     return render_template('content_about.html')
+
 
 # настройки
 @app.route('/settings')
@@ -29,6 +55,7 @@ def settings():
     db = DB()
     name_settings = db.get_settings_profile()
     return render_template('setting.html', Settings=db.app_setting_init(), name_settings=name_settings)
+
 
 # изменения профайла настроек и установки их по умолчанию
 @app.route('/change_setting_profile', methods=['GET'])
@@ -41,6 +68,7 @@ def change_setting_profile():
         flash('Пожалуйста, правильно заполните все поля!')
 
     return redirect(url_for('settings'))
+
 
 # чтение и проверка данных с формы настроек
 def get_form_data():
@@ -78,6 +106,7 @@ def save_settings_form():
         flash('Пожалуйста, правильно заполните все поля!')
     return redirect(url_for('settings'))
 
+
 # создание нового профайла с настройками
 @app.route('/create_new_profile', methods=['POST'])
 def create_new_profile():
@@ -88,6 +117,7 @@ def create_new_profile():
     except:
         flash('Пожалуйста, правильно заполните все поля!')
     return redirect(url_for('settings'))
+
 
 # загрузка страницу с фреймами для списков всех уроков и уроков пользователя в куках храним фильтры что выбрал
 # пользователь
@@ -102,6 +132,7 @@ def lessons():
     list_lang = db.get_all_mode_lang_name(mode=False)
     return render_template('lessons.html', list_mode=list_mode, list_lang=list_lang,
                            lesson_filter=lesson_filter)
+
 
 # вывод всех уроков и уроков пользователя
 @app.route('/all_lesson', methods=['GET'])
@@ -131,6 +162,7 @@ def all_lesson():
         response.set_cookie('lang2', lesson_filter['lang2'], expires=expires)
     return response
 
+
 @app.route('/start_study', methods=['POST'])
 def start_study():
     lesson_id_name = []
@@ -145,6 +177,7 @@ def start_study():
     return render_template('study.html', lesson_id_name=lesson_id_name, study_data=study_data,
                            add_sent_num=add_sent_num)
 
+
 @app.route('/save_result', methods=['POST'])
 def save_result():
     req = request.form.to_dict()
@@ -153,9 +186,11 @@ def save_result():
                                              req['timeStart'], req['timeStop'], req['duration'])
     return render_template('stat.html', stat=statistic)
 
+
 @app.route('/stat')
 def stat():
     return render_template('stat.html')
+
 
 @app.route('/create_lesson_form')
 def create_lesson_form():
@@ -163,17 +198,20 @@ def create_lesson_form():
     list_lang = db.get_all_mode_lang_name(mode=False)
     return render_template('create_lesson.html', list_lang=list_lang)
 
+
 @app.route('/create_lesson', methods=['POST'])
 def create_lesson():
     req = request.form.to_dict()
-    if req['name_lesson']=='':
+    if req['name_lesson'] == '':
         flash('Пожалуйста, правильно заполните все поля!')
     return redirect(url_for('create_lesson_form'))
+
 
 @app.route('/chatgpt')
 def chatgpt():
     chats_names = get_chats()
     return render_template('chatgpt.html', chats=chats_names)
+
 
 @app.route('/chat_messages/<chat_id>')
 def chat_messages(chat_id):
@@ -181,12 +219,14 @@ def chat_messages(chat_id):
     models = get_model()
     return render_template('chat_messages.html', messages=chats_messages, models=models, chat_id=chat_id)
 
+
 @app.route('/chat_messages/new/<chat_id>', methods=['POST'])
 def chat_messages_new(chat_id):
     gpt_data = request.form.to_dict()['gpt_request']
     chat_name = request.form.get('chat_name')
     send_messages(gpt_data, chat_id, chat_name)
     return redirect(url_for('chat_messages', chat_id=chat_id))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

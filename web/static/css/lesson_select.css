@@ -1,0 +1,12 @@
+#control_row {
+    display: flex;
+    justify-content: space-around;
+}
+
+#control_row label {
+    margin-right: 5px;
+}
+
+#control_row select {
+    margin-right: 20px;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lesson_select.css') }}">
+</head>
+<body>
+<div id="control_row">
+    <form>
+        <label>Тип урока</label>
+        <select name="type">
+            {% for type in lesson_type %}
+            <option value="{{ type.id }}"> {{ type.type }} </option>
+            {% endfor %}
+        </select>
+        <label>Изучаемый язык</label>
+        <select name="lang2">
+            {% for lang in languages %}
+            <option value="{{ lang.id }}">{{ lang.code }}</option>
+            {% endfor %}
+        </select>
+        <label>Урок</label>
+        <select name="lesson">
+            {% for name in lesson_name %}
+            <option>{{ name.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <button>Создать</button>
+</div>
+<table>
+    <th>
+        <td>Предложение</td>
+        <td>Показано раз</td>
+        <td>Правильных ответов</td>
+        <td>Ответов без подсказок</td>
+        <td>Включено в обучение</td>
+        <td>Последний раз показано</td>
+    </th>
+</table>
+</body>
+</html>

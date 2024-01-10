@@ -6,11 +6,11 @@
 </head>
 <script>
  function loaded() {
- const textarea = document.getElementsByTagName('textarea');
- for (let el of textarea){
-    el.style.height = (el.scrollHeight+5) + 'px';
- }
- const out_messages = document.getElementsByClassName('out_message')
+     const textarea = document.getElementsByTagName('textarea');
+     for (let el of textarea){
+        el.style.height = (el.scrollHeight+5) + 'px';
+     }
+     const out_messages = document.getElementsByClassName('out_message')
      if (out_messages.length>2){
          let last_message = out_messages[out_messages.length-3]
          let head = last_message.parentElement.children[0].children[0]
@@ -20,6 +20,7 @@
          document.getElementById("model").value = head.children[6].textContent
          document.getElementById('system').innerText = sys;
      }
+     window.scrollTo(0, document.body.scrollHeight);
  }
  function add_message_to_request(){
     let new_message = document.getElementById('new_message');

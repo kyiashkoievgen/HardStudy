@@ -1,8 +1,6 @@
 from db import DB
 from gtts import gTTS
 import hashlib
-from voice_unit import mp4_to_wav, audio_file_recognizer
-from voice_frame_generator import chunk_wav
 from googletrans import Translator
 
 
