@@ -9,8 +9,7 @@ import requests
 # import codecs
 from gtts import gTTS
 import string
-# import spacy
-import ru_core_news_lg
+import spacy
 # from nltk import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -158,17 +157,25 @@ def words_create_request(lang_id):
     print(messages)
 
 
-def put_words_to_bd(language_id=4):
-    # nlp = ru_core_news_lg.load()
+def put_words_to_bd(language_id):
+    mysql = mysql_connect()
+    s = select(mysql['languages']).where(mysql['languages'].c.id == language_id)
+    language = mysql['connect'].execute(s).fetchone()
+    nlp = None
+    if language[2] == 'ru':
+        import ru_core_news_lg
+        nlp = ru_core_news_lg.load()
+    elif language[2] == 'pt':
+        import pt_core_news_lg
+        nlp = pt_core_news_lg.load()
+    elif language[2] == 'es':
+        import es_dep_news_trf
+        nlp = es_dep_news_trf.load()
+    elif language[2] == 'en':
+        import en_core_web_trf
+        nlp = en_core_web_trf.load()
     # doc = nlp("No text available yet")
     # print([(w.text, w.pos_) for w in doc])
-    import en_core_web_trf
-    nlp = en_core_web_trf.load()
-    # nlp = spacy.load("pt_core_news_lg")
-    # import pt_core_news_lg
-    # import es_dep_news_trf
-    # nlp = es_dep_news_trf.load()
-    mysql = mysql_connect()
     s = select(mysql['sentences']).where(mysql['sentences'].c.language_id == language_id)
     sentences = mysql['connect'].execute(s).fetchall()
     words_set = set()
@@ -177,19 +184,33 @@ def put_words_to_bd(language_id=4):
         text = ' '.join(text.split())
         translator = str.maketrans('', '', string.punctuation)
         text = text.translate(translator)
-        stop_words = set(stopwords.words('english'))
+        stop_words = set(stopwords.words(language[1]))
         words = word_tokenize(text)
         filtered_text = ' '.join([word for word in words if word.lower() not in stop_words])
         words = nlp(filtered_text)
-
         [words_set.add(w.lemma_) for w in words]
-    with open("words.txt", "w") as file:
-        # Преобразуем set в список и записываем его в файл
-        file.write("\n".join(words_set))
-    print(len(words_set))
+
+        for word in words_set:
+            s = select(mysql['words']).where(mysql['words'].c.word == word)
+            result = mysql['connect'].execute(s).fetchone()
+            if not result:
+                new_word = insert(mysql['words']).values(word=word)
+                result = mysql['connect'].execute(new_word)
+                word_id = result.inserted_primary_key[0]
+            else:
+                word_id = result[0]
+            new_item = insert(mysql['reg_sent_word']).values(sentences_id=sentence[0], word_id=word_id)
+            do_nothing_stmt = new_item.on_duplicate_key_update(sentences_id=new_item.inserted.sentences_id,
+                                                               word_id=new_item.inserted.word_id)
+            mysql['connect'].execute(do_nothing_stmt)
+            print("ok:", sentence[0])
+        print(len(words_set), '\n', words_set)
+        words_set = set()
+    mysql['connect'].commit()
+    mysql['connect'].close()
 
 
-put_words_to_bd()
+#put_words_to_bd(4)
 
 
 def put_word_from_gpt(chat_id=26):
@@ -378,7 +399,7 @@ def translate_sent(from_len_id, to_len_id, lessons_names_id):
     # gpt_db['connect'].commit()
 
 
-def create_audio(creating_type='img', speed='slow', voice="nova"):
+def create_audio_img(creating_type='img', speed='slow', voice="nova"):
     mysql = mysql_connect()
     client = OpenAI()
     s = select(mysql['sentences']).where(mysql['sentences'].c.img == 0, mysql['sentences'].c.language_id == 4)
@@ -431,7 +452,7 @@ def create_audio(creating_type='img', speed='slow', voice="nova"):
         except Exception as e:
             print('error', e)
 
-create_audio()
+
 # mysql = mysql_connect()
 # s = select(mysql['sentences']).where(mysql['sentences'].c.language_id == 4)
 # from_sent_list = mysql['connect'].execute(s).fetchall()
