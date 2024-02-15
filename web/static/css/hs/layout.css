@@ -1,0 +1,143 @@
+
+#content {
+    position: fixed;
+    top: 50px;
+    left: 250px;
+    right: 20px;
+    bottom: 20px;
+    z-index: -1;
+    overflow: hidden;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    display: none;
+    border: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  background-color: rgba(206, 247, 253, 0.9); /* Черный фон с 50% прозрачности */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: url("../../img/hs/studyforge_background.png");
+    margin: 0;
+    padding: 0;
+}
+
+#menu {
+    position: fixed;
+    top: 20px;
+    left: 10px;
+    bottom: 20px;
+    background-color: #0a0f1b;
+    width: 200px;
+    overflow: hidden;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.15), /* Внутренняя светлая тень сверху */
+    inset 0 -1px 2px rgba(32, 237, 250, 0.4), /* Внутренняя темная тень снизу */
+    0 5px 10px rgba(32, 237, 250, 0.3), /* Внешняя тень для объема */
+    0 2px 15px rgba(50, 200, 255, 1.2); /* Синий светящийся эффект */
+}
+
+.lay_button a {
+    background: linear-gradient(to top, #1f4068, #1b1b2f); /* Градиент для объемного эффекта */
+    border-radius: 5px;
+    display: block;
+    color: white;
+    padding: 5px 20px;
+    margin: 10px 0;
+    text-decoration: none;
+    background: #16213e;
+    border: none;
+    box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.15), /* Внутренняя светлая тень сверху */
+    inset 0 -1px 2px rgba(32, 237, 250, 0.4), /* Внутренняя темная тень снизу */
+    0 5px 10px rgba(32, 237, 250, 0.3), /* Внешняя тень для объема */
+    0 2px 15px rgba(50, 200, 255, 1.2); /* Синий светящийся эффект */
+    transition: box-shadow 0.3s ease-in-out;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.lay_button a:hover {
+    box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 5px 15px rgba(0, 0, 0, 0.3),
+    0 2px 15px rgba(0, 0, 255, 1.2); /* Усиленный светящийся эффект при наведении */
+
+}
+
+.no_hide {
+    display: block;
+}
+
+.hide {
+    display: none;
+}
+
+#select_lesson ol{
+    font-size: small;
+    color: white;
+}
+
+#select_lesson li{
+    font-size: smaller;
+    font-style: italic;
+    line-height: 150%;
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+}
+
+.lang_login {
+    position: fixed;
+    right: 5px;
+    top: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.login {
+    display: block;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#login_container {
+    height: 100%;
+    background-image: url("../img/tramspodent_backgraund.png");
+    width: 100%;
+    top: 0px;
+    right: 0px;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.login_form {
+    padding: 50px;
+    background-color: white;
+}
+
+.login_form a {
+    display: block;
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.login_form a:hover {
+    background-color: lightgray;
+    cursor: pointer;
+}

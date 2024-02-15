@@ -69,11 +69,12 @@
         });
      let data = {
          "type_data": "chat",
-         "temperature":parseInt(document.getElementById("temperature").value),
+         "temperature":parseFloat(document.getElementById("temperature").value),
          "max_tokens": parseInt(document.getElementById("max_tokens").value),
          "model": document.getElementById("model").value,
          "messages": messages
      };
+
      document.getElementById('gpt_request').value = JSON.stringify(data);
      document.getElementById('chat_name').value = window.parent.document.getElementById('new_chat').value
      document.getElementById('send_form').submit();
@@ -87,6 +88,7 @@
     </div>
     {% endfor %}
      <form id="send_form" action="/chat_messages/new/{{ chat_id }}" method="post">
+         <input name="gpt_raw" id="gpt_raw" type="hidden" value="">
          <input name="gpt_request" id="gpt_request" type="hidden" value="">
          <input name="chat_name" id="chat_name" type="hidden" value="">
      <div id="new_message" class="out_message">

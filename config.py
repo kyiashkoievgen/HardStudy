@@ -6,6 +6,7 @@ base_dir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SECRET_KEY = 'SDKFGKJHSJKFlkdfjlksblkgf'
+    WTF_CSRF_TIME_LIMIT = 43200
     BOOTSTRAP_SERVE_LOCAL = True
     LANGUAGES = ['ru', 'pt', 'es', 'en']
 

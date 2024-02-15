@@ -3,40 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lesson_select.css') }}">
+    <script src="{{ url_for('static', filename='js/hs/lesson_select.js') }}" defer></script>
 </head>
 <body>
 <div id="control_row">
-    <form>
-        <label>Тип урока</label>
-        <select name="type">
-            {% for type in lesson_type %}
-            <option value="{{ type.id }}"> {{ type.type }} </option>
-            {% endfor %}
-        </select>
-        <label>Изучаемый язык</label>
-        <select name="lang2">
-            {% for lang in languages %}
-            <option value="{{ lang.id }}">{{ lang.code }}</option>
-            {% endfor %}
-        </select>
-        <label>Урок</label>
-        <select name="lesson">
-            {% for name in lesson_name %}
-            <option>{{ name.name }}</option>
-            {% endfor %}
-        </select>
+    <form method="POST">
+        {{ form.csrf_token() }}
+        {{ form.what_request() }}
+        {{ form.lesson_type.label }}
+        {{ form.lesson_type(onchange="select_on_change(this);") }}
+        {{ form.lesson_lang.label }}
+        {{ form.lesson_lang(onchange="select_on_change(this);") }}
+        {{ form.lesson_name.label}}
+        {{ form.lesson_name(onchange="select_on_change(this);") }}
     </form>
-    <button>Создать</button>
+    <button >Создать</button>
 </div>
 <table>
-    <th>
-        <td>Предложение</td>
-        <td>Показано раз</td>
-        <td>Правильных ответов</td>
-        <td>Ответов без подсказок</td>
-        <td>Включено в обучение</td>
-        <td>Последний раз показано</td>
-    </th>
+    <tr>
+        <th></th>
+        <th>Изучаемый язык</th>
+        <th>Показано раз</th>
+        <th>Правильных ответов</th>
+        <th>Ответов без подсказок</th>
+        <th>Последний раз показано</th>
+        <th>Включено в обучение</th>
+    </tr>
+    <!--(77, 2, 39, 'Olá', '61b690be506a14fec7a053fa8587c25ca7406ea1898f2d1d83afe9d71f1aa07b', True, False, 39, 1, 1, 77, 21, 5, 1, datetime.datetime(2023, 12, 19, 12, 46, 32), 39, 'Привет')--!>
+    {% for row in lesson_content %}
+    <tr>
+        <th>{{ row[16] }}</th>
+        <td>{{ row[3] }}</td>
+        <td>{{ row[11] }}</td>
+        <td>{{ row[12] }}</td>
+        <td>{{ row[13] }}</td>
+        <td>{{ row[14] }}</td>
+        <td>-----</td>
+    </tr>
+    {% endfor %}
 </table>
 </body>
 </html>

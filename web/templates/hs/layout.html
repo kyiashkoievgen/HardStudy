@@ -1,6 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %} Hard Study {% endblock %}
+{% block title %} Study Forge {% endblock %}
 
 {% block scripts %}
 {{ super() }}
@@ -9,7 +9,8 @@
 
 {% block styles %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hs/layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hs/common.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -17,59 +18,53 @@
 <div class="container">
     {% block login %}{% endblock %}
 </div>
-
-<div id="main_container">
-    <div id="head">
-        <div id="name_app">
-            <h1>Hard Study</h1>
-        </div>
-        <select id="lang">
-            {% for lang in languages %}
-            <option value="{{ lang.id }}"
-                {% if lang.code == selected_language %}
-                selected
-                {% endif %}
-            >{{ lang.code }}</option>
-            {% endfor %}
-        </select>
-        <div class= "login">
-        {% if current_user.is_authenticated %}
-            <a href="{{ url_for('auth.logout') }}" >logout</a>
-            {% else %}
-            <a href="{{ url_for('auth.login') }}" >login</a>
-        {% endif %}
-        </div>
+<div id="menu" class="lay_button">
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='img/hs/StudyForge_logo.png')}}" height="100px">
     </div>
-    <div id="container">
-        <div id="menu">
-            <a href="{{ url_for('hs.home') }}" onclick="showFrame('common')" target="common">Дом</a>
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('hs.settings')}}" onclick="showFrame('common')" target="common">Настройки</a>
-                <a href="{{ url_for('hs.lesson_select') }}" onclick="showFrame('common')" target="common">Уроки</a>
-                {% if lesson %}
-                    <div id="select_lesson">
-                        <ol>Выбран урок: {{ lesson.name }}</ol>
-                        <ul>
-                            <a href="#" onclick="showFrame('study')">Продолжить</a>
-                        </ul>
-                        <ul>
-                            <a href="#" onclick="showFrame('chat')">Чат</a>
-                        </ul>
-                    </div>
-                <a href="{{ url_for('hs.stat') }}" onclick="showFrame('common')" target="common">Статистика</a>
-                {% endif %}
+    <a href="{{ url_for('hs.home') }}" onclick="showFrame('common')" target="common">Дом</a>
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('hs.settings')}}" onclick="showFrame('common')" target="common">Настройки</a>
+        <a href="{{ url_for('hs.lesson_select', lang_id=selected_language.id) }}" onclick="showFrame('common')" target="common">Уроки</a>
+        {% if lesson %}
+            <div id="select_lesson">
+                <ol>Выбран урок: {{ lesson.name }}</ol>
+                <ul>
+                    <a href="{{ url_for('hs.study')}}">Учить</a>
+                </ul>
+                <ul>
+                    <a href="#" onclick="showFrame('chat')">Чат</a>
+                </ul>
+            </div>
+        <a href="{{ url_for('hs.stat') }}" onclick="showFrame('common')" target="common">Статистика</a>
+        {% endif %}
+    {% endif %}
+    <a href="{{ url_for('hs.about') }}" onclick="showFrame('common')" target="common">О нас</a>
+</div>
+<div class="lang_login lay_button">
+    <select id="lang">
+        {% for lang in languages %}
+        <option value="{{ lang.id }}"
+            {% if lang.code == selected_language.code %}
+            selected
             {% endif %}
-            <a href="{{ url_for('hs.about') }}" onclick="showFrame('common')" target="common">О нас</a>
-        </div>
-
-        <div id="content">
-            <iframe id="common" name="common" src=""></iframe>
-            {% if current_user.is_authenticated and lesson %}
-                <iframe id="chat" name="chat" src="/chat/{{ lesson.id }}"></iframe>
-                <iframe id="study" name="study" src="/study/{{ lesson.id }}"></iframe>
-            {% endif %}
-        </div>
+        >{{ lang.code }}</option>
+        {% endfor %}
+    </select>
+    <div class= "login">
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('auth.logout') }}" >logout</a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}" >login</a>
+    {% endif %}
     </div>
 </div>
+<div id="content">
+    <iframe id="common" name="common" src=""></iframe>
+    {% if current_user.is_authenticated and lesson %}
+        <iframe id="chat" name="chat"></iframe>
+    {% endif %}
+</div>
+
 
 {% endblock %}

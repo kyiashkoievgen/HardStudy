@@ -115,20 +115,33 @@ def get_id(table_name, name, connect):
     return item_id
 
 
-def send_messages(gpt_request, chat_id, chat_name):
+def send_messages(gpt_data, chat_id, chat_name):
     metadata, engine, chat, messages, open_ai_model = db_connect()
     with engine.connect() as connection:
+        # mess = []
+        # for each in gpt_data['messages']:
+        #     mess.append(json.loads(json.dumps(each, ensure_ascii=False)))
+        mess = json.dumps(gpt_data['messages'], ensure_ascii=False)
         if chat_id == 'new':
             chat_id = get_id(chat, chat_name, connection)
+        gpt_raw = f"messages = {mess}\n" \
+                  "response = client.chat.completions.create(\n" \
+                  f"    temperature={gpt_data['temperature']},\n" \
+                  f"    max_tokens={gpt_data['max_tokens']},\n" \
+                  f"    model='{gpt_data['model']}',\n" \
+                  f"    messages=messages\n" \
+                  ")\n" \
+                  "result = response.model_dump_json()"
         connection.execute(messages.insert(), [
             {
                 'chat_id': chat_id,
                 'date': datetime.datetime.now(),
-                'message': gpt_request,
+                'message': json.dumps(gpt_data),
                 'in_out': 0,
                 'model_id': None,
                 'temperature': 0,
                 'max_tokens': 0,
-                'usage': 0
+                'usage': 0,
+                'gpt_raw': gpt_raw
             }])
         connection.commit()

@@ -1,0 +1,67 @@
+#input_view {
+    padding-top: 30px;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+#input_view textarea {
+    width: 300px;
+    font-weight: bold;
+    font-size: x-large;
+
+}
+
+#quest_view {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    font-weight: bold;
+    font-size: x-large;
+}
+
+#phrase_meaning {
+    background-color: lightgray;
+    padding: 5px;
+}
+
+.back_ground{
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    display: none;
+}
+
+.top_right{
+    position: absolute;
+    display: flex;
+    top: 50px;
+    right: 50px;
+    background-color: azure;
+    padding: 5px;
+    align-items: center;
+}
+
+.motivator_info{
+    display: flex;
+    flex-direction: column;
+    padding-right: 20px;
+    font-size: small;
+}
+
+.phrase_meaning{
+    display: flex;
+    background-color: azure;
+    padding: 5px;
+    align-items: center;
+}

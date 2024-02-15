@@ -1,10 +1,198 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Settings</title>
-</head>
-<body>
+{% extends "bootstrap/base.html" %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hs/common.css') }}">
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/hs/common.js') }}" ></script>
+{% endblock %}
+{% block content %}
+<div class="message_background" id="message_box">
+    <div class="message_box">
+        <div id="message_box_text"></div>
+        <div class="button_block">
+            <button id="ok_btn">Ok</button>
+            <button id="cancel_btn" >Cancel</button>
+        </div>
+    </div>
+</div>
+<form id="setting_form" action="{{ url_for('hs.settings') }}" method="post" class="form" role="form">
+    {{ form.csrf_token() }}
+<div class="container  bg-warning">
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.num_sent_warm_up.label(class="form-label") }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.num_sent_warm_up(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.num_new_sentences.label(class="form-label") }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.num_new_sentences(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            {{ form.total_sentences.label }}
+        </div>
+        <div class="col-sm-4">
+            {{ form.total_sentences(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            {{ form.voice.label }}
+        </div>
+        <div class="col-sm-4">
+            {{ form.voice(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            {{ form.num_showings1.label }}
+        </div>
+        <div class="col-sm-4">
+            {{ form.num_showings1(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.num_showings2.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.num_showings2(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.num_showings3.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.num_showings3(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.use_dialect.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.use_dialect() }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.shock_motivator.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.shock_motivator() }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.smoke_motivator.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.smoke_motivator() }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.money_motivator.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.money_motivator(onchange="submit_form(this)") }}
+        </div>
+    </div>
+    {% if current_user.money_motivator %}
+    {{ form.activate_motivator() }}
+    <div class="row">
+        <div class="col-sm-2">
+        <label>Баланс мотиватора</label>
+        </div>
+        <div class="col-sm-2">
+        <span>{{ current_user.btc_balance_in }}</span>
+        </div>
+        {% if not current_user.is_money_motivator_active %}
+        <div class="col-sm-3">
+        {% if current_user.btc_balance_in>0 %}
+            <input type="button" onclick="show_message('Внимание!!!\nПосле активации какие либо изменения внести будет не возможно,' +
+             '\nпока не закончится его действие.', 0, activate_money_motivator, null)", value="Активировать мотиватор"></input>
+            {% else %}
+            <span>Пополните баланс для активации мотиватора</span>
+            {% endif %}
+        </div>
+        {% endif %}
+        <div class="col-sm-2">
+            <button>Пополнить</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+        {{ form.my_bitcoin_wallet.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.my_bitcoin_wallet(class="form-control", readonly=current_user.is_money_motivator_active)}}
+        </div>
+        <div class="col-sm-2">
+        <label>Баланс</label>
+        <span>{{ current_user.btc_balance_my_out }}</span>
+        <button>Вывести</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.no_my_bitcoin_wallet.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.no_my_bitcoin_wallet(class="form-control", readonly=current_user.is_money_motivator_active)}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.time_period.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.time_period(class="form-control", readonly=current_user.is_money_motivator_active)}}
+        </div>
+        <div class="col-sm-4">
+         {% if current_user.is_money_motivator_active %}
+            <span>{{ current_user.btc_per_day }} BTC/day. День {{ current_user.money_motivator_day }} <br> осталось {{ current_user.money_motivator_hours }} часов что бы пройти уроки</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+        {{ form.lesson_per_day.label }}
+        </div>
+        <div class="col-sm-4">
+        {{ form.lesson_per_day(class="form-control", readonly=current_user.is_money_motivator_active)}}
+        </div>
+    </div>
+    {% endif %}
+    <div class="row text-center">
+        <div class="col">
+        {{ form.submit() }}
+        </div>
+    </div>
 
-</body>
-</html>
+</div>
+</form>
+<script>
+function submit_form(el){
+    let s = 'n'
+    if(el.checked){
+       s = 'y'
+    }
+    window.location.href='/settings?money_motivator='+s
+}
+function activate_money_motivator(){
+    document.getElementById('activate_motivator').value = "True"
+    document.getElementById('submit').click()
+}
+</script>
+{% endblock %}}

@@ -224,6 +224,7 @@ def chat_messages(chat_id):
 def chat_messages_new(chat_id):
     gpt_data = request.form.to_dict()['gpt_request']
     chat_name = request.form.get('chat_name')
+    gpt_data = json.loads(gpt_data)
     send_messages(gpt_data, chat_id, chat_name)
     return redirect(url_for('chat_messages', chat_id=chat_id))
 

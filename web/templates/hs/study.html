@@ -2,9 +2,136 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>stady</title>
-</head>
-<body>
+    <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/hs/study.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/hs/common.js')}}"></script>
+    <script defer>
+         function on_download(){
+            {% if study_data.current_user.shock_motivator %}
+                shock_motivator = true
+             {% endif %}
+             {% if study_data.current_user.smoke_motivator %}
+                smoke_motivator = true
+             {% endif %}
+             {% if study_data.current_user.is_money_motivator_active %}
+                money_motivator = true
+                money_motivator_inc = {{ study_data.current_user.money_motivator_inc }}
+                money_motivator_dec = {{ study_data.current_user.money_motivator_dec }}
+                btc_balance_my_out = {{ study_data.current_user.btc_balance_my_out }}
+                btc_balance_no_my_out = {{ study_data.current_user.btc_balance_no_my_out }}
+                money_for_today = {{ study_data.current_user.money_for_today }}
 
+            {% endif %}
+            {% for data in study_data.phrases %}
+                lesson_data.push({
+                    'id_phrase': {{ data.id_phrase }},
+                    'phrase_study': '{{ data.phrase_study }}',
+                    'phrase_for_checking': '{{ data.phrase_for_checking }}',
+                    'phrase_study_audio': new Audio("{{ url_for('static', filename='audio/hs/'+ study_data.current_user.voice + '/' + data.phrase_study_audio +'.mp3') }}"),
+                    'phrase_native': '{{data.phrase_native}}',
+                    'phrase_native_audio': new Audio("{{ url_for('static', filename='audio/hs/'+ study_data.current_user.voice + '/' + data.phrase_native_audio +'.mp3') }}"),
+                    'study_type': {{ data.study_type }},
+                    'num_showings': {{ data.num_showings }},
+                    'showings_count': 0,
+                    'mistake_count': 0,
+                    'right_answer': 0,
+                    'total_time': 0,
+                    'time_start': new Date(),
+                    'full_understand': 0
+                });
+
+            {% endfor %}
+             {% if study_data.current_user.smoke_motivator or study_data.current_user.shock_motivator %}
+             show_message("Подключите мотивирующие устройства", 0, connect_com_device);
+             {% endif %}
+             document.getElementById('input_text').focus()
+             next()
+         }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/hs/study.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/hs/common.css') }}">
+
+</head>
+<body onload="on_download();">
+<div class="message_background" id="message_box">
+    <div class="message_box">
+        <div id="message_box_text"></div>
+        <div class="button_block">
+            <button id="ok_btn">Ok</button>
+            <button id="cancel_btn" >Cancel</button>
+        </div>
+    </div>
+</div>
+<style>
+{% for data in study_data.phrases %}
+ #img{{ data.id_phrase }} {
+    background-image: url("{{ url_for('static', filename='img/hs/back_ground/' + data.img) }}");
+ }
+{% endfor %}
+</style>
+{% for data in study_data.phrases %}
+<div class="back_ground" id="img{{ data.id_phrase }}"></div>
+{% endfor %}
+<form id="study_data" method="POST">
+    {{ phrase_form.csrf_token() }}
+    {{ phrase_form.id_phrase() }}
+    {{ phrase_form.was_help_flag() }}
+    {{ phrase_form.was_help_sound_flag() }}
+    {{ phrase_form.was_mistake_flag() }}
+    {{ phrase_form.total_phrase() }}
+</form>
+<form id="statistic" method="POST">
+    {{ statistic_form.csrf_token() }}
+    {{ statistic_form.statistic_id_phrase() }}
+    {{ statistic_form.shows() }}
+    {{ statistic_form.mistake_count() }}
+    {{ statistic_form.right_answer() }}
+    {{ statistic_form.new_phrase() }}
+    {{ statistic_form.full_understand() }}
+    {{ statistic_form.total_time() }}
+    {{ statistic_form.time_start() }}
+</form>
+<div class="top_right">
+    {% if study_data.current_user.is_money_motivator_active %}
+    <div class="motivator_info">
+        <div>
+            <label>Мои деньги:</label>
+            <span id="btc_balance_my_out">{{ study_data.current_user.win_btc }}</span>
+        </div>
+        <div>
+            <label>Деньги врага:</label>
+            <span id="btc_balance_no_my_out">{{ study_data.current_user.lose_btc }}</span>
+        </div>
+        <div>
+            <label>Можно забрать денег сегодня:</label>
+            <span id="money_for_today">{{ study_data.current_user.money_for_today - study_data.current_user.win_btc - study_data.current_user.lose_btc }}</span>
+        </div>
+    </div>
+    {% endif %}
+    <div class="close_btm"><a href="/">close</a></div>
+</div>
+<div id="quest_view">
+    <div class="phrase_meaning">
+        <div id="phrase_meaning"><b></b></div>
+        {% if study_data.current_user.is_money_motivator_active %}
+        <div class="motivator_info">
+            <div>
+                <div><label>Правильно:+</label></div>
+                <div><span id="money_motivator_inc">0</span></div>
+            </div>
+            <div>
+                <div><label>Не правильно:-</label></div>
+                <div><span id="money_motivator_dec">0</span></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div id="input_view">
+        <textarea id="input_text" onkeyup="onEntryChangeStudy()"></textarea>
+        <button onclick="on_help()">Показать</button>
+        <button onclick="on_sound()">Произнести</button>
+        <button id="one_letter" onclick="on_one_letter()">Символ</button>
+    </div>
+</div>
 </body>
 </html>
