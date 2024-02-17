@@ -1,8 +1,9 @@
 import time
 from datetime import datetime, timedelta
 
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, and_, text, extract, literal_column, not_, Column, Integer
+from itsdangerous import URLSafeTimedSerializer as Serializer, SignatureExpired, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
@@ -91,6 +92,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64))
     email = db.Column(db.String(64), unique=True, index=True)
+    confirmed = db.Column(db.Boolean, default=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
     lang1 = db.Column(db.Integer, db.ForeignKey('languages.id'))
@@ -139,6 +141,24 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def generate_confirmation_token(self):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        token = s.dumps({'user_id': self.id})
+        return token
+
+    def confirm(self, token, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token, max_age=expiration)
+        except SignatureExpired:
+            return False
+        except BadSignature:
+            return False
+        self.confirmed = True
+        db.session.add(self)
+        db.session.commit()
+        return True
+
     def calc_motivator_money(self):
         if self.is_money_motivator_active:
             t = datetime.now() - self.time_money_start
@@ -146,7 +166,7 @@ class User(UserMixin, db.Model):
             self.money_motivator_hours = int(24 - t.seconds / 3600)
             money_diff = self.btc_balance_in - (self.time_period - t.days) * self.btc_per_day
             self.money_for_today = self.btc_balance_in - (
-                        self.time_period - t.days - 1) * self.btc_per_day
+                    self.time_period - t.days - 1) * self.btc_per_day
             if money_diff > 0:
                 money_diff = money_diff - self.lose_btc - self.win_btc
                 if money_diff < 0:
@@ -166,9 +186,9 @@ class User(UserMixin, db.Model):
 
     def adjust_motivator(self, num_sent):
         if self.is_money_motivator_active:
-            self.btc_per_lesson = self.btc_per_day/self.lesson_per_day
-            self.money_motivator_inc = (self.btc_per_day-self.lose_btc-self.win_btc)/num_sent
-            self.money_motivator_dec = self.money_motivator_inc*self.difficult_money
+            self.btc_per_lesson = self.btc_per_day / self.lesson_per_day
+            self.money_motivator_inc = (self.btc_per_day - self.lose_btc - self.win_btc) / num_sent
+            self.money_motivator_dec = self.money_motivator_inc * self.difficult_money
 
     def calc_motivator_profit(self, num_sent, inc=True):
         if self.is_money_motivator_active:

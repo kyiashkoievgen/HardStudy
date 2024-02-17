@@ -3,6 +3,7 @@ from flask_babel import Babel
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
+from flask_mail import Mail
 from config import config
 
 db = SQLAlchemy()
@@ -11,6 +12,7 @@ login_manager = LoginManager()
 login_manager.session_protection = 'basic'
 login_manager.login_view = 'auth.login'
 babel = Babel()
+mail = Mail()
 
 
 def create_app(config_name):
@@ -22,6 +24,7 @@ def create_app(config_name):
     login_manager.init_app(app)
     bootstrap.init_app(app)
     babel.init_app(app)
+    mail.init_app(app)
     from web.hard_study.auth import auth
     from web.hard_study import hs
     app.register_blueprint(hs)

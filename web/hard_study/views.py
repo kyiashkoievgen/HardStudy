@@ -11,13 +11,6 @@ from .modls import Language, LessonType, LessonName, Sentence, StudyProgress, Us
 from .study import StudyPhrases, save_study_progress, save_statistic, get_lesson_result
 from .. import db
 
-
-@hs.cli.command('initdb')
-def initdb_command():
-    languages = Language.query.all()
-    print(languages)
-
-
 # главная страница сайта меню все фреймы
 @hs.route('/')
 def index():
@@ -37,7 +30,7 @@ def index():
 @login_required
 @hs.route('/home')
 def home():
-    return render_template('content_home.html')
+    return render_template('hs/content_home.html')
 
 
 @login_required
@@ -212,4 +205,4 @@ def stat():
 # о разработчиках
 @hs.route('/about')
 def about():
-    return render_template('content_about.html')
+    return render_template('hs/content_about.html')
