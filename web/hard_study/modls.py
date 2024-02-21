@@ -1,8 +1,5 @@
-import time
-from datetime import datetime, timedelta
-
+from datetime import datetime
 from flask import current_app
-from flask_sqlalchemy import SQLAlchemy
 from itsdangerous import URLSafeTimedSerializer as Serializer, SignatureExpired, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin

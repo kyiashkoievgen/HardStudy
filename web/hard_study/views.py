@@ -1,14 +1,11 @@
 import datetime
-import json
-
-import babel
 from flask import render_template, request, current_app, session
 
 from . import hs
 from flask_login import login_required, current_user
 
 from .forms import SelectLessonForm, SettingForm, StudyPhraseForm, StatisticForm, SettingFormMoney
-from .modls import Language, LessonType, LessonName, Sentence, StudyProgress, User
+from .modls import Language, LessonName
 from .study import StudyPhrases, save_study_progress, save_statistic, get_lesson_result
 from .. import db
 
