@@ -1,0 +1,822 @@
+# English translations for PROJECT.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-02-18 18:04+0300\n"
+"PO-Revision-Date: 2024-02-18 06:18+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: en <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.14.0\n"
+
+#: hard_study/forms.py:10
+msgid "Название урока"
+msgstr "Lesson selected:"
+
+#: hard_study/forms.py:11
+msgid "Тип урока"
+msgstr "Lesson type"
+
+#: hard_study/forms.py:12
+msgid "Язык урока"
+msgstr "Lesson language"
+
+#: hard_study/forms.py:31
+msgid "Количество новых слов в уроке"
+msgstr "The number of new words in the lesson"
+
+#: hard_study/forms.py:32
+msgid "Всего предложений в уроке"
+msgstr "Number of sentences in the lesson"
+
+#: hard_study/forms.py:33
+msgid "Количество предложений для разминки"
+msgstr "Number of sentences for warm-up"
+
+#: hard_study/forms.py:34
+msgid "Голос"
+msgstr "left"
+
+#: hard_study/forms.py:35
+msgid "Количество повторений для новых предложений"
+msgstr "Number of repetitions for new sentences"
+
+#: hard_study/forms.py:36
+msgid "Количество повторений для предложений которые в процессе обучения"
+msgstr ""
+"The number of repetitions for sentences that are in the process of learning"
+
+#: hard_study/forms.py:38
+msgid "Количество повторений для предложений которые в повторении"
+msgstr "The number of repetitions for sentences that are in repetition"
+
+#: hard_study/forms.py:40
+msgid "Использовать диалектические знаки при вводе?"
+msgstr "Should dialectical marks be used when entering text?"
+
+#: hard_study/forms.py:41
+msgid "Использовать электро мотиватор"
+msgstr "Activate the motivator"
+
+#: hard_study/forms.py:42
+msgid "Использовать мотивацию никотином"
+msgstr "Use nicotine motivation"
+
+#: hard_study/forms.py:43 hard_study/forms.py:52
+msgid "Использовать денежную мотивацию"
+msgstr "Use monetary motivation"
+
+#: hard_study/forms.py:44
+msgid "Сохранить настройки"
+msgstr "Settings"
+
+#: hard_study/forms.py:48
+msgid "Кошелек для вывода своих денег"
+msgstr "Wallet for withdrawing your money"
+
+#: hard_study/forms.py:49
+msgid "Кошелек для вывода проигранных денег"
+msgstr "Wallet for withdrawing lost money"
+
+#: hard_study/forms.py:50
+msgid "На сколько дней распределить мотиватор?"
+msgstr "For how many days should the motivator be distributed?"
+
+#: hard_study/forms.py:51
+msgid "Сколько уроков в день?"
+msgstr "How many lessons per day?"
+
+#: hard_study/auth/forms.py:9 hard_study/auth/forms.py:18
+msgid "Почта"
+msgstr "Mail"
+
+#: hard_study/auth/forms.py:10 hard_study/auth/forms.py:19
+msgid "Пароль"
+msgstr "Password"
+
+#: hard_study/auth/forms.py:11
+msgid "Оставаться в системе"
+msgstr "Remaining in the system"
+
+#: hard_study/auth/forms.py:13 templates/hs/layout.html:58
+msgid "Войти"
+msgstr "Enter"
+
+#: hard_study/auth/forms.py:17
+msgid "Имя пользователя"
+msgstr "Username"
+
+#: hard_study/auth/forms.py:20
+msgid "Пароли должны совпадать."
+msgstr "Passwords must match."
+
+#: hard_study/auth/forms.py:21
+msgid "Подтвердить пароль"
+msgstr "Confirm password"
+
+#: hard_study/auth/forms.py:22 templates/hs/auth/login.html:9
+#: templates/hs/auth/login.html:36
+msgid "Регистрация"
+msgstr "Registration"
+
+#: hard_study/auth/forms.py:26
+msgid "Такая почта уже зарегистрированная"
+msgstr "This email is already registered."
+
+#: hard_study/auth/views.py:23 hard_study/auth/views.py:38
+msgid "Подтвердите свою учетную запись"
+msgstr "Please confirm your account."
+
+#: hard_study/auth/views.py:24 hard_study/auth/views.py:39
+msgid ""
+"Подтверждение было отправлено вам по электронной почте. Подтвердите учетную "
+"запись в течение 1 часа"
+msgstr ""
+"A confirmation has been sent to your email.Please confirm your account "
+"within 1 hour."
+
+#: hard_study/auth/views.py:26
+msgid "Неверное имя пользователя или пароль"
+msgstr "Incorrect username or password."
+
+#: hard_study/auth/views.py:50
+msgid "Ссылка для подтверждения недействительна или срок ее действия истек."
+msgstr "The confirmation link is invalid or has expired."
+
+#: hard_study/auth/views.py:66
+msgid "Вы еще не подтвердили свою учетную запись."
+msgstr "You have not yet confirmed your account."
+
+#: hard_study/auth/views.py:67
+msgid ""
+"Вы должны были получить электронное письмо со ссылкой для подтверждения."
+msgstr "You should have received an email with a confirmation link."
+
+#: templates/hs/content_about.html:15 templates/hs/layout.html:42
+msgid "О нас"
+msgstr "About Us"
+
+#: templates/hs/content_about.html:16
+msgid ""
+"Добро пожаловать на страницу \"О нас\" проекта Study Forge. Этот сайт "
+"является кульминацией моего личного вклада и страсти к обучению и "
+"технологиям. От идеи до дизайна и полной реализации, каждый аспект этого "
+"проекта был разработан с нуля мной, демонстрируя мою способность превращать "
+"концепции в работающие решения."
+msgstr ""
+"Welcome to the \"About Us\" page of the Study Forge project. This site is "
+"the culmination of my personal contribution and passion for education and "
+"technology. From the idea to the design and full implementation, every "
+"aspect of this project has been developed from scratch by me, demonstrating "
+"my ability to turn concepts into working solutions."
+
+#: templates/hs/content_about.html:18
+msgid "Использованные технологии"
+msgstr "Technologies Used"
+
+#: templates/hs/content_about.html:19
+msgid ""
+"Для создания Study Forge был использован широкий спектр технологий, "
+"подчеркивающих мою универсальность и знание различных инструментов "
+"разработки. Вот ключевые технологии, примененные в процессе:"
+msgstr ""
+"To create Study Forge, a wide range of technologies emphasizing my "
+"versatility and knowledge of various development tools was used. Here are "
+"the key technologies applied in the process:"
+
+#: templates/hs/content_about.html:31
+msgid "Мой вклад"
+msgstr "My Contribution"
+
+#: templates/hs/content_about.html:32
+msgid ""
+"Проект Study Forge отражает мою способность управлять всем процессом "
+"разработки - от первоначальной идеи до технической реализации. Я не только "
+"спроектировал архитектуру сайта и интерфейс пользователя, но и написал весь "
+"код, интегрировал базу данных и разработал сложные функции взаимодействия с "
+"пользователем с использованием ChatGPT и других технологий."
+msgstr ""
+"The Study Forge project reflects my ability to manage the entire development"
+" process - from the initial idea to technical implementation. I not only "
+"designed the website architecture and user interface, but also wrote all the"
+" code, integrated the database, and developed complex user interaction "
+"functions using ChatGPT and other technologies."
+
+#: templates/hs/content_about.html:33
+msgid ""
+"Важным этапом разработки стало тестирование созданной методики на себе. Этот"
+" процесс не только позволил мне убедиться в эффективности и надежности "
+"системы, но и продемонстрировал удивительные результаты. Использование "
+"методики Study Forge значительно улучшило мои навыки владения иностранными "
+"языками и программированием, подтверждая потенциал методики для обучения и "
+"развития."
+msgstr ""
+"An important stage of development was testing the created methodology on "
+"myself. This process not only allowed me to confirm the effectiveness and "
+"reliability of the system, but also demonstrated amazing results. The use of"
+" the Study Forge methodology significantly improved my language and "
+"programming skills, confirming the methodology's potential for learning and "
+"development."
+
+#: templates/hs/content_about.html:34
+msgid ""
+"Этот сайт служит не только платформой для обучения, но и моим портфолио, "
+"демонстрируя мои навыки и опыт потенциальным клиентам. Я горжусь тем, что "
+"могу представить методику Study Forge как пример моей работы, отражающий мою"
+" страсть к разработке и обучению."
+msgstr ""
+"This website serves not only as a platform for learning but also as my "
+"portfolio, showcasing my skills and experience to potential clients. I am "
+"proud to be able to present the Study Forge methodology as an example of my "
+"work, reflecting my passion for development and education."
+
+#: templates/hs/content_home.html:18
+msgid "Добро пожаловать на Study Forge"
+msgstr "Welcome to Study Forge"
+
+#: templates/hs/content_home.html:23
+msgid ""
+"Study Forge революционный подход к изучению иностранных языков и языков "
+"программирования"
+msgstr ""
+"Study Forge is a revolutionary approach to learning foreign languages and "
+"programming languages."
+
+#: templates/hs/content_home.html:24
+msgid ""
+"Добро пожаловать на Study Forge – революционный подход к изучению "
+"иностранных языков и языков программирования, который обещает не только "
+"улучшить ваше владение новым языком, но и радикально изменить ваше "
+"восприятие процесса обучения. Забудьте о традиционных методиках, которые "
+"полагаются исключительно на зубрежку и пассивное восприятие информации. "
+"Study Forge вносит инновации в процесс обучения, активизируя все ваши "
+"чувства для создания мощных и долговременных нейронных связей."
+msgstr ""
+"Welcome to Study Forge - a revolutionary approach to learning foreign "
+"languages and programming languages that promises not only to improve your "
+"proficiency in a new language, but also radically change your perception of "
+"the learning process. Forget about traditional methods that rely solely on "
+"rote memorization and passive information intake. Study Forge introduces "
+"innovations into the learning process, activating all your senses to create "
+"powerful and long-lasting neural connections."
+
+#: templates/hs/content_home.html:25
+msgid ""
+"Наш уникальный метод объединяет слепой набор на клавиатуре с изучением новых"
+" слов и грамматических конструкций, позволяя вам взаимодействовать с новым "
+"языком на более глубоком уровне. Представьте себе: каждое нажатие клавиш – "
+"это не просто механическое действие, а шаг к укреплению вашего понимания и "
+"запоминания нового языка. С помощью Study Forge вы не только научитесь "
+"понимать и говорить на новом языке, но и освоите слепой метод набора текста,"
+" что значительно повысит вашу продуктивность в работе и повседневной "
+"жизни.Наш уникальный метод объединяет слепой набор на клавиатуре с изучением"
+" новых слов и грамматических конструкций, позволяя вам взаимодействовать с "
+"новым языком на более глубоком уровне."
+msgstr ""
+"Our unique method combines touch typing on the keyboard with learning new "
+"words and grammatical structures, allowing you to interact with a new "
+"language on a deeper level. Imagine this: each keystroke is not just a "
+"mechanical action, but a step towards strengthening your understanding and "
+"memorization of the new language. With Study Forge, you will not only learn "
+"to understand and speak in a new language, but also master touch typing, "
+"significantly increasing your productivity at work and in everyday life. Our"
+" unique method combines touch typing on the keyboard with learning new words"
+" and grammatical structures, allowing you to interact with a new language on"
+" a deeper level."
+
+#: templates/hs/content_home.html:26
+msgid ""
+"Мы верим, что обучение должно быть максимально эффективным и в то же время "
+"вдохновляющим. Именно поэтому Study Forge включает в себя систему поощрений "
+"и наказаний, которая мотивирует вас двигаться вперед, даже когда это кажется"
+" сложным. От физической стимуляции для закрепления правильных ответов до "
+"наград за каждый успешный шаг в вашем обучении – мы создали среду, где "
+"каждое усилие приносит заслуженные плоды."
+msgstr ""
+"We believe that education should be as effective as possible and at the same"
+" time inspiring. That is why Study Forge includes a system of rewards and "
+"punishments that motivates you to keep moving forward, even when it seems "
+"difficult. From physical stimulation to reinforce correct answers to rewards"
+" for every successful step in your learning journey, we have created an "
+"environment where every effort brings deserved results."
+
+#: templates/hs/content_home.html:27
+msgid ""
+"Присоединяйтесь к нам на Study Forge и откройте для себя новый, более "
+"глубокий способ изучения языков, который не только обогатит ваш ум, но и "
+"пробудит все ваши чувства. Приготовьтесь к путешествию, где каждый шаг ведет"
+" к открытию, а каждый успех – к новому уровню владения языком и понимания "
+"технологий."
+msgstr ""
+"Join us on Study Forge and discover a new, deeper way of learning languages "
+"that will not only enrich your mind, but also awaken all of your senses. Get"
+" ready for a journey where every step leads to discovery, and every success "
+"leads to a new level of language proficiency and technological "
+"understanding."
+
+#: templates/hs/content_home.html:30
+msgid "Как это работает: Углубленный взгляд на методику Study Forge"
+msgstr "How It Works: An In-depth Look at the Study Forge Methodology"
+
+#: templates/hs/content_home.html:31
+msgid ""
+"Методика Study Forge представляет собой инновационный подход к изучению "
+"языков и программирования, который активно задействует все ваши чувства для "
+"максимального усвоения материала. Вот как мы делаем обучение более "
+"эффективным и запоминающимся:"
+msgstr ""
+"The Study Forge methodology is an innovative approach to language and "
+"programming learning that actively engages all your senses for maximum "
+"material absorption. Here's how we make learning more effective and "
+"memorable:"
+
+#: templates/hs/content_home.html:33
+msgid "Слепой набор с использованием моторики"
+msgstr "Touch Typing with Motor Skills"
+
+#: templates/hs/content_home.html:34
+msgid ""
+"Основой Study Forge является принцип слепого набора, который не только "
+"улучшает вашу способность к слепому вводу текста, но и способствует "
+"глубокому запоминанию новых слов и фраз. Набирая текст, не глядя на "
+"клавиатуру, вы активизируете моторные и визуальные центры в мозге, что "
+"способствует формированию более крепких нейронных связей между словом и его "
+"значением."
+msgstr ""
+"The basis of Study Forge is the touch typing principle, which not only "
+"improves your ability to type without looking at the keyboard but also "
+"facilitates deep memorization of new words and phrases. By typing text "
+"without looking at the keyboard, you activate the motor and visual centers "
+"in the brain, which helps to form stronger neural connections between a word"
+" and its meaning."
+
+#: templates/hs/content_home.html:36
+msgid "Звуковое восприятие и визуальные ассоциации"
+msgstr "Auditory Perception and Visual Associations"
+
+#: templates/hs/content_home.html:37
+msgid ""
+"Каждый урок в Study Forge сопровождается аудиовизуальными материалами. Вы "
+"слышите, как произносится каждое слово или фраза, и видите соответствующие "
+"изображения или ситуации, которые помогают укрепить ваше понимание и "
+"запоминание. Это не просто улучшает ваше звуковое восприятие языка, но и "
+"обогащает ваше воображение, помогая лучше запоминать новую лексику."
+msgstr ""
+"Every lesson at Study Forge is accompanied by audiovisual materials. You "
+"hear how each word or phrase is pronounced, and see corresponding images or "
+"situations that help strengthen your understanding and memorization. This "
+"not only improves your auditory perception of the language, but also "
+"enriches your imagination, helping you better remember new vocabulary."
+
+#: templates/hs/content_home.html:39
+msgid "Система поощрений и наказаний"
+msgstr "Reward and Punishment System"
+
+#: templates/hs/content_home.html:40
+msgid ""
+"Чтобы мотивировать вас на успех, Study Forge использует комплексную систему "
+"поощрений и наказаний. Это включает в себя:"
+msgstr ""
+"To motivate you for success, Study Forge uses a comprehensive system of "
+"rewards and punishments. This includes:"
+
+#: templates/hs/content_home.html:42
+msgid "Физическая стимуляция:"
+msgstr "Physical Stimulation:"
+
+#: templates/hs/content_home.html:42
+msgid ""
+"Небольшие электрические разряды от браслета при ошибке помогают закрепить "
+"правильные ответы на физиологическом уровне."
+msgstr ""
+"Small electric discharges from the bracelet in case of a mistake help "
+"reinforce correct answers at a physiological level."
+
+#: templates/hs/content_home.html:43
+msgid "Никотиновые награды:"
+msgstr "Nicotine Rewards:"
+
+#: templates/hs/content_home.html:43
+msgid ""
+"Временное разрешение на курение электронной сигареты за правильные ответы "
+"использует никотиновую стимуляцию для улучшения запоминания."
+msgstr ""
+"Temporary permission to smoke an electronic cigarette for correct answers "
+"uses nicotine stimulation to enhance memory."
+
+#: templates/hs/content_home.html:44
+msgid "Финансовые поощрения:"
+msgstr "Financial Incentives:"
+
+#: templates/hs/content_home.html:44
+msgid ""
+"Система денежных наград и штрафов, включая возможность зарабатывать или "
+"терять деньги в зависимости от успехов в обучении, стимулирует продолжать "
+"обучение и достигать лучших результатов."
+msgstr ""
+"The system of monetary rewards and penalties, including the ability to earn "
+"or lose money depending on success in learning, motivates to continue "
+"learning and achieve better results."
+
+#: templates/hs/content_home.html:47
+msgid "Уроки и прогресс"
+msgstr "Lessons and Progress"
+
+#: templates/hs/content_home.html:48
+msgid ""
+"Уроки в Study Forge разработаны так, чтобы постепенно увеличивать сложность "
+"и вариативность материалов, от простых предложений до сложных диалогов. Ваш "
+"прогресс отслеживается через систему счётчиков правильных ответов, что "
+"позволяет адаптировать учебный план под ваши индивидуальные потребности и "
+"скорость обучения."
+msgstr ""
+"The lessons at Study Forge are designed to gradually increase the complexity"
+" and variability of materials, from simple sentences to complex dialogues. "
+"Your progress is tracked through a system of correct answer counters, "
+"allowing for the adaptation of the study plan to your individual needs and "
+"learning speed."
+
+#: templates/hs/content_home.html:50
+msgid ""
+"Присоединяйтесь к нам на Study Forge, чтобы испытать на себе преимущества "
+"нашей уникальной методики. Откройте для себя новый способ изучения языков, "
+"который делает процесс обучения не только эффективным, но и захватывающим."
+msgstr ""
+"Join us at Study Forge to experience the benefits of our unique methodology."
+" Discover a new way of learning languages that makes the learning process "
+"not only effective but also exciting."
+
+#: templates/hs/content_home.html:53
+msgid "Преимущества Study Forge"
+msgstr "Benefits of Study Forge"
+
+#: templates/hs/content_home.html:54
+msgid ""
+"Методика Study Forge предлагает ряд преимуществ, делающих ее одной из самых "
+"инновационных и эффективных систем обучения на сегодняшний день. Вот почему "
+"выбор Study Forge — это выбор в пользу качества и результативности:"
+msgstr ""
+"The Study Forge methodology offers a number of advantages that make it one "
+"of the most innovative and effective learning systems today. That is why "
+"choosing Study Forge means choosing quality and effectiveness."
+
+#: templates/hs/content_home.html:56
+msgid "Улучшенная эффективность запоминания"
+msgstr "Improved Memory Efficiency"
+
+#: templates/hs/content_home.html:57
+msgid ""
+"Использование всех чувств в процессе обучения значительно улучшает "
+"способность к запоминанию. Сочетание визуальных, аудиовизуальных и "
+"тактильных методов обучения обеспечивает глубокое погружение в языковую "
+"среду, что усиливает и ускоряет процесс запоминания новой информации."
+msgstr ""
+"Using all senses in the learning process significantly enhances the ability "
+"to memorize. The combination of visual, audiovisual, and tactile learning "
+"methods ensures deep immersion in the language environment, which enhances "
+"and speeds up the process of memorizing new information."
+
+#: templates/hs/content_home.html:59
+msgid "Развитие навыка слепой печати"
+msgstr "Development of Touch Typing Skill"
+
+#: templates/hs/content_home.html:60
+msgid ""
+"С Study Forge вы не только изучаете новый язык, но и одновременно развиваете"
+" навык слепой печати. Этот уникальный подход не только повышает вашу "
+"эффективность работы с текстами, но и способствует более глубокому "
+"запоминанию изучаемого материала благодаря активизации моторных навыков."
+msgstr ""
+"With Study Forge, you not only learn a new language, but also simultaneously"
+" improve your touch typing skills. This unique approach not only enhances "
+"your efficiency in working with texts, but also promotes a deeper "
+"memorization of the study material through the activation of motor skills."
+
+#: templates/hs/content_home.html:62
+msgid "Инновационная мотивационная система"
+msgstr "Innovative Motivation System"
+
+#: templates/hs/content_home.html:63
+msgid ""
+"Наша мотивационная система, включающая физическую стимуляцию, никотиновые "
+"награды и финансовые поощрения, стимулирует продолжение обучения даже в "
+"моменты, когда мотивация может ослабевать. Эта система создает "
+"дополнительные стимулы для обучения и помогает достигать лучших результатов."
+msgstr ""
+"Our motivational system, including physical stimulation, nicotine rewards, "
+"and financial incentives, encourages continued learning even at times when "
+"motivation may wane. This system creates additional incentives for learning "
+"and helps achieve better results."
+
+#: templates/hs/content_home.html:65
+msgid "Адаптивность к индивидуальным потребностям"
+msgstr "Adaptability to Individual Needs"
+
+#: templates/hs/content_home.html:66
+msgid ""
+"Study Forge гибко адаптируется к вашим индивидуальным потребностям и уровню "
+"знаний, предлагая персонализированный подход к обучению. Благодаря этому "
+"каждый ученик может продвигаться в своем темпе, достигая оптимальных "
+"результатов."
+msgstr ""
+"Study Forge flexibly adapts to your individual needs and level of knowledge,"
+" offering a personalized approach to learning. Thanks to this, each student "
+"can progress at their own pace, achieving optimal results."
+
+#: templates/hs/content_home.html:68
+msgid ""
+"Выбирая Study Forge, вы выбираете методику, которая не только обучает, но и "
+"вдохновляет, мотивирует и поддерживает вас на каждом этапе пути к знаниям. "
+"Присоединяйтесь к нам и откройте для себя новый мир обучения, где каждый "
+"урок — это шаг к успеху."
+msgstr ""
+"By choosing Study Forge, you are choosing a methodology that not only "
+"teaches, but also inspires, motivates, and supports you at every stage of "
+"the path to knowledge. Join us and discover a new world of learning, where "
+"every lesson is a step towards success."
+
+#: templates/hs/content_home.html:71
+msgid "Начало обучения с Study Forge"
+msgstr "Getting Started with Study Forge"
+
+#: templates/hs/content_home.html:72
+msgid ""
+"Присоединиться к Study Forge и начать изучение нового языка проще, чем "
+"кажется. Следуйте этим простым шагам, чтобы начать свое путешествие в мир "
+"языков и программирования сегодня:"
+msgstr ""
+"Join Study Forge and start learning a new language is easier than it seems. "
+"Follow these simple steps to start your journey into the world of languages "
+"and programming today:"
+
+#: templates/hs/content_home.html:74
+msgid "Шаг 1: Регистрация"
+msgstr "Step 1: Registration"
+
+#: templates/hs/content_home.html:75
+msgid ""
+"Нажмите на кнопку «Регистрация». Заполните необходимую информацию, включая "
+"ваше имя, электронную почту. Не забудьте подтвердить свою учетную запись "
+"через ссылку, отправленную на вашу электронную почту."
+msgstr ""
+"Click on the \"Registration\" button. Fill in the required information, "
+"including your name, email address. Don't forget to confirm your account "
+"through the link sent to your email."
+
+#: templates/hs/content_home.html:77
+msgid "Шаг 2: Выбор языка и уровня сложности"
+msgstr "Step 2: Choosing Language and Difficulty Level"
+
+#: templates/hs/content_home.html:78
+msgid ""
+"После регистрации и входа в систему выберите язык выбрав пункт меню "
+"\"Уроки\", который хотите изучать. Мы предлагаем обучение с нуля до "
+"продвинутого уровня."
+msgstr ""
+"After registering and logging in, select the language you want to study by "
+"choosing the \"Lessons\" option from the menu. We offer training from "
+"beginner to advanced level."
+
+#: templates/hs/content_home.html:80
+msgid "Шаг 3: Настройка системы поощрений и наказаний"
+msgstr "Step 3: Setting up the Reward and Punishment System"
+
+#: templates/hs/content_home.html:81
+msgid ""
+"Настройте свои предпочтения для получения наград и определите, какие стимулы"
+" наиболее эффективны для вас. Для этого войдите в настройки и выберете "
+"нужный мотиватор. Обратите внимание, что чем больше мотиваторов тем "
+"эффективней обучение"
+msgstr ""
+"Set up your preferences to receive rewards and determine which incentives "
+"are most effective for you. To do this, go to settings and choose the "
+"motivator that suits you. Please note that the more motivators there are, "
+"the more effective the learning process will be."
+
+#: templates/hs/content_home.html:82
+msgid ""
+"На данный момент методика находиться на стадии разработки по вопросам "
+"мотивирующих устройств пишите"
+msgstr ""
+"At the moment, the methodology is in the development stage regarding "
+"motivating device issues. Write."
+
+#: templates/hs/content_home.html:84
+msgid "Шаг 4: Начало первого урока"
+msgstr "Step 4: Starting the First Lesson"
+
+#: templates/hs/content_home.html:85
+msgid ""
+"Нажмите пункт меню \"Учить\", чтобы начать свой первый урок. Каждый урок в "
+"Study Forge разработан так, чтобы максимально задействовать все ваши чувства"
+" для лучшего запоминания и понимания материала."
+msgstr ""
+"Click on the \"Learn\" menu item to start your first lesson. Each lesson in "
+"Study Forge is designed to engage all your senses for better memorization "
+"and understanding of the material."
+
+#: templates/hs/content_home.html:87
+msgid ""
+"Следуя этим шагам, вы легко начнете свое обучение и сможете в полной мере "
+"воспользоваться всеми преимуществами методики Study Forge. Добро пожаловать "
+"в сообщество учащихся, которые выбрали эффективный и инновационный подход к "
+"изучению языков!"
+msgstr ""
+"Following these steps, you will easily start your learning and be able to "
+"fully benefit from all the advantages of the Study Forge methodology. "
+"Welcome to the community of students who have chosen an effective and "
+"innovative approach to language learning!"
+
+#: templates/hs/layout.html:25
+msgid "Дом"
+msgstr "House"
+
+#: templates/hs/layout.html:27
+msgid "Настройки"
+msgstr "Settings"
+
+#: templates/hs/layout.html:28
+msgid "Уроки"
+msgstr "Lessons"
+
+#: templates/hs/layout.html:31
+msgid "Выбран урок:"
+msgstr "Lesson selected:"
+
+#: templates/hs/layout.html:33
+msgid "Учить"
+msgstr "To teach"
+
+#: templates/hs/layout.html:36
+msgid "Чат"
+msgstr "Chat"
+
+#: templates/hs/layout.html:39
+msgid "Статистика"
+msgstr "Statistics"
+
+#: templates/hs/layout.html:56
+msgid "Выйти"
+msgstr "Exit"
+
+#: templates/hs/lesson_select.html:20
+msgid "Создать"
+msgstr "Create"
+
+#: templates/hs/lesson_select.html:25
+msgid "Изучаемый язык"
+msgstr "The studied language"
+
+#: templates/hs/lesson_select.html:26
+msgid "Показано раз"
+msgstr "Shown once"
+
+#: templates/hs/lesson_select.html:27 templates/hs/study.html:15
+msgid "Правильных ответов"
+msgstr "Correct answers"
+
+#: templates/hs/lesson_select.html:28
+msgid "Ответов без подсказок"
+msgstr "Answers without hints"
+
+#: templates/hs/lesson_select.html:29
+msgid "Последний раз показано"
+msgstr "Last shown"
+
+#: templates/hs/lesson_select.html:30
+msgid "Включено в обучение"
+msgstr "Included in the training"
+
+#: templates/hs/settings.html:115
+msgid "Баланс мотиватора"
+msgstr "Motivator's balance"
+
+#: templates/hs/settings.html:123
+msgid ""
+"Внимание!!!\n"
+"После активации какие либо изменения внести будет не возможно,\n"
+"пока не закончится его действие."
+msgstr ""
+"Attention!!!\n"
+"After activation, it will not be possible to make any changes until its expiration."
+
+#: templates/hs/settings.html:123
+msgid "Активировать мотиватор"
+msgstr "Activate the motivator"
+
+#: templates/hs/settings.html:125
+msgid "Пополните баланс для активации мотиватора"
+msgstr "Top up your balance to activate the motivator."
+
+#: templates/hs/settings.html:130
+msgid "Пополнить"
+msgstr "Top up"
+
+#: templates/hs/settings.html:141
+msgid "Баланс"
+msgstr "Balance"
+
+#: templates/hs/settings.html:143
+msgid "Вывести"
+msgstr "Output"
+
+#: templates/hs/settings.html:163
+msgid "День"
+msgstr "Day"
+
+#: templates/hs/settings.html:163
+msgid "осталось"
+msgstr "left"
+
+#: templates/hs/settings.html:163
+msgid "часов что бы пройти уроки"
+msgstr "hours to complete the lessons"
+
+#: templates/hs/study.html:11
+msgid "Перекур"
+msgstr "Smoke break"
+
+#: templates/hs/study.html:12
+msgid "Устройство подключено"
+msgstr "The device is connected"
+
+#: templates/hs/study.html:13
+msgid "Показано"
+msgstr "Shown once"
+
+#: templates/hs/study.html:14
+msgid "Потрачено времени"
+msgstr "Time spent"
+
+#: templates/hs/study.html:16
+msgid "Ошибок"
+msgstr "Mistakes"
+
+#: templates/hs/study.html:17
+msgid "Новых фраз"
+msgstr "New phrases"
+
+#: templates/hs/study.html:18
+msgid "Без подсказок"
+msgstr "Answers without hints"
+
+#: templates/hs/study.html:19
+msgid "Повторить урок?"
+msgstr "Confirm password"
+
+#: templates/hs/study.html:56
+msgid "Подключите мотивирующие устройства"
+msgstr "Connect motivational devices"
+
+#: templates/hs/study.html:109
+msgid "Мои деньги:"
+msgstr "My money:"
+
+#: templates/hs/study.html:113
+msgid "Деньги врага:"
+msgstr "Enemy Money"
+
+#: templates/hs/study.html:117
+msgid "Можно забрать денег сегодня:"
+msgstr "You can withdraw money today."
+
+#: templates/hs/study.html:130
+msgid "Правильно:"
+msgstr "Correct:"
+
+#: templates/hs/study.html:134
+msgid "Не правильно:"
+msgstr "Incorrect:"
+
+#: templates/hs/study.html:142
+msgid "Показать"
+msgstr "Show"
+
+#: templates/hs/study.html:143
+msgid "Произнести"
+msgstr "Pronounce"
+
+#: templates/hs/study.html:144
+msgid "Символ"
+msgstr "Symbol"
+
+#: templates/hs/auth/login.html:11
+msgid "Вход в систему"
+msgstr "Login"
+
+#: templates/hs/auth/login.html:23
+msgid "Вам нужно еще одно письмо с подтверждением?"
+msgstr "Do you need another confirmation letter?"
+
+#: templates/hs/auth/login.html:38
+msgid "Отмена"
+msgstr "Cancellation"
