@@ -5,6 +5,7 @@ from .forms import LoginForm, RegistrationForm
 from ..email import send_email
 from ..modls import User
 from ... import db
+from flask_babel import _
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -19,10 +20,10 @@ def login():
             login_user(user, form.remember_me.data)
             if form.confirm_link.data == 'True' and not user.confirmed:
                 token = user.generate_confirmation_token()
-                send_email(current_app, user.email, 'Confirm Your Account', 'hs/auth/confirm', user=user, token=token)
-                flash('A confirmation email has been sent to you by email. Confirm account during 1 hour')
+                send_email(current_app, user.email, _('Подтвердите свою учетную запись'), 'hs/auth/confirm', user=user, token=token)
+                flash(_('Подтверждение было отправлено вам по электронной почте. Подтвердите учетную запись в течение 1 часа'))
             return redirect(request.args.get('next') or url_for('hs.index'))
-        flash('Invalid user name or password')
+        flash(_('Неверное имя пользователя или пароль'))
     return render_template('hs/auth/login.html', form=form, confirm_link=confirm_link)
 
 
@@ -34,8 +35,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        send_email(current_app, user.email, 'Confirm Your Account', 'hs/auth/confirm', user=user, token=token)
-        flash('A confirmation email has been sent to you by email. Confirm account during 1 hour')
+        send_email(current_app, user.email, _('Подтвердите свою учетную запись'), 'hs/auth/confirm', user=user, token=token)
+        flash(_('Подтверждение было отправлено вам по электронной почте. Подтвердите учетную запись в течение 1 часа'))
         return redirect(url_for('auth.login'))
     return render_template('hs/auth/login.html', form=form, register=True)
 
@@ -46,7 +47,7 @@ def confirm(token):
     if current_user.confirmed:
         return redirect(url_for('hs.index'))
     if not current_user.confirm(token):
-        flash('The confirmation link is invalid or has expired.')
+        flash(_('Ссылка для подтверждения недействительна или срок ее действия истек.'))
     return redirect(url_for('hs.index'))
 
 
@@ -62,7 +63,7 @@ def logout():
 def before_request():
     if current_user.is_authenticated and not current_user.confirmed and request.endpoint is not None and request.endpoint[:5] != 'auth.':
         logout_user()
-        flash('You have not confirmed your account yet.')
-        flash('You should have received an email with a confirmation link.')
+        flash(_('Вы еще не подтвердили свою учетную запись.'))
+        flash(_('Вы должны были получить электронное письмо со ссылкой для подтверждения.'))
         return redirect(url_for('auth.login', confirm_link=1))
 

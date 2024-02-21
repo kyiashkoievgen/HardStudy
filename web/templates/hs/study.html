@@ -7,6 +7,17 @@
     <script src="{{ url_for('static', filename='js/hs/common.js')}}"></script>
     <script defer>
          function on_download(){
+            transl = {
+                "smoke_txt": "{{ _('Перекур') }}",
+                "dev_connected": "{{ _('Устройство подключено') }}",
+                "show_time": "{{ _('Показано') }}",
+                "spend_time": "{{ _('Потрачено времени') }}",
+                "right_ans": "{{ _('Правильных ответов') }}",
+                "err_ans": "{{ _('Ошибок') }}",
+                "new_phr": "{{ _('Новых фраз') }}",
+                "no_help": "{{ _('Без подсказок') }}",
+                "repeat_les": "{{ _('Повторить урок?') }}"
+            };
             {% if study_data.current_user.shock_motivator %}
                 shock_motivator = true
              {% endif %}
@@ -42,7 +53,7 @@
 
             {% endfor %}
              {% if study_data.current_user.smoke_motivator or study_data.current_user.shock_motivator %}
-             show_message("Подключите мотивирующие устройства", 0, connect_com_device);
+             show_message("{{ _('Подключите мотивирующие устройства') }}", 0, connect_com_device);
              {% endif %}
              document.getElementById('input_text').focus()
              next()
@@ -95,15 +106,15 @@
     {% if study_data.current_user.is_money_motivator_active %}
     <div class="motivator_info">
         <div>
-            <label>Мои деньги:</label>
+            <label>{{ _('Мои деньги:') }}</label>
             <span id="btc_balance_my_out">{{ study_data.current_user.win_btc }}</span>
         </div>
         <div>
-            <label>Деньги врага:</label>
+            <label>{{ _('Деньги врага:') }}</label>
             <span id="btc_balance_no_my_out">{{ study_data.current_user.lose_btc }}</span>
         </div>
         <div>
-            <label>Можно забрать денег сегодня:</label>
+            <label>{{ _('Можно забрать денег сегодня:') }}</label>
             <span id="money_for_today">{{ study_data.current_user.money_for_today - study_data.current_user.win_btc - study_data.current_user.lose_btc }}</span>
         </div>
     </div>
@@ -116,11 +127,11 @@
         {% if study_data.current_user.is_money_motivator_active %}
         <div class="motivator_info">
             <div>
-                <div><label>Правильно:+</label></div>
+                <div><label>{{ _('Правильно:') }}+</label></div>
                 <div><span id="money_motivator_inc">0</span></div>
             </div>
             <div>
-                <div><label>Не правильно:-</label></div>
+                <div><label>{{ _('Не правильно:') }}-</label></div>
                 <div><span id="money_motivator_dec">0</span></div>
             </div>
         </div>
@@ -128,9 +139,9 @@
     </div>
     <div id="input_view">
         <textarea id="input_text" onkeyup="onEntryChangeStudy()"></textarea>
-        <button onclick="on_help()">Показать</button>
-        <button onclick="on_sound()">Произнести</button>
-        <button id="one_letter" onclick="on_one_letter()">Символ</button>
+        <button onclick="on_help()">{{ _('Показать') }}</button>
+        <button onclick="on_sound()">{{ _('Произнести') }}</button>
+        <button id="one_letter" onclick="on_one_letter()">{{ _('Символ') }}</button>
     </div>
 </div>
 </body>

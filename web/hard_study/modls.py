@@ -28,15 +28,19 @@ class LessonName(db.Model):
     __tablename__ = 'lessons_names'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(15))
-    type = db.Column(db.Integer, db.ForeignKey('lesson_types.id'))
+    type = db.Column(db.Integer, db.ForeignKey('lesson_types.type_id'))
     description = db.Column(db.UnicodeText)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    name_id = db.Column(db.Integer)
+    lang_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
 
 
 class LessonType(db.Model):
     __tablename__ = 'lesson_types'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(15), unique=True)
+    type_id = db.Column(db.Integer)
+    lang_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
 
 
 # описывает взаимоотношение многие ко многим. какие слова находятся в предложении
@@ -97,6 +101,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     lang1 = db.Column(db.Integer, db.ForeignKey('languages.id'))
     lang2 = db.Column(db.Integer, db.ForeignKey('languages.id'))
+    lang1_code = db.relationship('Language', foreign_keys=[lang1], backref='lang_code')
     cur_lesson_id = db.Column(db.Integer, db.ForeignKey('lessons_names.id'), nullable=False, default=1)
     num_new_sentences_lesson = db.Column(db.Integer, nullable=False, default=5)
     num_sentences_lesson = db.Column(db.Integer, nullable=False, default=20)

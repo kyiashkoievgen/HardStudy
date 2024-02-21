@@ -6,9 +6,9 @@
     <div class="login_form" >
         <div class="page-header">
             {% if register %}
-            <h1>Register</h1>
+            <h1>{{ _('Регистрация') }}</h1>
             {% else %}
-            <h1>Login</h1>
+            <h1>{{ _('Вход в систему') }}</h1>
             {% endif %}
         </div>
         <div>
@@ -20,7 +20,7 @@
             {% endfor %}
             {% if confirm_link %}
             <div class="alert alert-warning">
-                <label for="confirmation"></label>Need another confirmation email?<input type="checkbox" id="confirmation" onclick="set_confirmation();">
+                <label for="confirmation"></label>{{ _('Вам нужно еще одно письмо с подтверждением?') }}<input type="checkbox" id="confirmation" onclick="set_confirmation();">
                 <script>
                     function set_confirmation() {
                         let isChecked = document.getElementById('confirmation').checked; // Получаем состояние флажка
@@ -33,9 +33,9 @@
         </div>
         <div class="login_form">
             {% if not register %}
-            <a href="{{ url_for('auth.register') }}">Register new</a>
+            <a href="{{ url_for('auth.register') }}">{{ _('Регистрация') }}</a>
             {% endif %}
-            <a href="{{ url_for('hs.index') }}">Cancel</a>
+            <a href="{{ url_for('hs.index') }}">{{ _('Отмена') }}</a>
         </div>
     </div>
 

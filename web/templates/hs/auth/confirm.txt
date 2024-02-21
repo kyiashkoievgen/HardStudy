@@ -1,11 +1,11 @@
-Dear {{ user.username }},
+{{ _('Уважаемый(ая)') }} {{ user.username }},
 
-Welcome to Study Forge!
+{{ _('Добро пожаловать в Study Forge!') }}
 
-To confirm your account please click on the following link:
+{{ _('Для подтверждения вашего аккаунта, пожалуйста, перейдите по следующей ссылке:') }}
 {{ url_for('auth.confirm', token=token, _external=True) }}
-Sincerely,
+{{ _('С уважением,
 
-The Study Forge Team
+Команда Study Forge
 
-Note: replies to this email address are not monitored.
+Примечание: ответы на этот адрес электронной почты не отслеживаются.) '}}

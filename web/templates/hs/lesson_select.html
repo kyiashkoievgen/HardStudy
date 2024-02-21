@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/lesson_select.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/hs/lesson_select.css') }}">
     <script src="{{ url_for('static', filename='js/hs/lesson_select.js') }}" defer></script>
 </head>
 <body>
@@ -17,17 +17,17 @@
         {{ form.lesson_name.label}}
         {{ form.lesson_name(onchange="select_on_change(this);") }}
     </form>
-    <button >Создать</button>
+    <button >{{ _('Создать') }}</button>
 </div>
 <table>
     <tr>
         <th></th>
-        <th>Изучаемый язык</th>
-        <th>Показано раз</th>
-        <th>Правильных ответов</th>
-        <th>Ответов без подсказок</th>
-        <th>Последний раз показано</th>
-        <th>Включено в обучение</th>
+        <th>{{ _('Изучаемый язык') }}</th>
+        <th>{{ _('Показано раз') }}</th>
+        <th>{{ _('Правильных ответов') }}</th>
+        <th>{{ _('Ответов без подсказок') }}</th>
+        <th>{{ _('Последний раз показано') }}</th>
+        <th>{{ _('Включено в обучение') }}</th>
     </tr>
     <!--(77, 2, 39, 'Olá', '61b690be506a14fec7a053fa8587c25ca7406ea1898f2d1d83afe9d71f1aa07b', True, False, 39, 1, 1, 77, 21, 5, 1, datetime.datetime(2023, 12, 19, 12, 46, 32), 39, 'Привет')--!>
     {% for row in lesson_content %}

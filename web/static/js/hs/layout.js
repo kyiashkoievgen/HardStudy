@@ -116,3 +116,8 @@ function start_study(){
     }
     showFrame('study');
 }
+
+function change_lang(){
+    let lang = document.getElementById('lang').value
+    window.location.href='/?lang='+lang
+}

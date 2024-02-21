@@ -1,7 +1,7 @@
 let help_flag = false;
 let sound_help_flag = false;
 let mistake = false;
-
+let transl = null;
 let lesson_data = [];
 let curr_sent_count = 0;
 let predTime = new Date();
@@ -151,7 +151,7 @@ function send_study_data(form){
 
 function open_window_pause(){
     window.parent.serial_device.smoke();
-    show_message('Перекур', 30000);
+    show_message(transl.smoke_txt, 30000);
 }
 
 function on_help(){
@@ -187,7 +187,7 @@ function connect_com_device(){
     if (serial_device.port == null){
                 serial_device.requestPort().then(r => {
                         close_message_box();
-                        show_message("Устройство подключено", 1000, null)
+                        show_message(transl.dev_connected, 1000, null)
                 })
              }
 }
@@ -228,13 +228,13 @@ function next(){
         $.ajax({
             url: '/lesson_result',
             success: function(result) {
-                let mess = 'Показано ' + result.shows + ' раз\n'+
-                    'Потрачено времени ' + Math.round(result.total_time/60) + ' минут\n' +
-                    'Правильных ответов ' + result.right_answer + '\n' +
-                    'Ошибок ' + result.mistake + '\n'+
-                    'Новых фраз ' + result.new_phrase + '\n'+
-                    'Без подсказок ' + result.full_understand + '\n'+
-                    'Повторить урок?'
+                let mess = transl.show_time + ' ' + result.shows + '\n'+
+                    transl.spend_time+ ' ' + Math.round(result.total_time/60) + ' min\n' +
+                    transl.right_ans + ' ' + result.right_answer + '\n' +
+                    transl.err_ans + ' ' + result.mistake + '\n'+
+                    transl.new_phr + ' ' + result.new_phrase + '\n'+
+                    transl.no_help + ' ' + result.full_understand + '\n'+
+                    transl.repeat_les
                 show_message(mess, 0, repeat_lesson, to_home)
             },
             error: function(response) {
@@ -286,7 +286,7 @@ function onEntryChangeStudy() {
                         }
                         if (smoke_motivator){
                             serial_device.smoke()
-                            show_message("Перекур", 30000)
+                            show_message(transl.smoke_txt, 30000)
                         }
                     }
 

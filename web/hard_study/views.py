@@ -1,7 +1,8 @@
 import datetime
 import json
 
-from flask import render_template, request, current_app
+import babel
+from flask import render_template, request, current_app, session
 
 from . import hs
 from flask_login import login_required, current_user
@@ -11,17 +12,32 @@ from .modls import Language, LessonType, LessonName, Sentence, StudyProgress, Us
 from .study import StudyPhrases, save_study_progress, save_statistic, get_lesson_result
 from .. import db
 
+
 # главная страница сайта меню все фреймы
-@hs.route('/')
+@hs.route('/', methods=['GET'])
 def index():
-    languages = Language.query.all()
-    preferred_languages = request.accept_languages
-    # Выбираем первый язык из списка, который поддерживается в вашем приложении
-    selected_language = preferred_languages.best_match(current_app.config['LANGUAGES'])
-    selected_language = Language.query.filter_by(code=selected_language).first()
+    selected_language = request.values.get('lang')
+    if selected_language:
+        selected_language = Language.query.filter_by(id=selected_language).first()
+        session['language'] = selected_language.code
+        if current_user.is_authenticated:
+            current_user.lang1 = selected_language.id
+            db.session.add(current_user)
+            db.session.commit()
+    else:
+        selected_language = session.get('language')
+        if not selected_language:
+            selected_language = request.accept_languages.best_match(current_app.config['LANGUAGES'])
+
+        selected_language = Language.query.filter_by(code=selected_language).first()
+        if current_user.is_authenticated:
+            user_language = current_user.lang1_code
+            if user_language:
+                selected_language = user_language
     current_lesson = None
     if current_user.is_authenticated:
-        current_lesson = LessonName.query.filter_by(id=current_user.cur_lesson_id).first()
+        current_lesson = LessonName.query.filter_by(name_id=current_user.cur_lesson_id, lang_id=current_user.lang1).first()
+    languages = Language.query.all()
     return render_template('hs/layout.html', languages=languages, selected_language=selected_language,
                            lesson=current_lesson)
 
@@ -104,7 +120,7 @@ def lesson_select(lang_id):
     lang_id_2 = current_user.lang2
     if not lang_id_2:
         lang_id_2 = lang_id
-    cur_lesson_type = LessonName.query.filter_by(id=current_user.cur_lesson_id).first().type
+    cur_lesson_type = LessonName.query.filter_by(name_id=current_user.cur_lesson_id, lang_id=current_user.lang1).first().type
     form = SelectLessonForm(current_user, lang_id)
     if form.validate_on_submit():
         current_user.cur_lesson_id = form.lesson_name.data

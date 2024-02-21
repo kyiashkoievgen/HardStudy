@@ -112,7 +112,7 @@
     {{ form.activate_motivator() }}
     <div class="row">
         <div class="col-sm-2">
-        <label>Баланс мотиватора</label>
+        <label>{{ _('Баланс мотиватора') }}</label>
         </div>
         <div class="col-sm-2">
         <span>{{ current_user.btc_balance_in }}</span>
@@ -120,15 +120,14 @@
         {% if not current_user.is_money_motivator_active %}
         <div class="col-sm-3">
         {% if current_user.btc_balance_in>0 %}
-            <input type="button" onclick="show_message('Внимание!!!\nПосле активации какие либо изменения внести будет не возможно,' +
-             '\nпока не закончится его действие.', 0, activate_money_motivator, null)", value="Активировать мотиватор"></input>
+            <input type="button" onclick="show_message({{ _('Внимание!!!\nПосле активации какие либо изменения внести будет не возможно,\nпока не закончится его действие.') }}, 0, activate_money_motivator, null)", value="{{ _('Активировать мотиватор') }}"></input>
             {% else %}
-            <span>Пополните баланс для активации мотиватора</span>
+            <span>{{ _('Пополните баланс для активации мотиватора') }}</span>
             {% endif %}
         </div>
         {% endif %}
         <div class="col-sm-2">
-            <button>Пополнить</button>
+            <button>{{ _('Пополнить') }}</button>
         </div>
     </div>
     <div class="row">
@@ -139,9 +138,9 @@
         {{ form.my_bitcoin_wallet(class="form-control", readonly=current_user.is_money_motivator_active)}}
         </div>
         <div class="col-sm-2">
-        <label>Баланс</label>
+        <label>{{ _('Баланс') }}</label>
         <span>{{ current_user.btc_balance_my_out }}</span>
-        <button>Вывести</button>
+        <button>{{ _('Вывести') }}</button>
         </div>
     </div>
     <div class="row">
@@ -161,7 +160,7 @@
         </div>
         <div class="col-sm-4">
          {% if current_user.is_money_motivator_active %}
-            <span>{{ current_user.btc_per_day }} BTC/day. День {{ current_user.money_motivator_day }} <br> осталось {{ current_user.money_motivator_hours }} часов что бы пройти уроки</span>
+            <span>{{ current_user.btc_per_day }} BTC/day. {{ _('День') }} {{ current_user.money_motivator_day }} <br> {{ _('осталось') }} {{ current_user.money_motivator_hours }} {{ _('часов что бы пройти уроки') }}</span>
             {% endif %}
         </div>
     </div>
