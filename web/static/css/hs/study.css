@@ -29,7 +29,7 @@
     padding: 5px;
 }
 
-.back_ground{
+#background{
     position: absolute;
     top: 0px;
     bottom: 0px;
@@ -38,8 +38,7 @@
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
-    z-index: -1;
-    display: none;
+    background-image: url("../../img/hs/study_background.webp");
 }
 
 .top_right{
@@ -64,4 +63,24 @@
     background-color: azure;
     padding: 5px;
     align-items: center;
+}
+
+.content{
+    position: absolute;
+    top: 0px;
+    display: flex;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    align-items: center;
+    justify-content: center;
+}
+
+.content_inside{
+    display: block;
+}
+
+#load_lesson{
+    padding: 10px;
+    border-radius: 20px;
 }
