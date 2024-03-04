@@ -4,7 +4,7 @@
 
 .message_background {
     height: 100%;
-    background-image: url("../../img/hs/tramspodent_backgraund.png");
+    background: rgba(0, 0, 0, 0.5);
     width: 100%;
     top: 0px;
     right: 0px;
@@ -28,6 +28,7 @@
     align-items: center;
     font-size: xxx-large;
     font-weight: bold;
+    border-radius: 20px;
 }
 
 .button_block {

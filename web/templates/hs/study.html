@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="{{ url_for('static', filename='img/hs/favicon.ico') }}">
     <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/hs/study.js')}}"></script>
     <script src="{{ url_for('static', filename='js/hs/common.js')}}"></script>
@@ -49,11 +50,6 @@
 </head>
 <body onload="on_download();">
 <div id="background">
-    <div class="content">
-        <div class="content_inside">
-            <img src="{{ url_for('static', filename='img/hs/bye.webp') }}">
-        </div>
-    </div>
     <div class="content">
         <div class="content_inside" id="lesson_background">
             <img src="{{ url_for('static', filename='img/hs/hello.jpg') }}">
@@ -112,18 +108,18 @@
             </div>
         </div>
         {% endif %}
-        <div class="close_btm"><a href="/">close</a></div>
+        <div class="close_btm"><a href="/"></a></div>
     </div>
     <div id="quest_view">
         <div class="phrase_meaning">
             <div id="phrase_meaning"><b></b></div>
             {% if current_user.is_money_motivator_active %}
             <div class="motivator_info">
-                <div>
+                <div class="motivator_info_text">
                     <div><label>{{ _('Правильно:') }}+</label></div>
                     <div><span id="money_motivator_inc">0</span></div>
                 </div>
-                <div>
+                <div class="motivator_info_text">
                     <div><label>{{ _('Не правильно:') }}-</label></div>
                     <div><span id="money_motivator_dec">0</span></div>
                 </div>

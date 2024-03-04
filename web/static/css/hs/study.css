@@ -27,6 +27,9 @@
 #phrase_meaning {
     background-color: lightgray;
     padding: 5px;
+    border-radius: 10px;
+    border: 3px solid #ccc;
+    box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 #background{
@@ -49,12 +52,16 @@
     background-color: azure;
     padding: 5px;
     align-items: center;
+    border-radius: 10px;
+    border: 3px solid #ccc;
+    box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 .motivator_info{
     display: flex;
     flex-direction: column;
-    padding-right: 20px;
+    padding-right: 5px;
+    padding-left: 10px;
     font-size: small;
 }
 
@@ -63,6 +70,13 @@
     background-color: azure;
     padding: 5px;
     align-items: center;
+    border-radius: 10px;
+    border: 3px solid #ccc;
+    box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.motivator_info_text{
+    display: flex;
 }
 
 .content{
@@ -113,4 +127,15 @@
     transform: scale(0.95);
     opacity: 0.7;
   }
+}
+
+.close_btm a{
+    display: inline-block; /* Делает ссылку блочным элементом для применения отступов */
+    text-decoration: none; /* Убирает подчеркивание текста */
+    background-image: url("../../img/hs/close_btm.png");
+    width: 50px;
+    height: 50px;
+    background-position: center;
+    background-size: cover;
+    cursor: pointer;
 }
