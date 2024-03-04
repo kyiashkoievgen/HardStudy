@@ -1,4 +1,6 @@
 import datetime
+import json
+
 from flask import render_template, request, current_app, session
 
 from . import hs
@@ -9,6 +11,9 @@ from .modls import Language, LessonName
 from .study import StudyPhrases, save_study_progress, save_statistic, get_lesson_result
 from .. import db
 
+@hs.route('/favicon.ico')
+def favicon():
+    return hs.send_static_file('favicon.ico')
 
 # главная страница сайта меню все фреймы
 @hs.route('/', methods=['GET'])
@@ -152,13 +157,17 @@ def lesson_select(lang_id):
 @login_required
 @hs.route('/study')
 def study():
-    study_data = StudyPhrases(current_user)
-    study_data.prepare_study_data()
     phrase_form = StudyPhraseForm()
     statistic_form = StatisticForm()
-    return render_template('hs/study.html', study_data=study_data, phrase_form=phrase_form,
+    return render_template('hs/study.html', current_user=current_user, phrase_form=phrase_form,
                            statistic_form=statistic_form)
 
+@login_required
+@hs.route('/get_lessons_data')
+def lessons_data():
+    study_data = StudyPhrases(current_user)
+    study_data.prepare_study_data()
+    return json.dumps(study_data.phrases)
 
 @login_required
 @hs.route('/save_lesson_data', methods=['GET', 'POST'])

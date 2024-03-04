@@ -14,6 +14,7 @@ let money_motivator_dec = 0;
 let btc_balance_my_out = 0;
 let btc_balance_no_my_out = 0;
 let money_for_today = 0;
+let voice = ''
 
 class SerialDevice {
     constructor(baudRate = 9600, timeout = 10) {
@@ -180,7 +181,61 @@ function to_home(){
     window.location.href = '/'
 }
 
+function show_back_ground(img){
+    // Находим контейнер, в котором находится изображение
+    let container = document.getElementById('lesson_background');
+    // Удаляем текущий элемент img из контейнера
+    let currentImg = container.querySelector('img');
+    if (currentImg) {
+        container.removeChild(currentImg);
+        container.appendChild(img);
+    }
+}
 
+function prepare_lesson_data(data){
+    for (let row of data){
+        let destination = {
+            id_phrase: row.id_phrase,
+            num_showings: row.num_showings,
+            phrase_for_checking: row.phrase_for_checking,
+            phrase_native: row.phrase_native,
+            phrase_study: row.phrase_study,
+            study_type: row.study_type,
+            was_help_flag: row.was_help_flag,
+            was_help_sound_flag: row.was_help_sound_flag,
+            was_mistake_flag: row.was_mistake_flag
+          };
+
+          // Создаем объекты аудио и изображения
+          destination.phrase_study_audio = new Audio('/static/audio/hs/'+voice+'/'+row.phrase_study_audio+'.mp3');
+          destination.phrase_native_audio = new Audio('/static/audio/hs/'+voice+'/'+row.phrase_native_audio+'.mp3');
+          destination.img = new Image();
+          destination.img.src = '/static/img/hs/back_ground/'+row.img;
+
+          lesson_data.push(destination)
+    }
+}
+
+function download_lessons(){
+    let delay = 5000; // Задержка между попытками, по умолчанию 2 секунды
+    $.ajax({
+        url: '/get_lessons_data',
+        dataType: 'json',
+        success: function(data) {
+            prepare_lesson_data(data)
+            console.info(lesson_data)
+            document.getElementById('load_lesson').style.display = 'none'
+            document.getElementById('quest_view').style.display = 'flex'
+            next()
+        },
+        error: function(jqXHR, textStatus) {
+          console.error(`Ошибка загрузки: ${textStatus}. Попытка повторного запроса через 5с.`);
+          setTimeout(function() {
+            download_lessons(); // Повторный вызов функции после задержки
+          }, delay);
+        }
+      });
+}
 
 function connect_com_device(){
     serial_device = new SerialDevice();
@@ -195,7 +250,6 @@ function connect_com_device(){
 
 function next(){
     lesson_data[curr_sent_count].phrase_study_audio.removeEventListener('ended', next)
-    document.getElementById('img'+lesson_data[curr_sent_count].id_phrase).style.display = "none";
     mistake = false;
     help_flag = false;
     sound_help_flag = false;
@@ -220,7 +274,7 @@ function next(){
         }
 
         lesson_data[curr_sent_count].showings_count ++
-        document.getElementById('img'+lesson_data[curr_sent_count].id_phrase).style.display = "block";
+        show_back_ground(lesson_data[curr_sent_count].img);
         lesson_data[curr_sent_count].phrase_native_audio.play();
         document.getElementById('phrase_meaning').innerText = lesson_data[curr_sent_count].phrase_native;
         document.getElementById('input_text').focus();

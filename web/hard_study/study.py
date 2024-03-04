@@ -23,6 +23,21 @@ class Phrase:
     study_type = int()
     img = str()
 
+    def to_dict(self):
+        return {
+            'id_phrase': self.id_phrase,
+            'phrase_study': self.phrase_study,
+            'phrase_for_checking': self.phrase_for_checking,
+            'phrase_study_audio': self.phrase_study_audio,
+            'phrase_native': self.phrase_native,
+            'phrase_native_audio': self.phrase_native_audio,
+            'was_help_flag': self.was_help_flag,
+            'was_help_sound_flag': self.was_help_sound_flag,
+            'was_mistake_flag': self.was_mistake_flag,
+            'num_showings': self.num_showings,
+            'study_type': self.study_type,
+            'img': self.img
+        }
 
 class StudyPhrases:
     def __init__(self, current_user):
@@ -58,7 +73,7 @@ class StudyPhrases:
                 phrase.num_showings = self.current_user.num_showings2
             elif study_type == 3:
                 phrase.num_showings = self.current_user.num_showings3
-            self.phrases.append(phrase)
+            self.phrases.append(phrase.to_dict())
 
     def take_lesson_content(self):
         subquery_StudyProgress = db.session.query(StudyProgress). \

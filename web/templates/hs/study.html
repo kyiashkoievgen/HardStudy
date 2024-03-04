@@ -18,23 +18,24 @@
                 "no_help": "{{ _('Без подсказок') }}",
                 "repeat_les": "{{ _('Повторить урок?') }}"
             };
-            {% if study_data.current_user.shock_motivator %}
+            voice = "{{ current_user.voice }}"
+            {% if current_user.shock_motivator %}
                 shock_motivator = true
              {% endif %}
-             {% if study_data.current_user.smoke_motivator %}
+             {% if current_user.smoke_motivator %}
                 smoke_motivator = true
              {% endif %}
-             {% if study_data.current_user.is_money_motivator_active %}
+             {% if current_user.is_money_motivator_active %}
                 money_motivator = true
-                money_motivator_inc = {{ study_data.current_user.money_motivator_inc }}
-                money_motivator_dec = {{ study_data.current_user.money_motivator_dec }}
-                btc_balance_my_out = {{ study_data.current_user.btc_balance_my_out }}
-                btc_balance_no_my_out = {{ study_data.current_user.btc_balance_no_my_out }}
-                money_for_today = {{ study_data.current_user.money_for_today }}
+                // money_motivator_inc = {{ current_user.money_motivator_inc }}
+                // money_motivator_dec = {{ current_user.money_motivator_dec }}
+                btc_balance_my_out = {{ current_user.btc_balance_my_out }}
+                btc_balance_no_my_out = {{ current_user.btc_balance_no_my_out }}
+                money_for_today = {{ current_user.money_for_today }}
 
             {% endif %}
 
-             {% if study_data.current_user.smoke_motivator or study_data.current_user.shock_motivator %}
+             {% if current_user.smoke_motivator or current_user.shock_motivator %}
              show_message("{{ _('Подключите мотивирующие устройства') }}", 0, connect_com_device);
              {% endif %}
 
@@ -47,7 +48,6 @@
 
 </head>
 <body onload="on_download();">
-    zfxglksdz;rgiljnlskv?"
 <div id="background">
     <div class="content">
         <div class="content_inside">
@@ -55,13 +55,13 @@
         </div>
     </div>
     <div class="content">
-        <div class="content_inside">
-            <img src="{{ url_for('static', filename='img/hs/hello.webp') }}">
+        <div class="content_inside" id="lesson_background">
+            <img src="{{ url_for('static', filename='img/hs/hello.jpg') }}">
         </div>
     </div>
     <div class="content" id="load_lesson">
         <div class="content_inside">
-            <div class="loader">Загрузка урока...</div>
+            <div class="loader">{{ _('Загрузка урока...') }}</div>
         </div>
     </div>
 
@@ -96,19 +96,19 @@
         {{ statistic_form.time_start() }}
     </form>
     <div class="top_right">
-        {% if study_data.current_user.is_money_motivator_active %}
+        {% if current_user.is_money_motivator_active %}
         <div class="motivator_info">
             <div>
                 <label>{{ _('Мои деньги:') }}</label>
-                <span id="btc_balance_my_out">{{ study_data.current_user.win_btc }}</span>
+                <span id="btc_balance_my_out">{{ current_user.win_btc }}</span>
             </div>
             <div>
                 <label>{{ _('Деньги врага:') }}</label>
-                <span id="btc_balance_no_my_out">{{ study_data.current_user.lose_btc }}</span>
+                <span id="btc_balance_no_my_out">{{ current_user.lose_btc }}</span>
             </div>
             <div>
                 <label>{{ _('Можно забрать денег сегодня:') }}</label>
-                <span id="money_for_today">{{ study_data.current_user.money_for_today - study_data.current_user.win_btc - study_data.current_user.lose_btc }}</span>
+                <span id="money_for_today">{{ current_user.money_for_today - current_user.win_btc - current_user.lose_btc }}</span>
             </div>
         </div>
         {% endif %}
@@ -117,7 +117,7 @@
     <div id="quest_view">
         <div class="phrase_meaning">
             <div id="phrase_meaning"><b></b></div>
-            {% if study_data.current_user.is_money_motivator_active %}
+            {% if current_user.is_money_motivator_active %}
             <div class="motivator_info">
                 <div>
                     <div><label>{{ _('Правильно:') }}+</label></div>
