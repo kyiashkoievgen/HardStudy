@@ -106,7 +106,6 @@ function send_study_data(form){
     document.getElementById('shows').value = lesson_data[curr_sent_count].showings_count
     document.getElementById('mistake_count').value = lesson_data[curr_sent_count].mistake_count
     document.getElementById('total_time').value = Math.round(lesson_data[curr_sent_count].total_time)
-    document.getElementById('time_start').value = lesson_data[curr_sent_count].time_start.toJSON()
     document.getElementById('right_answer').value = lesson_data[curr_sent_count].right_answer
     document.getElementById('full_understand').value = lesson_data[curr_sent_count].full_understand
     if (lesson_data[curr_sent_count].study_type===5){
@@ -127,7 +126,7 @@ function send_study_data(form){
                 let inc = 0
                 let dec =0
                 if (lesson_data[curr_sent_count].study_type !== 0){
-                    if (lesson_data[curr_sent_count].showings_count === 1){
+                    if (lesson_data[curr_sent_count].showings_count === 0){
                         inc = money_motivator_inc
                         dec = money_motivator_dec
                     }else {
@@ -135,12 +134,13 @@ function send_study_data(form){
                         dec = money_motivator_dec
                     }
                 }
-
-                document.getElementById('money_motivator_inc').innerText = inc.toString()
-                document.getElementById('money_motivator_dec').innerText = dec.toString()
-                document.getElementById('btc_balance_my_out').innerText = response.win_btc.toString()
-                document.getElementById('btc_balance_no_my_out').innerText = response.lose_btc.toString()
-                document.getElementById('money_for_today').innerText = response.money_for_today.toString()
+                if (money_motivator){
+                    document.getElementById('money_motivator_inc').innerText = inc.toFixed(2)
+                    document.getElementById('money_motivator_dec').innerText = dec.toFixed(2)
+                    document.getElementById('btc_balance_my_out').innerText = response.win_btc.toFixed(2)
+                    document.getElementById('btc_balance_no_my_out').innerText = response.lose_btc.toFixed(2)
+                    document.getElementById('money_for_today').innerText = response.money_for_today.toFixed(2)
+                }
             }
             console.info(response)
         },
@@ -203,7 +203,12 @@ function prepare_lesson_data(data){
             study_type: row.study_type,
             was_help_flag: row.was_help_flag,
             was_help_sound_flag: row.was_help_sound_flag,
-            was_mistake_flag: row.was_mistake_flag
+            was_mistake_flag: row.was_mistake_flag,
+            showings_count: 0,
+            mistake_count: 0,
+            total_time: 0,
+            right_answer: 0,
+            full_understand: 0
           };
 
           // Создаем объекты аудио и изображения
@@ -268,9 +273,15 @@ function next(){
         if (lesson_data[0].study_type===3){
             curr_sent_count = Math.round(Math.random()*(lesson_data.length-1))
         }
-        if (lesson_data[curr_sent_count].study_type !== 0){
-            document.getElementById('money_motivator_inc').innerText = money_motivator_inc.toString()
-            document.getElementById('money_motivator_dec').innerText = money_motivator_dec.toString()
+        if (lesson_data[curr_sent_count].study_type !== 0 && money_motivator){
+            if (lesson_data[curr_sent_count].showings_count === 0){
+                document.getElementById('money_motivator_inc').innerText = money_motivator_inc.toFixed(2)
+                document.getElementById('money_motivator_dec').innerText = money_motivator_dec.toFixed(2)
+            }else{
+                document.getElementById('money_motivator_inc').innerText = '0'
+                document.getElementById('money_motivator_dec').innerText = money_motivator_dec.toFixed(2)
+            }
+
         }
 
         lesson_data[curr_sent_count].showings_count ++
@@ -329,20 +340,25 @@ function onEntryChangeStudy() {
         if (text.length > 0) {
             if (lesson_data[curr_sent_count].phrase_for_checking.length === text.length) {
                 document.getElementById('input_text').value = '';
-                if (lesson_data[curr_sent_count].showings_count===1 && lesson_data[curr_sent_count].study_type!==0){
-                    document.getElementById('id_phrase').value = lesson_data[curr_sent_count].id_phrase
-                    send_study_data("study_data")
-                    if (!mistake && !help_flag){
-                        lesson_data[curr_sent_count].right_answer = 1
-                        if (!sound_help_flag){
-                            lesson_data[curr_sent_count].full_understand = 1
-                            lesson_data[curr_sent_count].showings_count = lesson_data[curr_sent_count].num_showings
-                        }
-                        if (smoke_motivator){
-                            serial_device.smoke()
-                            show_message(transl.smoke_txt, 30000)
+                if (lesson_data[curr_sent_count].showings_count===1){
+                    if (lesson_data[curr_sent_count].study_type==0){
+                        document.getElementById('id_phrase').value = 'false'
+                    }else {
+                        document.getElementById('id_phrase').value = lesson_data[curr_sent_count].id_phrase
+
+                        if (!mistake && !help_flag) {
+                            lesson_data[curr_sent_count].right_answer = 1
+                            if (!sound_help_flag) {
+                                lesson_data[curr_sent_count].full_understand = 1
+                                lesson_data[curr_sent_count].showings_count = lesson_data[curr_sent_count].num_showings
+                            }
+                            if (smoke_motivator) {
+                                serial_device.smoke()
+                                show_message(transl.smoke_txt, 30000)
+                            }
                         }
                     }
+                    send_study_data("study_data")
 
                 }
                 // проверяем были ли ошибки

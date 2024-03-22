@@ -9,7 +9,7 @@ class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SECRET_KEY = os.getenv('SECRET_KEY')
     WTF_CSRF_TIME_LIMIT = 43200
-    BOOTSTRAP_SERVE_LOCAL = True
+    # BOOTSTRAP_SERVE_LOCAL = True
     LANGUAGES = ['ru', 'pt', 'es', 'en']
     MAIL_SUBJECT_PREFIX = 'Study Forge '
     MAIL_SENDER = os.getenv('MAIL_USERNAME')

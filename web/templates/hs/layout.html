@@ -4,14 +4,18 @@
 
 {% block scripts %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/hs/layout.js') }}" defer></script>
+<!--<script src="{{ url_for('static', filename='js/hs/layout.js') }}" defer></script>-->
+<script src="/static/js/hs/layout.js" defer></script>
 {% endblock %}
 
 {% block styles %}
 {{ super() }}
-<link rel="icon" href="{{ url_for('static', filename='img/hs/favicon.ico') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/hs/layout.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/hs/common.css') }}">
+<!--<link rel="icon" href="{{ url_for('static', filename='img/hs/favicon.ico') }}">-->
+<!--<link rel="stylesheet" href="{{ url_for('static', filename='css/hs/layout.css') }}">-->
+<!--<link rel="stylesheet" href="{{ url_for('static', filename='css/hs/common.css') }}">-->
+<link rel="icon" href="/static/img/hs/favicon.ico">
+<link rel="stylesheet" href="/static/css/hs/layout.css">
+<link rel="stylesheet" href="/static/css/hs/common.css">
 {% endblock %}
 
 {% block content %}
@@ -21,7 +25,8 @@
 </div>
 <div id="menu" class="lay_button">
     <div class="image-container">
-        <img src="{{ url_for('static', filename='img/hs/StudyForge_logo.png')}}" height="100px">
+<!--        <img src="{{ url_for('static', filename='img/hs/StudyForge_logo.png')}}" height="100px">-->
+         <img src="/static/img/hs/StudyForge_logo.png" height="100px">
     </div>
     <a href="{{ url_for('hs.home') }}" onclick="showFrame('common')" target="common">{{ _('Дом') }}</a>
     {% if current_user.is_authenticated %}

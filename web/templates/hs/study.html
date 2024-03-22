@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="{{ url_for('static', filename='img/hs/favicon.ico') }}">
-    <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/hs/study.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/hs/common.js')}}"></script>
+<!--    <link rel="icon" href="{{ url_for('static', filename='img/hs/favicon.ico') }}">-->
+<!--    <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>-->
+<!--    <script src="{{ url_for('static', filename='js/hs/study.js')}}"></script>-->
+<!--    <script src="{{ url_for('static', filename='js/hs/common.js')}}"></script>-->
+    <link rel="icon" href="/static/img/hs/favicon.ico">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/hs/study.js"></script>
+    <script src="/static/js/hs/common.js"></script>
     <script defer>
          function on_download(){
             transl = {
@@ -39,13 +43,15 @@
              {% if current_user.smoke_motivator or current_user.shock_motivator %}
              show_message("{{ _('Подключите мотивирующие устройства') }}", 0, connect_com_device);
              {% endif %}
-
+             document.getElementById('time_start').value = new Date().toJSON()
              document.getElementById('input_text').focus()
              download_lessons()
          }
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/hs/study.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/hs/common.css') }}">
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='css/hs/study.css') }}">-->
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='css/hs/common.css') }}">-->
+        <link rel="stylesheet" href="/static/css/hs/study.css">
+        <link rel="stylesheet" href="/static/css/hs/common.css">
 
 </head>
 <body onload="on_download();">
@@ -96,15 +102,15 @@
         <div class="motivator_info">
             <div>
                 <label>{{ _('Мои деньги:') }}</label>
-                <span id="btc_balance_my_out">{{ current_user.win_btc }}</span>
+                <span id="btc_balance_my_out">{{ current_user.motivator_win_btc_today | round(2) }}</span>
             </div>
             <div>
                 <label>{{ _('Деньги врага:') }}</label>
-                <span id="btc_balance_no_my_out">{{ current_user.lose_btc }}</span>
+                <span id="btc_balance_no_my_out">{{ current_user.motivator_lose_btc_today | round(2) }}</span>
             </div>
             <div>
                 <label>{{ _('Можно забрать денег сегодня:') }}</label>
-                <span id="money_for_today">{{ current_user.money_for_today - current_user.win_btc - current_user.lose_btc }}</span>
+                <span id="money_for_today">{{ (current_user.money_for_today) | round(2) }}</span>
             </div>
         </div>
         {% endif %}

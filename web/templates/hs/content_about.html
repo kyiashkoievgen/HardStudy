@@ -2,17 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; }
-        .container { width: 80%; margin: auto; overflow: hidden; }
-        h1, h2, h3 { color: #333; }
-        p { margin: 20px 0; }
-        .technology { font-weight: bold; }
-    </style>
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='css/hs/common.css') }}">-->
+    <link rel="stylesheet" href="/static/css/hs/common.css">
 </head>
 <body>
+    <header>
+        <div class="container">
+            <h1>{{ _('О нас') }}</h1>
+        </div>
+    </header>
     <div class="container">
-        <h1>{{ _('О нас') }}</h1>
         <p>{{ _('Добро пожаловать на страницу "О нас" проекта Study Forge. Этот сайт является кульминацией моего личного вклада и страсти к обучению и технологиям. От идеи до дизайна и полной реализации, каждый аспект этого проекта был разработан с нуля мной, демонстрируя мою способность превращать концепции в работающие решения.') }}</p>
 
         <h2>{{ _('Использованные технологии') }}</h2>

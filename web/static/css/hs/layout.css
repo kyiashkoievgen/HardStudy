@@ -20,7 +20,8 @@ iframe {
 
 body {
     font-family: Arial, sans-serif;
-    background: url("../../img/hs/studyforge_background.webp");
+    /*background: url("../../img/hs/studyforge_background.webp");*/
+    background: url("/static/img/hs/studyforge_background.webp");
     margin: 0;
     padding: 0;
 }
@@ -112,7 +113,7 @@ body {
 
 #login_container {
     height: 100%;
-    background-image: url("../img/tramspodent_backgraund.png");
+    background-image: url("/static/img/tramspodent_backgraund.png");
     width: 100%;
     top: 0px;
     right: 0px;

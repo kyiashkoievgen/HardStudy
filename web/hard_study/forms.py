@@ -44,12 +44,9 @@ class SettingForm(FlaskForm):
     submit = SubmitField(_l('Сохранить настройки'))
 
 
-class SettingFormMoney(SettingForm):
-    my_bitcoin_wallet = StringField(_l('Кошелек для вывода своих денег'), validators=[DataRequired()])
-    no_my_bitcoin_wallet = StringField(_l('Кошелек для вывода проигранных денег'), validators=[DataRequired()])
+class SettingFormMoney(FlaskForm):
     time_period = IntegerField(_l('На сколько дней распределить мотиватор?'), validators=[DataRequired()])
     lesson_per_day = IntegerField(_l('Сколько уроков в день?'), validators=[DataRequired()])
-    money_motivator = BooleanField(_l('Использовать денежную мотивацию'), validators=[DataRequired()])
     activate_motivator = HiddenField(validators=[DataRequired()], default=False)
 
 

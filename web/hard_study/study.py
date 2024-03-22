@@ -156,7 +156,7 @@ class StudyPhrases:
             add_sent = db.session.query(add_sent).union(add_sent2).subquery()
         self.add_phrase(db.session.query(add_sent).all(), 0)
         # находим предложения которые не были отвечены правильно и добавляем их в обучение
-        add_sent = db.session.query(subquery_word_sent).filter_by(right_count=0).group_by('id'). \
+        add_sent = db.session.query(subquery_word_sent).filter(subquery_word_sent.c.right_count <= 0).group_by('id'). \
             limit(self.current_user.num_new_sentences_lesson).all()
         # если количество предложений меньше минимального количества новые предложений в уроке добавляем новые приложения
         add_sent_num = self.current_user.num_new_sentences_lesson - len(add_sent)
@@ -242,12 +242,12 @@ def save_study_progress(current_user, id_phrase, was_mistake_flag, was_help_soun
     db.session.commit()
 
 
-def save_statistic(current_user, id_phrase, time_start, new_phrase, right_answer, full_understand, mistake_count, shows,
-                   total_time):
+def save_statistic(current_user, id_phrase, new_phrase, right_answer, full_understand, mistake_count, shows,
+                   total_time, time_start):
     statistic = Statistic(user_id=current_user.id, lesson_name_id=current_user.cur_lesson_id, sentence_id=id_phrase,
-                          time_start=time_start, new_phrase=new_phrase, right_answer=right_answer,
+                          new_phrase=new_phrase, right_answer=right_answer,
                           total_time=total_time,
-                          full_understand=full_understand, mistake_count=mistake_count, shows=shows)
+                          full_understand=full_understand, mistake_count=mistake_count, shows=shows, time_start=time_start)
     db.session.add(statistic)
     db.session.commit()
 

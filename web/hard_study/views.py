@@ -1,8 +1,9 @@
 import datetime
 import json
 
-from flask import render_template, request, current_app, session
+from flask import render_template, request, current_app, session, jsonify, redirect, url_for
 
+from crypto import get_new_address, qrcode_gen, get_user_balance
 from . import hs
 from flask_login import login_required, current_user
 
@@ -11,9 +12,11 @@ from .modls import Language, LessonName
 from .study import StudyPhrases, save_study_progress, save_statistic, get_lesson_result
 from .. import db
 
-@hs.route('/favicon.ico')
-def favicon():
-    return hs.send_static_file('favicon.ico')
+
+# @hs.route('/favicon.ico')
+# def favicon():
+#     return hs.send_static_file('favicon.ico')
+
 
 # главная страница сайта меню все фреймы
 @hs.route('/', methods=['GET'])
@@ -38,7 +41,8 @@ def index():
                 selected_language = user_language
     current_lesson = None
     if current_user.is_authenticated:
-        current_lesson = LessonName.query.filter_by(name_id=current_user.cur_lesson_id, lang_id=current_user.lang1).first()
+        current_lesson = LessonName.query.filter_by(name_id=current_user.cur_lesson_id,
+                                                    lang_id=current_user.lang1).first()
     languages = Language.query.all()
     return render_template('hs/layout.html', languages=languages, selected_language=selected_language,
                            lesson=current_lesson)
@@ -54,23 +58,11 @@ def home():
 @login_required
 @hs.route('/settings', methods=['GET', 'POST'])
 def settings():
-    money_motivator = request.values.get('money_motivator')
-    if current_user.is_money_motivator_active:
-        money_motivator = True
-    elif money_motivator is None:
-        money_motivator = current_user.money_motivator
-    else:
-        if money_motivator == 'y':
-            money_motivator = True
-        else:
-            money_motivator = False
-        current_user.money_motivator = money_motivator
-        db.session.add(current_user)
-        db.session.commit()
-    if money_motivator:
-        form = SettingFormMoney()
-    else:
-        form = SettingForm()
+    current_user.calc_motivator_money()
+    if current_user.btc_address is not None:
+        user_balance_info = get_user_balance(current_user)
+    form = SettingForm()
+    form2 = SettingFormMoney()
     if form.validate_on_submit():
         current_user.num_sent_warm_up = form.num_sent_warm_up.data
         current_user.num_new_sentences_lesson = form.num_new_sentences.data
@@ -82,16 +74,8 @@ def settings():
         current_user.use_dialect = form.use_dialect.data
         current_user.shock_motivator = form.shock_motivator.data
         current_user.smoke_motivator = form.smoke_motivator.data
-        current_user.money_motivator = money_motivator
-        if money_motivator and (not current_user.is_money_motivator_active):
-            current_user.my_bitcoin_wallet = form.my_bitcoin_wallet.data
-            current_user.no_my_bitcoin_wallet = form.no_my_bitcoin_wallet.data
-            current_user.time_period = form.time_period.data
-            current_user.lesson_per_day = form.lesson_per_day.data
-            if form.activate_motivator.data == 'True':
-                current_user.is_money_motivator_active = True
-                current_user.time_money_start = datetime.datetime.now()
-                current_user.btc_per_day = current_user.btc_balance_in / current_user.time_period
+        if not current_user.is_money_motivator_active:
+            current_user.money_motivator = form.money_motivator.data
         db.session.add(current_user)
         db.session.commit()
     else:
@@ -106,14 +90,42 @@ def settings():
         form.use_dialect.data = current_user.use_dialect
         form.shock_motivator.data = current_user.shock_motivator
         form.smoke_motivator.data = current_user.smoke_motivator
-        form.money_motivator.data = money_motivator
-        if money_motivator:
-            form.my_bitcoin_wallet.data = current_user.my_bitcoin_wallet
-            form.no_my_bitcoin_wallet.data = current_user.no_my_bitcoin_wallet
-            form.time_period.data = current_user.time_period
-            form.lesson_per_day.data = current_user.lesson_per_day
+        form.money_motivator.data = current_user.money_motivator
+    if form2.validate_on_submit() and not current_user.is_money_motivator_active:
+        current_user.time_period = form2.time_period.data
+        current_user.lesson_per_day = form2.lesson_per_day.data
+        current_user.money_per_day_start = int(current_user.motivator_btc_balance/current_user.time_period)
+        current_user.is_money_motivator_active = True
+        db.session.add(current_user)
+        db.session.commit()
+    else:
+        form2.time_period.data = current_user.time_period
+        form2.lesson_per_day.data = current_user.lesson_per_day
 
-    return render_template('hs/settings.html', form=form, current_user=current_user)
+    return render_template('hs/settings.html', form=form, form2=form2, current_user=current_user, user_balance_info=user_balance_info)
+
+
+@login_required
+@hs.route('/top_up_money_motivator')
+def top_up_money_motivator():
+    val = request.args.get('val', type=int)  # Получаем параметр val как целое число
+    if val is not None:
+        user_balance = get_user_balance(current_user)
+        if user_balance['btc_balance'] >= val:
+            current_user.motivator_btc_balance += val
+            db.session.add(current_user)
+            db.session.commit()
+    return redirect(url_for('hs.settings'))
+
+
+@login_required
+@hs.route('/clean_motivator')
+def clean_motivator():
+    if not current_user.is_money_motivator_active:
+        current_user.motivator_btc_balance = 0
+        db.session.add(current_user)
+        db.session.commit()
+    return redirect(url_for('hs.settings'))
 
 
 @login_required
@@ -122,7 +134,8 @@ def lesson_select(lang_id):
     lang_id_2 = current_user.lang2
     if not lang_id_2:
         lang_id_2 = lang_id
-    cur_lesson_type = LessonName.query.filter_by(name_id=current_user.cur_lesson_id, lang_id=current_user.lang1).first().type
+    cur_lesson_type = LessonName.query.filter_by(name_id=current_user.cur_lesson_id,
+                                                 lang_id=current_user.lang1).first().type
     form = SelectLessonForm(current_user, lang_id)
     if form.validate_on_submit():
         current_user.cur_lesson_id = form.lesson_name.data
@@ -157,10 +170,12 @@ def lesson_select(lang_id):
 @login_required
 @hs.route('/study')
 def study():
+    current_user.calc_motivator_money()
     phrase_form = StudyPhraseForm()
     statistic_form = StatisticForm()
     return render_template('hs/study.html', current_user=current_user, phrase_form=phrase_form,
                            statistic_form=statistic_form)
+
 
 @login_required
 @hs.route('/get_lessons_data')
@@ -168,6 +183,7 @@ def lessons_data():
     study_data = StudyPhrases(current_user)
     study_data.prepare_study_data()
     return json.dumps(study_data.phrases)
+
 
 @login_required
 @hs.route('/save_lesson_data', methods=['GET', 'POST'])
@@ -181,26 +197,30 @@ def save_lesson_data():
 
         if current_user.is_money_motivator_active:
             mistake = False
+
+            current_user.calc_motivator_money()
             current_user.adjust_motivator(int(phrase_form.total_phrase.data))
-            if phrase_form.was_mistake_flag.data == 'true' or phrase_form.was_help_flag.data == 'true':
+            if phrase_form.was_mistake_flag.data == 'true':
                 mistake = True
             current_user.calc_motivator_profit(int(phrase_form.total_phrase.data), not mistake)
 
-        return {
-            'money_motivator': True,
-            'money_motivator_dec': current_user.money_motivator_dec,
-            'money_motivator_inc': current_user.money_motivator_inc,
-            'money_for_today': current_user.money_for_today - current_user.win_btc - current_user.lose_btc,
-            'win_btc': current_user.win_btc,
-            'lose_btc': current_user.lose_btc
-        }
+            return {
+                'money_motivator': True,
+                'money_motivator_dec': current_user.money_motivator_dec,
+                'money_motivator_inc': current_user.money_motivator_inc,
+                'money_for_today': current_user.money_for_today,
+                'win_btc': current_user.motivator_win_btc_today,
+                'lose_btc': current_user.motivator_lose_btc_today
+            }
+        else:
+            return 'ok'
 
     elif statistic_form.validate_on_submit():
         time_start = datetime.datetime.strptime(statistic_form.time_start.data, '%Y-%m-%dT%H:%M:%S.%fZ')
-        save_statistic(current_user, int(statistic_form.statistic_id_phrase.data), time_start,
+        save_statistic(current_user, int(statistic_form.statistic_id_phrase.data),
                        int(statistic_form.new_phrase.data), int(statistic_form.right_answer.data),
                        int(statistic_form.full_understand.data), int(statistic_form.mistake_count.data),
-                       int(statistic_form.shows.data), int(statistic_form.total_time.data))
+                       int(statistic_form.shows.data), int(statistic_form.total_time.data), time_start)
         return 'ok stat'
     else:
         return 'not ok'
@@ -209,6 +229,9 @@ def save_lesson_data():
 @login_required
 @hs.route('/lesson_result')
 def lesson_result():
+    current_user.count_day_lesson += 1
+    db.session.add(current_user)
+    db.session.commit()
     return get_lesson_result(current_user)
 
 
@@ -228,3 +251,17 @@ def stat():
 @hs.route('/about')
 def about():
     return render_template('hs/content_about.html')
+
+
+@login_required
+@hs.route('/top_up_balance')
+def top_up_balance():
+    if current_user.btc_address is None:
+        current_user.btc_address = get_new_address()
+        db.session.add(current_user)
+        db.session.commit()
+        # Генерация QR-кода
+    img_base64 = qrcode_gen(current_user.btc_address)
+
+    # Отображение QR-кода и адреса на веб-странице
+    return render_template('hs/btc_qr_code.html', img_data=img_base64, address=current_user.btc_address)

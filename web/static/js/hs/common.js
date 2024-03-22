@@ -1,5 +1,10 @@
-function show_message(text, time, func1, func2){
-    document.getElementById('message_box_text').innerText = text;
+function show_message(text, time, func1, func2, html){
+    if (html!=null){
+        document.getElementById('message_box_text').innerHTML = html;
+    }else{
+        document.getElementById('message_box_text').innerText = text;
+    }
+
     if (func1!=null){
         document.getElementById('ok_btn').onclick = func1;
         document.getElementById('ok_btn').style.display = "block";

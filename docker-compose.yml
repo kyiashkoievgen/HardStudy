@@ -6,29 +6,13 @@ services:
     volumes:
       - .:/app
       - static_volume:/studyforge/web/static
+      - C:/Users/User/.bitcoinlib:/app/wallets
     env_file:
       - .env
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     networks:
       - webnet
-  db:
-    image: mysql:8.0.26
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./mysql:/docker-entrypoint-initdb.d  # Путь к папке с дампом на хосте
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3306:3306"
-    networks:
-      - webnet
-    command: --sql_mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
 
   nginx:
     image: nginx:latest
@@ -42,8 +26,6 @@ services:
     networks:
       - webnet
 volumes:
-  mysql_data:
-    driver: local
   static_volume:
 networks:
   webnet:

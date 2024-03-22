@@ -1,9 +1,9 @@
 from datetime import datetime
 from flask import current_app
 from itsdangerous import URLSafeTimedSerializer as Serializer, SignatureExpired, BadSignature
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-
 from .. import login_manager, db
 
 
@@ -111,26 +111,27 @@ class User(UserMixin, db.Model):
     shock_motivator = db.Column(db.Boolean, nullable=False, default=False)
     smoke_motivator = db.Column(db.Boolean, nullable=False, default=False)
     money_motivator = db.Column(db.Boolean, nullable=False, default=False)
-    bitcoin_wallet_in = db.Column(db.String(128))
-    my_bitcoin_wallet = db.Column(db.String(128))
-    no_my_bitcoin_wallet = db.Column(db.String(128))
-    btc_balance_in = db.Column(db.Float, nullable=False, default=0)
-    btc_balance_my_out = db.Column(db.Float, nullable=False, default=0)
-    btc_balance_no_my_out = db.Column(db.Float, nullable=False, default=0)
     time_period = db.Column(db.Integer, nullable=False, default=30)
     lesson_per_day = db.Column(db.Integer, nullable=False, default=2)
+    count_day_lesson = db.Column(db.Integer, nullable=False, default=0)
     difficult_money = db.Column(db.Float, nullable=False, default=1.5)
     is_money_motivator_active = db.Column(db.Boolean, nullable=False, default=False)
     time_money_start = db.Column(db.DateTime)
-    btc_per_day = db.Column(db.Float)
-    win_btc = db.Column(db.Float)
-    lose_btc = db.Column(db.Float)
+    money_per_day_start = db.Column(db.Integer, nullable=False, default=0)
     money_motivator_day = None
     money_motivator_hours = None
     money_motivator_dec = None
     money_motivator_inc = None
     money_for_today = None
     btc_per_lesson = None
+    motivator_btc_per_day = None
+    # биткоин data
+    btc_address = db.Column(db.String(100))
+    my_btc_balance = db.Column(db.Integer, nullable=False, default=0)
+    user_btc_balance = db.Column(db.Integer, nullable=False, default=0)
+    motivator_btc_balance = db.Column(db.Integer, nullable=False, default=0)
+    motivator_win_btc_today = db.Column(db.Float)
+    motivator_lose_btc_today = db.Column(db.Float)
 
     @property
     def password(self):
@@ -163,41 +164,49 @@ class User(UserMixin, db.Model):
 
     def calc_motivator_money(self):
         if self.is_money_motivator_active:
+            # Время сколько работает мотиватор
             t = datetime.now() - self.time_money_start
             self.money_motivator_day = t.days + 1
             self.money_motivator_hours = int(24 - t.seconds / 3600)
-            money_diff = self.btc_balance_in - (self.time_period - t.days) * self.btc_per_day
-            self.money_for_today = self.btc_balance_in - (
-                    self.time_period - t.days - 1) * self.btc_per_day
+            self.motivator_btc_per_day = int(self.motivator_btc_balance/(self.time_period-t.days))
+            # сколько денег должно быть если заниматься каждый день, если нет то списываем разницу
+            money_diff = self.motivator_btc_balance - (self.time_period - t.days) * self.money_per_day_start
+            self.money_for_today = self.motivator_btc_per_day - self.motivator_win_btc_today - self.motivator_lose_btc_today
             if money_diff > 0:
-                money_diff = money_diff - self.lose_btc - self.win_btc
+                money_diff = money_diff - self.motivator_lose_btc_today - self.motivator_win_btc_today
                 if money_diff < 0:
                     money_diff = 0
-                self.btc_balance_in = self.btc_balance_in - self.win_btc - self.lose_btc - money_diff
-                self.btc_balance_my_out += self.win_btc
-                self.win_btc = 0
-                self.btc_balance_no_my_out += (self.lose_btc + money_diff)
-                self.lose_btc = 0
-
+                self.motivator_btc_balance = self.motivator_btc_balance - self.\
+                    motivator_win_btc_today - self.motivator_lose_btc_today - money_diff
+                # распределяем деньги и обнуляем ежедневный счетчик выплат
+                self.user_btc_balance += int(self.motivator_win_btc_today)
+                self.motivator_win_btc_today = 0
+                self.my_btc_balance += (int(self.motivator_lose_btc_today) + money_diff)
+                self.motivator_lose_btc_today = 0
+                self.count_day_lesson = 0
                 db.session.add(self)
                 db.session.commit()
-            if self.btc_balance_in < self.btc_per_day / self.lesson_per_day:
-                self.is_money_motivator_active = False
-                db.session.add(self)
-                db.session.commit()
+                # проверяем не закончились ли деньги на мотиваторе
+                if self.motivator_btc_balance < self.motivator_btc_per_day / self.lesson_per_day:
+                    self.is_money_motivator_active = False
+                    db.session.add(self)
+                    db.session.commit()
 
+    # устанавливаем на сколько увеличивать или уменьшать мотиватор на уроке
     def adjust_motivator(self, num_sent):
+        self.calc_motivator_money()
         if self.is_money_motivator_active:
-            self.btc_per_lesson = self.btc_per_day / self.lesson_per_day
-            self.money_motivator_inc = (self.btc_per_day - self.lose_btc - self.win_btc) / num_sent
+            self.btc_per_lesson = int((self.motivator_btc_per_day - self.motivator_win_btc_today - self.
+                                       motivator_lose_btc_today) / (self.lesson_per_day-self.count_day_lesson))
+            self.money_motivator_inc = self.btc_per_lesson / num_sent
             self.money_motivator_dec = self.money_motivator_inc * self.difficult_money
 
     def calc_motivator_profit(self, num_sent, inc=True):
         if self.is_money_motivator_active:
             if inc:
-                self.win_btc += self.money_motivator_inc
+                self.motivator_win_btc_today += self.money_motivator_inc
             else:
-                self.lose_btc += self.money_motivator_dec
+                self.motivator_lose_btc_today += self.money_motivator_dec
 
             db.session.add(self)
             db.session.commit()
@@ -248,12 +257,18 @@ class Statistic(db.Model):
     new_phrase = db.Column(db.Integer)
     full_understand = db.Column(db.Integer)
     total_time = db.Column(db.Integer)
-    time_start = db.Column(db.DateTime)
+    time_start = db.Column(db.DateTime, default=func.now())
     comment = db.Column(db.UnicodeText)
+
+
+class TransactionHistory(db.Model):
+    __tablename__ = 'transaction_history'
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer)
+    description = db.Column(db.UnicodeText)
 
 
 @login_manager.user_loader
 def load_user(user_id):
     current_user = User.query.get(int(user_id))
-    current_user.calc_motivator_money()
     return current_user
