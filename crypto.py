@@ -1,15 +1,15 @@
 import os
 
+import requests
 from bitcoinlib.wallets import Wallet
 from bitcoinlib.mnemonic import Mnemonic
-from blockcypher import get_address_details
+from blockcypher import get_address_details, list_webhooks, subscribe_to_address_webhook
 from dotenv import load_dotenv
 import qrcode
 import base64
 from io import BytesIO
 
 from web import db
-from web.hard_study.modls import TransactionHistory
 
 load_dotenv()
 walled_name = os.getenv('SECRET_KEY')
@@ -62,20 +62,71 @@ def get_user_balance(user):
     user_balance = {
         'unconfirmed_balance': 0,
         'btc_transaction_in_progress': 0,
-        'btc_balance': 0
+        'btc_balance': user.user_btc_balance
     }
-    address_info = get_address_details(user.btc_address)
-    if address_info['unconfirmed_balance'] > 0:
-        user_balance['btc_transaction_in_progress'] = address_info['unconfirmed_balance']
-    for transaction in address_info['txrefs']:
-        if transaction['confirmations'] < 2:
-            user_balance['unconfirmed_balance'] += transaction['value']
-    user_bal_diff = (address_info['final_balance']-user_balance['unconfirmed_balance']) - user.user_btc_balance
-    if user_bal_diff != 0:
-        transaction_history = TransactionHistory(value=user_bal_diff, description="Пополнение" )
-        user.user_btc_balance += user_bal_diff
-        db.session.add(user)
-        db.session.add(transaction_history)
-        db.session.commit()
+    # address_info = get_address_details(user.btc_address)
+    # if address_info['unconfirmed_balance'] > 0:
+    #     user_balance['btc_transaction_in_progress'] = address_info['unconfirmed_balance']
+    # for transaction in address_info['txrefs']:
+    #     if transaction['confirmations'] < 2:
+    #         user_balance['unconfirmed_balance'] += transaction['value']
+    # user_bal_diff = (address_info['final_balance'] - user_balance['unconfirmed_balance']) - user.user_btc_balance
+    # if user_bal_diff != 0:
+    #     from web.hard_study.modls import TransactionHistory
+    #     transaction_history = TransactionHistory(value=user_bal_diff, description="Пополнение")
+    #     user.user_btc_balance += user_bal_diff
+    #     db.session.add(user)
+    #     db.session.add(transaction_history)
+    #     db.session.commit()
     user_balance['btc_balance'] = user.user_btc_balance - user.motivator_btc_balance - user.my_btc_balance
     return user_balance
+
+
+# функция для отображения цены биткоина в выбранных валютах
+# функция принимает на вход валюту на которую нужно перевести цену биткоина и колчество биткоинов сатоши
+# возвращает цену биткоина в выбранной валюте
+def btc_price_converter(currency_user, amount, to_btc=False):
+    btc_price = currency_user.currency_rate
+    if to_btc:
+        return amount / btc_price * 100000000
+    else:
+        return btc_price * amount / 100000000
+
+
+def get_btc_rate(currency_user):
+    try:
+        currency = currency_user.currency_show
+        url = f'https://api.coindesk.com/v1/bpi/currentprice/{currency}.json'
+        response = requests.get(url)
+        response.raise_for_status()  # Поднимает исключение для ответов с ошибкой
+        response_json = response.json()
+        btc_price = response_json['bpi'][currency]['rate_float']
+        return btc_price
+    except Exception as e:
+        # Здесь можно добавить логирование или другую обработку ошибки
+        return None
+
+
+# функция для которая возвращает список валют доступных в coindesk
+def get_currency_list():
+    url = 'https://api.coindesk.com/v1/bpi/supported-currencies.json'
+    response = requests.get(url)
+    response_json = response.json()
+    return [currency_list['currency'] for currency_list in response_json]
+
+
+def check_webhook_existence(address, api_key):
+    # Функция для проверки существующих веб-хуков для адреса
+    # Это псевдокод, вам нужно адаптировать его под используемый API
+    existing_webhooks = list_webhooks(api_key)  # Получение списка веб-хуков
+    for webhook in existing_webhooks:
+        if webhook['address'] == address:
+            return True
+    return False
+
+
+def create_webhook_if_not_exists(address, callback_url, api_key):
+    if not check_webhook_existence(address, api_key):
+        subscribe_to_address_webhook(callback_url=callback_url,
+                                     subscription_address=address,
+                                     api_key=api_key)

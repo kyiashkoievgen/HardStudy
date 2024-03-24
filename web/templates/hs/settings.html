@@ -114,18 +114,18 @@
     </div>
     <div class="row">
         <div class="col-sm-4">
-        <label>{{ _('Мой баланс') }}: {{ user_balance_info.btc_balance }}</label>
+        <label>{{ _('Мой баланс') }}: {{ balance.btc_balance | round(2) }}{{ form.currency_show(onchange="onCurrencyChange()")}}</label>
         </div>
 
         <div class="balance">
             <button type="button" onclick="fetchQRCode()">{{ _('Пополнить') }}</button>
             <button>{{ _('Вывести') }}</button>
             <span>
-                {%if user_balance_info.unconfirmed_balance>0%}
-                {{ _('Ожидается поступление') }}:{{user_balance_info.unconfirmed_balance}}<br>
+                {%if balance.unconfirmed_balance>0%}
+                {{ _('Ожидается поступление') }}:{{balance.unconfirmed_balance | round(2)}}{{ form.currency_show.data }}<br>
                 {%endif%}
-                {%if user_balance_info.btc_transaction_in_progress>0%}
-                {{ _('Ожидается подтверждение') }}:{{user_balance_info.btc_transaction_in_progress}}
+                {%if balance.btc_transaction_in_progress>0%}
+                {{ _('Ожидается подтверждение') }}:{{balance.btc_transaction_in_progress | round(2)}}{{ form.currency_show.data }}
                 {%endif%}
             </span>
         </div>
@@ -142,7 +142,7 @@
       {%endif%}
     <div class="row text-center">
         <div class="col">
-        {{ form.submit() }}
+        {{ form.submit_form() }}
         </div>
     </div>
     </form>
@@ -152,17 +152,17 @@
     {{ form2.activate_motivator() }}
     <div class="row">
         <div class="col-sm-4">
-        <label>{{ _('Баланс мотиватора') }}: {{ current_user.motivator_btc_balance }}</label>
+        <label>{{ _('Баланс мотиватора') }}: {{ current_user.get_motivator_balance() | round(2) }}{{ form.currency_show.data }}</label>
         </div>
         {% if not current_user.is_money_motivator_active %}
         <div>
-        {% if user_balance_info.btc_balance>0 or current_user.motivator_btc_balance>0%}
-            {% if user_balance_info.btc_balance>0%}
+        {% if balance.btc_balance>0 or current_user.motivator_btc_balance>0%}
+            {% if balance.btc_balance>0%}
                 <input type="button" onclick="show_message(null, 0, null, null, `
                 <div>
                     <span>{{_('На какую сумму пополнить мотиватор?')}}</span><br>
-                    <span>{{_('Доступно')}}:{{user_balance_info.btc_balance}}</span>
-                    <input type='number' onkeyup='check_balance(this, {{user_balance_info.btc_balance}})'>
+                    <span>{{_('Доступно')}}:{{balance.btc_balance | round(2)}}</span>
+                    <input type='number' onkeyup='check_balance(this, {{balance.btc_balance | round(2) }})'>
                 </div>
                 `)" value="{{ _('Пополнить') }}">
             {% endif %}
@@ -187,7 +187,7 @@
         </div>
         <div class="col-sm-4">
          {% if current_user.is_money_motivator_active %}
-            <span>{{ current_user.motivator_btc_per_day }}. {{ _('День') }} {{ current_user.money_motivator_day }} <br> {{ _('осталось') }} {{ current_user.money_motivator_hours }} {{ _('часов что бы пройти уроки') }}</span>
+            <span>{{ current_user.get_motivator_btc_per_day() | round(2) }}{{ form.currency_show.data }}. {{ _('День') }} {{ current_user.money_motivator_day }} <br> {{ _('осталось') }} {{ current_user.money_motivator_hours }} {{ _('часов что бы пройти уроки') }}</span>
             {% endif %}
         </div>
     </div>

@@ -29,3 +29,7 @@ function check_balance(input, balance){
     }
 
 }
+// отправка формы на сервер при изменении валюты
+function onCurrencyChange(){
+    document.getElementById('setting_form').submit()
+}

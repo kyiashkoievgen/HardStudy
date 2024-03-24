@@ -4,6 +4,8 @@ from itsdangerous import URLSafeTimedSerializer as Serializer, SignatureExpired,
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+
+from crypto import btc_price_converter, get_user_balance, get_new_address, get_btc_rate
 from .. import login_manager, db
 
 
@@ -97,7 +99,7 @@ class User(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
     lang1 = db.Column(db.Integer, db.ForeignKey('languages.id'))
-    lang2 = db.Column(db.Integer, db.ForeignKey('languages.id'))
+    lang2 = db.Column(db.Integer, db.ForeignKey('languages.id'), nullable=False, default=4)
     lang1_code = db.relationship('Language', foreign_keys=[lang1], backref='lang_code')
     cur_lesson_id = db.Column(db.Integer, db.ForeignKey('lessons_names.id'), nullable=False, default=1)
     num_new_sentences_lesson = db.Column(db.Integer, nullable=False, default=5)
@@ -132,6 +134,8 @@ class User(UserMixin, db.Model):
     motivator_btc_balance = db.Column(db.Integer, nullable=False, default=0)
     motivator_win_btc_today = db.Column(db.Float)
     motivator_lose_btc_today = db.Column(db.Float)
+    currency_show = db.Column(db.String(10), nullable=False, default='BTC')
+    currency_rate = db.Column(db.Float, nullable=False, default=1)
 
     @property
     def password(self):
@@ -161,6 +165,19 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         db.session.commit()
         return True
+
+    def get_new_address(self):
+        self.btc_address = get_new_address()
+        db.session.add(self)
+        db.session.commit()
+        return self.btc_address
+
+    def currency_rate_update(self):
+        rate = get_btc_rate(self)
+        if rate is not None:
+            self.currency_rate = rate
+            db.session.add(self)
+            db.session.commit()
 
     def calc_motivator_money(self):
         if self.is_money_motivator_active:
@@ -196,8 +213,8 @@ class User(UserMixin, db.Model):
     def adjust_motivator(self, num_sent):
         self.calc_motivator_money()
         if self.is_money_motivator_active:
-            self.btc_per_lesson = int((self.motivator_btc_per_day - self.motivator_win_btc_today - self.
-                                       motivator_lose_btc_today) / (self.lesson_per_day-self.count_day_lesson))
+            lesson = self.lesson_per_day - self.count_day_lesson
+            self.btc_per_lesson = int(self.motivator_btc_per_day / lesson - self.motivator_win_btc_today - self.motivator_lose_btc_today)
             self.money_motivator_inc = self.btc_per_lesson / num_sent
             self.money_motivator_dec = self.money_motivator_inc * self.difficult_money
 
@@ -212,6 +229,41 @@ class User(UserMixin, db.Model):
             db.session.commit()
             self.calc_motivator_money()
             self.adjust_motivator(num_sent)
+
+# баланс пользователя в его валюте
+    def get_user_balance(self):
+        if self.btc_address is None:
+            return None
+        currency_rate = btc_price_converter(self, 1)
+        balance = get_user_balance(self)
+        balance['btc_transaction_in_progress'] = balance['btc_transaction_in_progress'] * currency_rate
+        balance['btc_balance'] = balance['btc_balance'] * currency_rate
+        balance['unconfirmed_balance'] = balance['unconfirmed_balance'] * currency_rate
+        return balance
+
+# баланс мотиватора в его валюте
+    def get_motivator_balance(self):
+        if self.btc_address is None:
+            return None
+        return btc_price_converter(self, self.motivator_btc_balance)
+
+    def get_motivator_btc_per_day(self):
+        return btc_price_converter(self, self.motivator_btc_per_day)
+
+    def get_motivator_win_btc_today(self):
+        return btc_price_converter(self, self.motivator_win_btc_today)
+
+    def get_motivator_lose_btc_today(self):
+        return btc_price_converter(self, self.motivator_lose_btc_today)
+
+    def get_money_for_today(self):
+        return btc_price_converter(self, self.money_for_today)
+
+    def get_money_motivator_dec(self):
+        return btc_price_converter(self, self.money_motivator_dec)
+
+    def get_money_motivator_inc(self):
+        return btc_price_converter(self, self.money_motivator_inc)
 
 
 class Role(db.Model):
@@ -271,4 +323,5 @@ class TransactionHistory(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     current_user = User.query.get(int(user_id))
+    current_user.currency_rate_update()
     return current_user

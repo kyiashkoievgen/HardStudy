@@ -3,7 +3,8 @@ import json
 
 from flask import render_template, request, current_app, session, jsonify, redirect, url_for
 
-from crypto import get_new_address, qrcode_gen, get_user_balance
+from crypto import get_new_address, qrcode_gen, get_user_balance, get_currency_list, btc_price_converter, \
+    create_webhook_if_not_exists
 from . import hs
 from flask_login import login_required, current_user
 
@@ -39,6 +40,10 @@ def index():
             user_language = current_user.lang1_code
             if user_language:
                 selected_language = user_language
+            else:
+                current_user.lang1 = selected_language.id
+                db.session.add(current_user)
+                db.session.commit()
     current_lesson = None
     if current_user.is_authenticated:
         current_lesson = LessonName.query.filter_by(name_id=current_user.cur_lesson_id,
@@ -59,9 +64,12 @@ def home():
 @hs.route('/settings', methods=['GET', 'POST'])
 def settings():
     current_user.calc_motivator_money()
-    if current_user.btc_address is not None:
-        user_balance_info = get_user_balance(current_user)
+    if current_user.btc_address is None:
+        current_user.get_new_address()
+    # create_webhook_if_not_exists(current_user.btc_address, url_for('hs.top_up_balance', _external=True),
+    #                              current_user.api_key)
     form = SettingForm()
+    form.currency_show.choices = get_currency_list()
     form2 = SettingFormMoney()
     if form.validate_on_submit():
         current_user.num_sent_warm_up = form.num_sent_warm_up.data
@@ -74,6 +82,7 @@ def settings():
         current_user.use_dialect = form.use_dialect.data
         current_user.shock_motivator = form.shock_motivator.data
         current_user.smoke_motivator = form.smoke_motivator.data
+        current_user.currency_show = form.currency_show.data
         if not current_user.is_money_motivator_active:
             current_user.money_motivator = form.money_motivator.data
         db.session.add(current_user)
@@ -91,18 +100,21 @@ def settings():
         form.shock_motivator.data = current_user.shock_motivator
         form.smoke_motivator.data = current_user.smoke_motivator
         form.money_motivator.data = current_user.money_motivator
+        form.currency_show.data = current_user.currency_show
+
     if form2.validate_on_submit() and not current_user.is_money_motivator_active:
         current_user.time_period = form2.time_period.data
         current_user.lesson_per_day = form2.lesson_per_day.data
-        current_user.money_per_day_start = int(current_user.motivator_btc_balance/current_user.time_period)
+        current_user.money_per_day_start = int(current_user.motivator_btc_balance / current_user.time_period)
         current_user.is_money_motivator_active = True
         db.session.add(current_user)
         db.session.commit()
     else:
         form2.time_period.data = current_user.time_period
         form2.lesson_per_day.data = current_user.lesson_per_day
+    balance = current_user.get_user_balance()
 
-    return render_template('hs/settings.html', form=form, form2=form2, current_user=current_user, user_balance_info=user_balance_info)
+    return render_template('hs/settings.html', form=form, form2=form2, current_user=current_user, balance=balance)
 
 
 @login_required
@@ -110,6 +122,7 @@ def settings():
 def top_up_money_motivator():
     val = request.args.get('val', type=int)  # Получаем параметр val как целое число
     if val is not None:
+        val = btc_price_converter(current_user, val, to_btc=True)
         user_balance = get_user_balance(current_user)
         if user_balance['btc_balance'] >= val:
             current_user.motivator_btc_balance += val
@@ -196,21 +209,19 @@ def save_lesson_data():
                                 phrase_form.was_help_sound_flag.data, phrase_form.was_help_flag.data)
 
         if current_user.is_money_motivator_active:
-            mistake = False
-
-            current_user.calc_motivator_money()
             current_user.adjust_motivator(int(phrase_form.total_phrase.data))
-            if phrase_form.was_mistake_flag.data == 'true':
-                mistake = True
-            current_user.calc_motivator_profit(int(phrase_form.total_phrase.data), not mistake)
-
+            if phrase_form.id_phrase.data != 'false' and phrase_form.was_help_flag.data != 'true':
+                current_user.calc_motivator_profit(int(phrase_form.total_phrase.data),
+                                                   phrase_form.was_mistake_flag.data != 'true')
+            elif phrase_form.id_phrase.data == 'false' and phrase_form.was_mistake_flag.data == 'true':
+                current_user.calc_motivator_profit(int(phrase_form.total_phrase.data), False)
             return {
                 'money_motivator': True,
-                'money_motivator_dec': current_user.money_motivator_dec,
-                'money_motivator_inc': current_user.money_motivator_inc,
-                'money_for_today': current_user.money_for_today,
-                'win_btc': current_user.motivator_win_btc_today,
-                'lose_btc': current_user.motivator_lose_btc_today
+                'money_motivator_dec': round(current_user.get_money_motivator_dec(), 2),
+                'money_motivator_inc': round(current_user.get_money_motivator_inc(), 2),
+                'money_for_today': f"{current_user.get_money_for_today():.2f}{current_user.currency_show}",
+                'win_btc': f"{current_user.get_motivator_win_btc_today():.2f}{current_user.currency_show}",
+                'lose_btc': f"{current_user.get_motivator_lose_btc_today():.2f}{current_user.currency_show}"
             }
         else:
             return 'ok'
@@ -265,3 +276,18 @@ def top_up_balance():
 
     # Отображение QR-кода и адреса на веб-странице
     return render_template('hs/btc_qr_code.html', img_data=img_base64, address=current_user.btc_address)
+
+
+# @hs.route('/webhook', methods=['POST'])
+# def handle_webhook():
+#     data = request.json
+#     address = data.get('address')
+#     user_id = user_wallets.get(address)
+#
+#     if user_id:
+#         # Обработайте уведомление, зная, что оно относится к user_id
+#         print(f"Уведомление для пользователя {user_id}: {json.dumps(data, indent=2)}")
+#         # Здесь можно добавить логику для отправки уведомления пользователю, например, через WebSocket
+#     else:
+#         print("Адрес кошелька не найден среди пользователей.")
+#     return '', 200

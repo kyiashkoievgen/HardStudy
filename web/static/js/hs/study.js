@@ -123,23 +123,23 @@ function send_study_data(form){
             if (response.money_motivator){
                 money_motivator_inc = response.money_motivator_inc;
                 money_motivator_dec = response.money_motivator_dec;
-                let inc = 0
-                let dec =0
+                let inc = '0'
+                let dec ='0'
                 if (lesson_data[curr_sent_count].study_type !== 0){
                     if (lesson_data[curr_sent_count].showings_count === 0){
                         inc = money_motivator_inc
                         dec = money_motivator_dec
                     }else {
-                        inc = 0
+                        inc = '0'
                         dec = money_motivator_dec
                     }
                 }
                 if (money_motivator){
-                    document.getElementById('money_motivator_inc').innerText = inc.toFixed(2)
-                    document.getElementById('money_motivator_dec').innerText = dec.toFixed(2)
-                    document.getElementById('btc_balance_my_out').innerText = response.win_btc.toFixed(2)
-                    document.getElementById('btc_balance_no_my_out').innerText = response.lose_btc.toFixed(2)
-                    document.getElementById('money_for_today').innerText = response.money_for_today.toFixed(2)
+                    document.getElementById('money_motivator_inc').innerText = inc
+                    document.getElementById('money_motivator_dec').innerText = dec
+                    document.getElementById('btc_balance_my_out').innerText = response.win_btc
+                    document.getElementById('btc_balance_no_my_out').innerText = response.lose_btc
+                    document.getElementById('money_for_today').innerText = response.money_for_today
                 }
             }
             console.info(response)

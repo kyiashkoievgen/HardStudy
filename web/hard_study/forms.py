@@ -41,7 +41,8 @@ class SettingForm(FlaskForm):
     shock_motivator = BooleanField(_l('Использовать электро мотиватор'), validators=[])
     smoke_motivator = BooleanField(_l('Использовать мотивацию никотином'), validators=[])
     money_motivator = BooleanField(_l('Использовать денежную мотивацию'), validators=[])
-    submit = SubmitField(_l('Сохранить настройки'))
+    currency_show = SelectField(_l('Валюта'), choices=[], validators=[DataRequired()])
+    submit_form = SubmitField(_l('Сохранить настройки'))
 
 
 class SettingFormMoney(FlaskForm):

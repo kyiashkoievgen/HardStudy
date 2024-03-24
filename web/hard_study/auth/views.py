@@ -48,6 +48,8 @@ def confirm(token):
         return redirect(url_for('hs.index'))
     if not current_user.confirm(token):
         flash(_('Ссылка для подтверждения недействительна или срок ее действия истек.'))
+    else:
+        flash(_('Вы подтвердили свою учетную запись. Спасибо!'))
     return redirect(url_for('hs.index'))
 
 

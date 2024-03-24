@@ -1,3 +1,5 @@
-/web/static/audio/
-/cmusphinx_model/
-/video/
+
+!/everything/
+!/mysql/
+!/web/static/audio/
+!/.env

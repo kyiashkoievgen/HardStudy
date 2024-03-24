@@ -39,6 +39,7 @@ class Phrase:
             'img': self.img
         }
 
+
 class StudyPhrases:
     def __init__(self, current_user):
         self.current_user = current_user
@@ -166,17 +167,18 @@ class StudyPhrases:
             # предложения которые не были в обучении
             subquery_Sentence_not_in_progress = db.session.query(subquery_word_sent). \
                 filter_by(right_count=None).subquery()
-            # предложения которые имеют слова на которые было отвечено правильно
-            add_sent2 = db.session.query(subquery_Sentence_not_in_progress). \
-                filter(subquery_Sentence_not_in_progress.c.right_count_word > 0).subquery()
-            # предложения которые имеют слова которые нужно учить
-            add_sent_nr = db.session.query(subquery_Sentence_not_in_progress). \
-                filter(subquery_Sentence_not_in_progress.c.word_id.in_(word_to_study)).all()
-            # предложения в которых содержат слова которые уже изучены и те что нужно учить
-            add_sent2 = db.session.query(add_sent2).filter(
-                add_sent2.c.id.in_(sent.id for sent in add_sent_nr)).group_by('id').order_by('num_word'). \
+            # # предложения которые имеют слова на которые было отвечено правильно
+            # add_sent2 = db.session.query(subquery_Sentence_not_in_progress). \
+            #     filter(subquery_Sentence_not_in_progress.c.right_count_word > 0).subquery()
+            # # предложения которые имеют слова которые нужно учить
+            # add_sent_nr = db.session.query(subquery_Sentence_not_in_progress). \
+            #     filter(subquery_Sentence_not_in_progress.c.word_id.in_(word_to_study)).all()
+            # # предложения в которых содержат слова которые уже изучены и те что нужно учить
+            # add_sent2 = db.session.query(add_sent2).filter(
+            #     add_sent2.c.id.in_(sent.id for sent in add_sent_nr)).group_by('id').order_by('num_word'). \
+            #     limit(add_sent_num).all()
+            add_sent2 = db.session.query(subquery_Sentence_not_in_progress).group_by('id').order_by('num_word'). \
                 limit(add_sent_num).all()
-
             add_sent_num = self.current_user.num_new_sentences_lesson - len(add_sent) - len(add_sent2)
             if add_sent_num > 0:
                 add_sent3 = db.session.query(subquery_Sentence_not_in_progress). \
@@ -192,14 +194,14 @@ class StudyPhrases:
 
         add_sent4 = db.session.query(subquery_word_sent). \
             filter(subquery_word_sent.c.right_count > 0, subquery_word_sent.c.right_count <= 3).order_by('forgetting'). \
-            group_by('id').limit(self.current_user.num_new_sentences_lesson*2).all()
+            group_by('id').limit(self.current_user.num_new_sentences_lesson * 2).all()
         # add_sent = db.session.query(add_sent).union(add_sent2).subquery()
 
         self.add_phrase(add_sent4, 2)
 
         add_sent4 = db.session.query(subquery_word_sent). \
             filter(subquery_word_sent.c.right_count > 3).order_by('forgetting'). \
-            group_by('id').limit(self.current_user.num_new_sentences_lesson*2).all()
+            group_by('id').limit(self.current_user.num_new_sentences_lesson * 2).all()
         # add_sent = db.session.query(add_sent).union(add_sent2).all()
 
         self.add_phrase(add_sent4, 3)
@@ -247,7 +249,8 @@ def save_statistic(current_user, id_phrase, new_phrase, right_answer, full_under
     statistic = Statistic(user_id=current_user.id, lesson_name_id=current_user.cur_lesson_id, sentence_id=id_phrase,
                           new_phrase=new_phrase, right_answer=right_answer,
                           total_time=total_time,
-                          full_understand=full_understand, mistake_count=mistake_count, shows=shows, time_start=time_start)
+                          full_understand=full_understand, mistake_count=mistake_count, shows=shows,
+                          time_start=time_start)
     db.session.add(statistic)
     db.session.commit()
 

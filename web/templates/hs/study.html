@@ -102,15 +102,15 @@
         <div class="motivator_info">
             <div>
                 <label>{{ _('Мои деньги:') }}</label>
-                <span id="btc_balance_my_out">{{ current_user.motivator_win_btc_today | round(2) }}</span>
+                <span id="btc_balance_my_out">{{ current_user.get_motivator_win_btc_today() | round(2) }}{{ current_user.currency_show }}</span>
             </div>
             <div>
                 <label>{{ _('Деньги врага:') }}</label>
-                <span id="btc_balance_no_my_out">{{ current_user.motivator_lose_btc_today | round(2) }}</span>
+                <span id="btc_balance_no_my_out">{{ current_user.get_motivator_lose_btc_today() | round(2) }}{{ current_user.currency_show }}</span>
             </div>
             <div>
                 <label>{{ _('Можно забрать денег сегодня:') }}</label>
-                <span id="money_for_today">{{ (current_user.money_for_today) | round(2) }}</span>
+                <span id="money_for_today">{{ (current_user.get_money_for_today()) | round(2) }}{{ current_user.currency_show }}</span>
             </div>
         </div>
         {% endif %}
