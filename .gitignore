@@ -3,3 +3,6 @@
 !/mysql/
 !/web/static/audio/
 !/.env
+!/docker-compose.yml
+!/Dockerfile
+!/web/static/img/hs/back_ground/
