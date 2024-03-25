@@ -6,3 +6,4 @@
 /docker-compose.yml
 /Dockerfile
 /web/static/img/hs/back_ground/
+/rsync_to_server.sh

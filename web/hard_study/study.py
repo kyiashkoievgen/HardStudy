@@ -64,7 +64,7 @@ class StudyPhrases:
             phrase.phrase_native_audio = sent[10]
             phrase.study_type = study_type
             phrase.num_showings = 100
-            images = os.listdir('web/static/img/hs/back_ground')
+            images = os.listdir('app/web/static/img/hs/back_ground')
             phrase.img = random.choice(images)
             if study_type == 1 or study_type == 5:
                 phrase.num_showings = self.current_user.num_showings1
