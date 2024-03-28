@@ -1,6 +1,5 @@
 
 /everything/
-/mysql/
 /web/static/audio/
 /.env
 /docker-compose.yml

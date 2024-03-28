@@ -139,3 +139,12 @@
     background-size: cover;
     cursor: pointer;
 }
+
+#input_text_new_phrase{
+    display: none;
+    width: 50px;
+    padding-right: 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url("/static/img/hs/new_sent.png");
+}

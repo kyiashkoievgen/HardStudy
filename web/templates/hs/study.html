@@ -21,7 +21,9 @@
                 "err_ans": "{{ _('Ошибок') }}",
                 "new_phr": "{{ _('Новых фраз') }}",
                 "no_help": "{{ _('Без подсказок') }}",
-                "repeat_les": "{{ _('Повторить урок?') }}"
+                "repeat_les": "{{ _('Повторить урок?') }}",
+                "mistake_txt": "{{ _('Ошибка') }}",
+                "fast_txt": "{{ _('Сбрось темп') }}"
             };
             voice = "{{ current_user.voice }}"
             {% if current_user.shock_motivator %}
@@ -133,6 +135,7 @@
             {% endif %}
         </div>
         <div id="input_view">
+            <div id="input_text_new_phrase"></div>
             <textarea id="input_text" onkeyup="onEntryChangeStudy()"></textarea>
             <button onclick="on_help()">{{ _('Показать') }}</button>
             <button onclick="on_sound()">{{ _('Произнести') }}</button>

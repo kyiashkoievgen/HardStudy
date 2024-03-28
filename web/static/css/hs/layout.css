@@ -142,3 +142,9 @@ body {
     background-color: lightgray;
     cursor: pointer;
 }
+
+#welcome {
+    padding-right: 10px;
+    font-weight : bold;
+    color: white;
+}

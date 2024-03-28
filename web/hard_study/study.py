@@ -22,6 +22,12 @@ class Phrase:
     num_showings = int()
     study_type = int()
     img = str()
+    SENTENCE_WARM_UP = 0
+    SENTENCE_NEW_WITH_MISTAKE = 1
+    REPEATING_SENTENCE = 4
+    NEW_SENTENCE = 5
+    SENTENCE_RIGHT_MORE_THREE = 3
+    SENTENCE_RIGHT_LESS_THREE = 2
 
     def to_dict(self):
         return {
@@ -64,15 +70,18 @@ class StudyPhrases:
             phrase.phrase_native_audio = sent[10]
             phrase.study_type = study_type
             phrase.num_showings = 100
-            images = os.listdir('web/static/img/hs/back_ground')
+            current_directory = os.getcwd()
+            print(current_directory)
+            images = os.listdir('/app/web/static/img/hs/back_ground')
             phrase.img = random.choice(images)
-            if study_type == 1 or study_type == 5:
+            # в зависимости от типа предложений устанавливаем количество показов
+            if study_type == Phrase.SENTENCE_NEW_WITH_MISTAKE or study_type == Phrase.NEW_SENTENCE:
                 phrase.num_showings = self.current_user.num_showings1
-            if study_type == 4:
+            if study_type == Phrase.REPEATING_SENTENCE:
                 phrase.num_showings = 1
-            if study_type == 2:
+            if study_type == Phrase.SENTENCE_RIGHT_LESS_THREE:
                 phrase.num_showings = self.current_user.num_showings2
-            elif study_type == 3:
+            elif study_type == Phrase.SENTENCE_RIGHT_MORE_THREE:
                 phrase.num_showings = self.current_user.num_showings3
             self.phrases.append(phrase.to_dict())
 
@@ -155,7 +164,7 @@ class StudyPhrases:
             add_sent2 = db.session.query(subquery_word_sent).order_by('num_word').group_by('id'). \
                 limit(add_sent_num)
             add_sent = db.session.query(add_sent).union(add_sent2).subquery()
-        self.add_phrase(db.session.query(add_sent).all(), 0)
+        self.add_phrase(db.session.query(add_sent).all(), Phrase.SENTENCE_WARM_UP)
         # находим предложения которые не были отвечены правильно и добавляем их в обучение
         add_sent = db.session.query(subquery_word_sent).filter(subquery_word_sent.c.right_count <= 0).group_by('id'). \
             limit(self.current_user.num_new_sentences_lesson).all()
@@ -184,30 +193,35 @@ class StudyPhrases:
                 add_sent3 = db.session.query(subquery_Sentence_not_in_progress). \
                     filter(subquery_Sentence_not_in_progress.c.word_id.in_(word_to_study)).group_by('id'). \
                     order_by('num_word').limit(add_sent_num).all()
-
-        self.add_phrase(add_sent, 1)
-        self.add_phrase(add_sent2, 5)
-        self.add_phrase(add_sent3, 5)
-        self.add_phrase(add_sent, 4)
-        self.add_phrase(add_sent2, 4)
-        self.add_phrase(add_sent3, 4)
+        # добавляем предложения в обучение
+        # В начале те предложения которые не были отвечены правильно
+        self.add_phrase(add_sent, Phrase.SENTENCE_NEW_WITH_MISTAKE)
+        # Потом те предложения которые не были в обучении
+        self.add_phrase(add_sent2, Phrase.NEW_SENTENCE)
+        self.add_phrase(add_sent3, Phrase.NEW_SENTENCE)
+        # Потом добавляем новые предложения еще раз для повторения
+        self.add_phrase(add_sent, Phrase.REPEATING_SENTENCE)
+        self.add_phrase(add_sent2, Phrase.REPEATING_SENTENCE)
+        self.add_phrase(add_sent3, Phrase.REPEATING_SENTENCE)
 
         add_sent4 = db.session.query(subquery_word_sent). \
             filter(subquery_word_sent.c.right_count > 0, subquery_word_sent.c.right_count <= 3).order_by('forgetting'). \
             group_by('id').limit(self.current_user.num_new_sentences_lesson * 2).all()
         # add_sent = db.session.query(add_sent).union(add_sent2).subquery()
-
-        self.add_phrase(add_sent4, 2)
+        # Предложения которые были в обучении и на которые отвечено правильно меньше 3 раз
+        self.add_phrase(add_sent4, Phrase.SENTENCE_RIGHT_LESS_THREE)
 
         add_sent4 = db.session.query(subquery_word_sent). \
             filter(subquery_word_sent.c.right_count > 3).order_by('forgetting'). \
             group_by('id').limit(self.current_user.num_new_sentences_lesson * 2).all()
         # add_sent = db.session.query(add_sent).union(add_sent2).all()
 
-        self.add_phrase(add_sent4, 3)
-        self.add_phrase(add_sent, 4)
-        self.add_phrase(add_sent2, 4)
-        self.add_phrase(add_sent3, 4)
+        # Предложения которые были в обучении и на которые отвечено правильно больше 3 раз
+        self.add_phrase(add_sent4, Phrase.SENTENCE_RIGHT_MORE_THREE)
+        # Предложения для повторения
+        self.add_phrase(add_sent, Phrase.REPEATING_SENTENCE)
+        self.add_phrase(add_sent2, Phrase.REPEATING_SENTENCE)
+        self.add_phrase(add_sent3, Phrase.REPEATING_SENTENCE)
 
         self.current_user.adjust_motivator(len(self.phrases))
 

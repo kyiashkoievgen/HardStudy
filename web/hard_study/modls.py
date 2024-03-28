@@ -1,52 +1,36 @@
 from datetime import datetime
 from flask import current_app
 from itsdangerous import URLSafeTimedSerializer as Serializer, SignatureExpired, BadSignature
-from sqlalchemy import func
+from sqlalchemy import Column, Integer, ForeignKey
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 from crypto import btc_price_converter, get_user_balance, get_new_address, get_btc_rate
+from mysql.models import BaseMeaning, BaseLanguage, BaseLessonName, BaseLessonType, BaseRegSentWord, BaseSentence, \
+    BaseWord, BaseUser, BaseRole, BaseStudyProgress, BaseWordProgress, BaseStatistic, BaseTransactionHistory
 from .. import login_manager, db
 
 
-class Meaning(db.Model):
+class Meaning(BaseMeaning, db.Model):
     __tablename__ = 'meanings'
-    id = db.Column(db.Integer, primary_key=True)
-    img = db.Column(db.String(40), unique=True)
 
 
-class Language(db.Model):
+class Language(BaseLanguage, db.Model):
     __tablename__ = 'languages'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(15), unique=True)
-    code = db.Column(db.String(5), unique=True)
     sentences = db.relationship('Sentence', backref='lang')
 
 
-class LessonName(db.Model):
+class LessonName(BaseLessonName, db.Model):
     __tablename__ = 'lessons_names'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(15))
-    type = db.Column(db.Integer, db.ForeignKey('lesson_types.type_id'))
-    description = db.Column(db.UnicodeText)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    name_id = db.Column(db.Integer)
-    lang_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
 
 
-class LessonType(db.Model):
+class LessonType(BaseLessonType, db.Model):
     __tablename__ = 'lesson_types'
-    id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(15), unique=True)
-    type_id = db.Column(db.Integer)
-    lang_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
 
 
 # описывает взаимоотношение многие ко многим. какие слова находятся в предложении
-class RegSentWord(db.Model):
+class RegSentWord(BaseRegSentWord, db.Model):
     __tablename__ = 'reg_sent_word'
-    sentences_id = db.Column(db.Integer, db.ForeignKey('sentences.id'), primary_key=True)
-    word_id = db.Column(db.Integer, db.ForeignKey('words.id'), primary_key=True)
 
 
 # описывает взаимоотношение многие ко многим. предложении слова находятся в разных лекциях
@@ -57,15 +41,8 @@ reg_sent_les_name = db.Table('reg_sent_les_name',
 
 
 # описывает предложения
-class Sentence(db.Model):
+class Sentence(BaseSentence, db.Model):
     __tablename__ = 'sentences'
-    id = db.Column(db.Integer, primary_key=True)
-    language_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
-    meaning_id = db.Column(db.Integer, db.ForeignKey('meanings.id'))
-    text = db.Column(db.UnicodeText)
-    text_hash = db.Column(db.String(64), unique=True)
-    audio = db.Column(db.Boolean)
-    img = db.Column(db.Boolean)
     translate = db.relationship('Meaning',
                                 backref=db.backref('sentences', lazy='joined'),
                                 lazy='joined')
@@ -84,42 +61,14 @@ class Sentence(db.Model):
 
 
 # описывает слова из которых состоит предложения
-class Word(db.Model):
+class Word(BaseWord, db.Model):
     __tablename__ = 'words'
-    id = db.Column(db.Integer, primary_key=True)
-    word = db.Column(db.String(30), unique=True)
 
 
-class User(UserMixin, db.Model):
+class User(BaseUser, UserMixin, db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64))
-    email = db.Column(db.String(64), unique=True, index=True)
-    confirmed = db.Column(db.Boolean, default=False)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    password_hash = db.Column(db.String(128))
-    lang1 = db.Column(db.Integer, db.ForeignKey('languages.id'))
-    lang2 = db.Column(db.Integer, db.ForeignKey('languages.id'), nullable=False, default=4)
+    lang1 = Column(Integer, ForeignKey('languages.id'))
     lang1_code = db.relationship('Language', foreign_keys=[lang1], backref='lang_code')
-    cur_lesson_id = db.Column(db.Integer, db.ForeignKey('lessons_names.id'), nullable=False, default=1)
-    num_new_sentences_lesson = db.Column(db.Integer, nullable=False, default=5)
-    num_sentences_lesson = db.Column(db.Integer, nullable=False, default=20)
-    num_sent_warm_up = db.Column(db.Integer, nullable=False, default=3)
-    num_showings1 = db.Column(db.Integer, nullable=False, default=10)
-    num_showings2 = db.Column(db.Integer, nullable=False, default=5)
-    num_showings3 = db.Column(db.Integer, nullable=False, default=5)
-    voice = db.Column(db.String(10), nullable=False, default='google_slow')
-    use_dialect = db.Column(db.Boolean, nullable=False, default=False)
-    shock_motivator = db.Column(db.Boolean, nullable=False, default=False)
-    smoke_motivator = db.Column(db.Boolean, nullable=False, default=False)
-    money_motivator = db.Column(db.Boolean, nullable=False, default=False)
-    time_period = db.Column(db.Integer, nullable=False, default=30)
-    lesson_per_day = db.Column(db.Integer, nullable=False, default=2)
-    count_day_lesson = db.Column(db.Integer, nullable=False, default=0)
-    difficult_money = db.Column(db.Float, nullable=False, default=0.1)
-    is_money_motivator_active = db.Column(db.Boolean, nullable=False, default=False)
-    time_money_start = db.Column(db.DateTime)
-    money_per_day_start = db.Column(db.Integer, nullable=False, default=0)
     money_motivator_day = None
     money_motivator_hours = None
     money_motivator_dec = None
@@ -127,15 +76,6 @@ class User(UserMixin, db.Model):
     money_for_today = None
     btc_per_lesson = None
     motivator_btc_per_day = None
-    # биткоин data
-    btc_address = db.Column(db.String(100))
-    my_btc_balance = db.Column(db.Integer, nullable=False, default=0)
-    user_btc_balance = db.Column(db.Integer, nullable=False, default=0)
-    motivator_btc_balance = db.Column(db.Integer, nullable=False, default=0)
-    motivator_win_btc_today = db.Column(db.Float, nullable=False, default=0)
-    motivator_lose_btc_today = db.Column(db.Float, nullable=False, default=0)
-    currency_show = db.Column(db.String(10), nullable=False, default='BTC')
-    currency_rate = db.Column(db.Float, nullable=False, default=1)
 
     @property
     def password(self):
@@ -214,9 +154,14 @@ class User(UserMixin, db.Model):
         self.calc_motivator_money()
         if self.is_money_motivator_active:
             lesson = self.lesson_per_day - self.count_day_lesson
-            self.btc_per_lesson = int(self.motivator_btc_per_day / lesson - self.motivator_win_btc_today - self.motivator_lose_btc_today)
-            self.money_motivator_inc = self.btc_per_lesson / num_sent
-            self.money_motivator_dec = self.money_motivator_inc * self.difficult_money
+            if lesson == 0:
+                self.btc_per_lesson = 0
+                self.money_motivator_inc = 0
+                self.money_motivator_dec = 0
+            else:
+                self.btc_per_lesson = int(self.motivator_btc_per_day / lesson - self.motivator_win_btc_today - self.motivator_lose_btc_today)
+                self.money_motivator_inc = self.btc_per_lesson / num_sent
+                self.money_motivator_dec = self.money_motivator_inc * self.difficult_money
 
     def calc_motivator_profit(self, num_sent, inc=True):
         if self.is_money_motivator_active:
@@ -266,62 +211,28 @@ class User(UserMixin, db.Model):
         return btc_price_converter(self, self.money_motivator_inc)
 
 
-class Role(db.Model):
+class Role(BaseRole, db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
     users = db.relationship('User', backref='role')
 
 
-class StudyProgress(db.Model):
+class StudyProgress(BaseStudyProgress, db.Model):
     __tablename__ = 'study_progress'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    lesson_name_id = db.Column(db.Integer, db.ForeignKey('lessons_names.id'))
-    sentence_id = db.Column(db.Integer, db.ForeignKey('sentences.id'))
-    show_count = db.Column(db.Integer)
-    right_count = db.Column(db.Integer)
-    remember = db.Column(db.Integer)
-    last_show_time = db.Column(db.DateTime)
 
 
-class WordProgress(db.Model):
+class WordProgress(BaseWordProgress, db.Model):
     __tablename__ = 'word__progress'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    lesson_name_id = db.Column(db.Integer, db.ForeignKey('lessons_names.id'))
-    word_id = db.Column(db.Integer, db.ForeignKey('words.id'))
-    show_count = db.Column(db.Integer)
-    right_count = db.Column(db.Integer)
-    remember = db.Column(db.Integer)
-    last_show_time = db.Column(db.DateTime)
 
 
-class Statistic(db.Model):
+class Statistic(BaseStatistic, db.Model):
     __tablename__ = 'statistics'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    lesson_name_id = db.Column(db.Integer, db.ForeignKey('lessons_names.id'))
-    sentence_id = db.Column(db.Integer, db.ForeignKey('sentences.id'))
-    shows = db.Column(db.Integer)
-    right_answer = db.Column(db.Integer)
-    mistake_count = db.Column(db.Integer)
-    new_phrase = db.Column(db.Integer)
-    full_understand = db.Column(db.Integer)
-    total_time = db.Column(db.Integer)
-    time_start = db.Column(db.DateTime, default=func.now())
-    comment = db.Column(db.UnicodeText)
 
 
-class TransactionHistory(db.Model):
+class TransactionHistory(BaseTransactionHistory, db.Model):
     __tablename__ = 'transaction_history'
-    id = db.Column(db.Integer, primary_key=True)
-    value = db.Column(db.Integer)
-    description = db.Column(db.UnicodeText)
 
 
 @login_manager.user_loader
 def load_user(user_id):
     current_user = User.query.get(int(user_id))
-    current_user.currency_rate_update()
     return current_user

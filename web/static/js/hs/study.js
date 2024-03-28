@@ -15,6 +15,12 @@ let btc_balance_my_out = 0;
 let btc_balance_no_my_out = 0;
 let money_for_today = 0;
 let voice = ''
+const SENTENCE_WARM_UP = 0
+const SENTENCE_NEW_WITH_MISTAKE = 1
+const REPEATING_SENTENCE = 4
+const NEW_SENTENCE = 5
+const SENTENCE_RIGHT_MORE_THREE = 3
+const SENTENCE_RIGHT_LESS_THREE = 2
 
 class SerialDevice {
     constructor(baudRate = 9600, timeout = 10) {
@@ -108,7 +114,7 @@ function send_study_data(form){
     document.getElementById('total_time').value = Math.round(lesson_data[curr_sent_count].total_time)
     document.getElementById('right_answer').value = lesson_data[curr_sent_count].right_answer
     document.getElementById('full_understand').value = lesson_data[curr_sent_count].full_understand
-    if (lesson_data[curr_sent_count].study_type===5){
+    if (lesson_data[curr_sent_count].study_type===NEW_SENTENCE){
          document.getElementById('new_phrase').value = 1
     }else {
         document.getElementById('new_phrase').value = 0
@@ -125,7 +131,7 @@ function send_study_data(form){
                 money_motivator_dec = response.money_motivator_dec;
                 let inc = '0'
                 let dec ='0'
-                if (lesson_data[curr_sent_count].study_type !== 0){
+                if (lesson_data[curr_sent_count].study_type !== SENTENCE_WARM_UP){
                     if (lesson_data[curr_sent_count].showings_count === 0){
                         inc = money_motivator_inc
                         dec = money_motivator_dec
@@ -260,7 +266,7 @@ function next(){
     sound_help_flag = false;
     document.getElementById('one_letter').style.display = "block";
     if (lesson_data[curr_sent_count].num_showings<=lesson_data[curr_sent_count].showings_count){
-         if (lesson_data[curr_sent_count].study_type!==0) {
+         if (lesson_data[curr_sent_count].study_type!==SENTENCE_WARM_UP) {
              send_study_data('statistic')
          }
 
@@ -270,10 +276,15 @@ function next(){
     }
 
     if (lesson_data.length>0){
-        if (lesson_data[0].study_type===3){
+        if (lesson_data[0].study_type===SENTENCE_RIGHT_MORE_THREE){
             curr_sent_count = Math.round(Math.random()*(lesson_data.length-1))
         }
-        if (lesson_data[curr_sent_count].study_type !== 0 && money_motivator){
+        if (lesson_data[curr_sent_count].study_type===NEW_SENTENCE){
+            document.getElementById('input_text_new_phrase').style.display = 'block'
+        }else {
+            document.getElementById('input_text_new_phrase').style.display = 'none'
+        }
+        if (lesson_data[curr_sent_count].study_type !== SENTENCE_WARM_UP && money_motivator){
             if (lesson_data[curr_sent_count].showings_count === 0){
                 document.getElementById('money_motivator_inc').innerText = money_motivator_inc.toFixed(2)
                 document.getElementById('money_motivator_dec').innerText = money_motivator_dec.toFixed(2)
@@ -313,13 +324,16 @@ function next(){
 
 function onEntryChangeStudy() {
     let currentTime = new Date();
-    let deltaTime = (currentTime - predTime) / 1000; // seconds
-    if (deltaTime < 180) {
-        lesson_data[curr_sent_count].total_time += deltaTime;
+    let deltaTime = (currentTime - predTime);
+    if (deltaTime < 180000) {
+        lesson_data[curr_sent_count].total_time += deltaTime/1000;
     }
     predTime = currentTime;
     let text = document.getElementById('input_text').value;
-
+    if (deltaTime < 200){
+        document.getElementById('input_text').blur();
+        show_message(transl.fast_txt, 500)
+    }
     //console.info(text)
     if (!lesson_data[curr_sent_count].phrase_for_checking.toLowerCase().startsWith(text.toLowerCase())) {
         while (!lesson_data[curr_sent_count].phrase_for_checking.toLowerCase().startsWith(text.toLowerCase())){
@@ -328,20 +342,22 @@ function onEntryChangeStudy() {
         }
         lesson_data[curr_sent_count].mistake_count += 1;
         mistake = true;
-        if (money_motivator && lesson_data[curr_sent_count].study_type !== 0){
+        if (money_motivator && lesson_data[curr_sent_count].study_type !== SENTENCE_WARM_UP){
             document.getElementById('id_phrase').value = 'false'
             send_study_data("study_data")
         }
         if(shock_motivator){
             serial_device.shock();
         }
-        console.info('wrong');
+        show_message(transl.mistake_txt, 500)
+        // console.info('wrong');
+
     }else {
         if (text.length > 0) {
             if (lesson_data[curr_sent_count].phrase_for_checking.length === text.length) {
                 document.getElementById('input_text').value = '';
                 if (lesson_data[curr_sent_count].showings_count===1){
-                    if (lesson_data[curr_sent_count].study_type==0){
+                    if (lesson_data[curr_sent_count].study_type===SENTENCE_WARM_UP){
                         document.getElementById('id_phrase').value = 'false'
                     }else {
                         document.getElementById('id_phrase').value = lesson_data[curr_sent_count].id_phrase
@@ -362,7 +378,7 @@ function onEntryChangeStudy() {
 
                 }
                 // проверяем были ли ошибки
-                if (lesson_data[curr_sent_count].study_type===0) {
+                if (lesson_data[curr_sent_count].study_type===SENTENCE_WARM_UP) {
                     if (mistake){
                         lesson_data[curr_sent_count].showings_count = 0
                     }else {
