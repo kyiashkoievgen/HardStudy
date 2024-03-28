@@ -40,12 +40,14 @@ def index():
             user_language = current_user.lang1_code
             if user_language:
                 selected_language = user_language
-            else:
-                current_user.lang1 = selected_language.id
-                db.session.add(current_user)
-                db.session.commit()
+
     current_lesson = None
     if current_user.is_authenticated:
+        current_user.currency_rate_update()
+        if current_user.lang1 is None:
+            current_user.lang1 = selected_language.id
+            db.session.add(current_user)
+            db.session.commit()
         current_lesson = LessonName.query.filter_by(name_id=current_user.cur_lesson_id,
                                                     lang_id=current_user.lang1).first()
     languages = Language.query.all()
@@ -112,6 +114,8 @@ def settings():
     else:
         form2.time_period.data = current_user.time_period
         form2.lesson_per_day.data = current_user.lesson_per_day
+
+    current_user.currency_rate_update()
     balance = current_user.get_user_balance()
 
     return render_template('hs/settings.html', form=form, form2=form2, current_user=current_user, balance=balance)

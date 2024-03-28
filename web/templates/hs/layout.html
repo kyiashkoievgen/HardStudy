@@ -38,16 +38,17 @@
                 <ul>
                     <a href="{{ url_for('hs.study')}}">{{ _('Учить') }}</a>
                 </ul>
-                <ul>
-                    <a href="#" onclick="showFrame('chat')">{{ _('Чат') }}</a>
-                </ul>
             </div>
         <a href="{{ url_for('hs.stat') }}" onclick="showFrame('common')" target="common">{{ _('Статистика') }}</a>
         {% endif %}
     {% endif %}
+    <a href="https://discord.gg/ypABYqR24n" target="_blank">{{ _('Чат') }}</a>
     <a href="{{ url_for('hs.about') }}" onclick="showFrame('common')" target="common">{{ _('О нас') }}</a>
 </div>
 <div class="lang_login lay_button">
+    {% if current_user.is_authenticated %}
+    <span id="welcome">{{_('Привет')}} {{current_user.username}}!</span>
+    {% endif %}
     <select id="lang" onchange="change_lang()">
         {% for lang in languages %}
         <option value="{{ lang.id }}"

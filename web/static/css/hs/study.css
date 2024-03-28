@@ -139,3 +139,10 @@
     background-size: cover;
     cursor: pointer;
 }
+
+#input_text_new_phrase{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url("/static/img/hs/new_sent.png");
+}

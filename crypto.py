@@ -1,7 +1,7 @@
 import os
 
 import requests
-from bitcoinlib.wallets import Wallet
+from bitcoinlib.wallets import Wallet, wallet_create_or_open
 from bitcoinlib.mnemonic import Mnemonic
 from blockcypher import get_address_details, list_webhooks, subscribe_to_address_webhook
 from dotenv import load_dotenv
@@ -12,29 +12,36 @@ from io import BytesIO
 from web import db
 
 load_dotenv()
-walled_name = os.getenv('SECRET_KEY')
+walled_name = os.getenv('WALLED_NAME')
+db_uri = os.getenv('BITCOINLIB_DATABASE_URI')
 
 
 def create_wallet():
     passphrase = Mnemonic().generate()
     print("Сид-фраза нового кошелька:", passphrase)
-    w = Wallet.create(walled_name, keys=passphrase, witness_type='segwit', network='bitcoin')
+    w = Wallet.create(walled_name, keys=passphrase, witness_type='segwit', network='bitcoin', db_uri=db_uri)
     print(w.info())
 
 
+# Функция для создания нового кошелька из сид-фразы в базе данных
+def create_wallet_from_seed(seed):
+    w = wallet_create_or_open(walled_name, keys=seed, witness_type='segwit', network='bitcoin', db_uri=db_uri)
+    return w.info()
+
+
 def get_wallet_info():
-    w = Wallet(walled_name)
+    w = Wallet(walled_name, db_uri=db_uri)
     print(w.info())
 
 
 def get_new_address():
-    w = Wallet(walled_name)
+    w = Wallet(walled_name, db_uri=db_uri)
     key = w.new_key()
     return key.address
 
 
 def get_all_address():
-    w = Wallet(walled_name)
+    w = Wallet(walled_name, db_uri=db_uri)
     keys = w.keys()
     return [key.address for key in keys]
 
@@ -95,12 +102,18 @@ def btc_price_converter(currency_user, amount, to_btc=False):
 
 def get_btc_rate(currency_user):
     try:
-        currency = currency_user.currency_show
+        user_currency = currency_user.currency_show
+        if user_currency == 'Sat':
+            currency = 'BTC'
+        else:
+            currency = user_currency
         url = f'https://api.coindesk.com/v1/bpi/currentprice/{currency}.json'
         response = requests.get(url)
         response.raise_for_status()  # Поднимает исключение для ответов с ошибкой
         response_json = response.json()
         btc_price = response_json['bpi'][currency]['rate_float']
+        if user_currency == 'Sat':
+            btc_price = btc_price*100000000
         return btc_price
     except Exception as e:
         # Здесь можно добавить логирование или другую обработку ошибки
@@ -112,7 +125,9 @@ def get_currency_list():
     url = 'https://api.coindesk.com/v1/bpi/supported-currencies.json'
     response = requests.get(url)
     response_json = response.json()
-    return [currency_list['currency'] for currency_list in response_json]
+    cur_list = [currency_list['currency'] for currency_list in response_json]
+    cur_list.append('Sat')
+    return cur_list
 
 
 def check_webhook_existence(address, api_key):

@@ -323,5 +323,4 @@ class TransactionHistory(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     current_user = User.query.get(int(user_id))
-    current_user.currency_rate_update()
     return current_user
