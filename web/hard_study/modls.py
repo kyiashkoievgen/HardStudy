@@ -175,6 +175,12 @@ class User(BaseUser, UserMixin, db.Model):
             self.calc_motivator_money()
             self.adjust_motivator(num_sent)
 
+    def day_money_to_user(self):
+        self.user_btc_balance += self.money_for_today
+        self.money_for_today = 0
+        db.session.add(self)
+        db.session.commit()
+
 # баланс пользователя в его валюте
     def get_user_balance(self):
         if self.btc_address is None:

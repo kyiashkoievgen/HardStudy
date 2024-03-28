@@ -245,6 +245,8 @@ def save_lesson_data():
 @hs.route('/lesson_result')
 def lesson_result():
     current_user.count_day_lesson += 1
+    if current_user.count_day_lesson >= current_user.lesson_per_day:
+        current_user.day_money_to_user()
     db.session.add(current_user)
     db.session.commit()
     return get_lesson_result(current_user)
